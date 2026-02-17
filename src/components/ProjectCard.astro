@@ -11,7 +11,7 @@ interface Props {
 const { title, description, tech, url, github } = Astro.props;
 ---
 
-<article class="group relative border border-border bg-surface rounded-lg p-6 transition-all duration-200 hover:border-accent hover:-translate-y-1 hover:shadow-lg overflow-hidden">
+<article class="group relative border border-border bg-surface rounded-lg p-6 transition-all duration-200 hover:border-accent hover:-translate-y-1 overflow-hidden">
   <!-- Left accent bar on hover -->
   <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-accent scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-top"></div>
 
@@ -24,7 +24,7 @@ const { title, description, tech, url, github } = Astro.props;
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`GitHub repository for ${title}`}
-          class="font-mono text-xs text-muted border border-border rounded-full px-2.5 py-1 hover:border-accent hover:text-accent transition-colors"
+          class="font-mono text-xs text-muted border border-border rounded-full px-2.5 py-1 hover:border-accent hover:text-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           GitHub
         </a>
@@ -35,7 +35,7 @@ const { title, description, tech, url, github } = Astro.props;
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`Live site for ${title}`}
-          class="font-mono text-xs text-muted border border-border rounded-full px-2.5 py-1 hover:border-accent hover:text-accent transition-colors"
+          class="font-mono text-xs text-muted border border-border rounded-full px-2.5 py-1 hover:border-accent hover:text-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           Live
         </a>
