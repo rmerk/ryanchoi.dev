@@ -18,7 +18,7 @@ const formattedDate = date.toLocaleDateString('en-US', {
 ---
 
 <article class="flex items-baseline gap-6 py-4 border-b border-border group">
-  <time class="font-mono text-sm text-muted shrink-0 w-28">{formattedDate}</time>
+  <time class="font-mono text-sm text-muted shrink-0 w-28" datetime={date.toISOString()}>{formattedDate}</time>
   <a href={`/blog/${slug}`} class="text-text hover:text-accent transition-colors flex-1">
     {title}
   </a>
