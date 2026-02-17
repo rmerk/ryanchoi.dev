@@ -1,4 +1,13 @@
 ---
-// placeholder — replaced in Task 5
+// src/components/Footer.astro
+const year = new Date().getFullYear();
 ---
-<footer></footer>
+
+<footer class="border-t border-border mt-24">
+  <div class="max-w-4xl mx-auto px-6 py-8 flex items-center justify-between text-sm text-muted">
+    <span class="font-mono">&copy; {year} Ryan Choi</span>
+    <a href="mailto:ryan@ryanchoi.dev" class="text-muted hover:text-accent transition-colors">
+      ryan@ryanchoi.dev
+    </a>
+  </div>
+</footer>
