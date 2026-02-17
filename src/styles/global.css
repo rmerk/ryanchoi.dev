@@ -37,6 +37,11 @@ html.light {
   --color-muted: #666662;
 }
 
+/* Theme toggle icon visibility */
+#icon-moon { display: none; }
+html.light #icon-moon { display: block; }
+html.light #icon-sun { display: none; }
+
 /* Grain texture overlay */
 body::before {
   content: '';
