@@ -214,26 +214,29 @@ const indent = (n: number) => '\u00A0'.repeat(n * 2);
 
 <style>
   .code-line {
-    position: relative;
+    display: grid;
+    grid-template-columns: 3rem 1fr;
     min-height: 1.5em;
-    padding-left: 4rem;
   }
   .code-line::before {
     content: attr(data-line);
-    position: absolute;
-    left: 0;
-    width: 3rem;
     text-align: right;
+    padding-right: 1rem;
     color: var(--color-muted);
     opacity: 0.5;
     user-select: none;
   }
+  .code-line > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
   @media (max-width: 640px) {
     .code-line {
-      padding-left: 2.5rem;
+      grid-template-columns: 2rem 1fr;
     }
     .code-line::before {
-      width: 2rem;
+      padding-right: 0.5rem;
       font-size: 0.65rem;
     }
   }
@@ -253,8 +256,4 @@ const indent = (n: number) => '\u00A0'.repeat(n * 2);
   }
   .tab-scroll::-webkit-scrollbar { display: none; }
   .tab-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-  .code-line > span {
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
 </style>
