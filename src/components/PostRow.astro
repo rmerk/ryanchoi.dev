@@ -7,7 +7,6 @@ interface Props {
   tags: string[];
 }
 
-// tags is accepted for future use (e.g. tag filtering) but not rendered in the row view
 const { title, date, slug, tags: _tags } = Astro.props;
 
 const formattedDate = date.toLocaleDateString('en-US', {
@@ -17,9 +16,27 @@ const formattedDate = date.toLocaleDateString('en-US', {
 });
 ---
 
-<article class="flex items-baseline gap-6 py-4 border-b border-border group">
-  <time class="font-mono text-sm text-muted shrink-0 w-28" datetime={date.toISOString()}>{formattedDate}</time>
-  <a href={`/blog/${slug}`} class="text-text hover:text-accent transition-colors flex-1">
-    {title}
+<article class="group -mx-3 px-3 rounded-md transition-colors hover:bg-surface">
+  <a href={`/blog/${slug}`} class="flex items-center gap-6 py-4 border-b border-border">
+    <time
+      class="font-mono text-xs text-muted bg-surface border border-border rounded-full px-3 py-1 shrink-0 group-hover:border-accent/30 transition-colors"
+      datetime={date.toISOString()}
+    >
+      {formattedDate}
+    </time>
+    <span class="text-text group-hover:text-accent transition-colors flex-1">{title}</span>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      class="text-accent opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+      aria-hidden="true"
+    >
+      <line x1="5" y1="12" x2="19" y2="12"/>
+      <polyline points="12 5 19 12 12 19"/>
+    </svg>
   </a>
 </article>
