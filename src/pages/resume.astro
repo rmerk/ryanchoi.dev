@@ -214,23 +214,26 @@ const indent = (n: number) => '\u00A0'.repeat(n * 2);
 
 <style>
   .code-line {
-    display: flex;
+    position: relative;
     min-height: 1.5em;
+    padding-left: 4rem;
   }
   .code-line::before {
     content: attr(data-line);
+    position: absolute;
+    left: 0;
     width: 3rem;
     text-align: right;
-    padding-right: 1rem;
     color: var(--color-muted);
     opacity: 0.5;
     user-select: none;
-    flex-shrink: 0;
   }
   @media (max-width: 640px) {
+    .code-line {
+      padding-left: 2.5rem;
+    }
     .code-line::before {
       width: 2rem;
-      padding-right: 0.5rem;
       font-size: 0.65rem;
     }
   }
@@ -253,7 +256,5 @@ const indent = (n: number) => '\u00A0'.repeat(n * 2);
   .code-line > span {
     white-space: pre-wrap;
     word-break: break-word;
-    min-width: 0;
-    flex: 1;
   }
 </style>
