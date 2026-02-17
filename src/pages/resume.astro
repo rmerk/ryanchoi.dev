@@ -2,6 +2,9 @@
 // src/pages/resume.astro
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { experience, education, skills } from '@/data/resume';
+
+let line = 0;
+const ln = () => String(++line);
 ---
 
 <BaseLayout title="Resume" description="Ryan Choi's work experience and skills">
@@ -37,9 +40,93 @@ import { experience, education, skills } from '@/data/resume';
       <div class="flex">
         <!-- Line numbers + content -->
         <div class="flex-1 min-w-0 overflow-x-auto">
-          <div class="font-mono text-sm sm:text-sm text-xs leading-relaxed p-4">
-            <!-- Content goes here in Task 2-4 -->
-            <p class="text-muted italic">// TODO: content</p>
+          <div id="editor-content" class="font-mono text-sm sm:text-sm text-xs leading-relaxed p-4">
+            <section id="experience">
+              <div class="code-line" data-line={ln()}><span class="text-muted italic">// ═══════════════════════════════════════</span></div>
+              <div class="code-line" data-line={ln()}><span class="text-muted italic">// Experience</span></div>
+              <div class="code-line" data-line={ln()}><span class="text-muted italic">// ═══════════════════════════════════════</span></div>
+              <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
+              <div class="code-line" data-line={ln()}>
+                <span><span class="text-accent">const</span> experience<span class="text-muted">:</span> <span class="text-accent-secondary">Role</span><span class="text-muted">[] = [</span></span>
+              </div>
+
+              {experience.map((job, i) => (
+                <>
+                  <div class="code-line" data-line={ln()}><span class="text-muted">  {'{'}</span></div>
+                  <div class="code-line" data-line={ln()}>
+                    <span>    role<span class="text-muted">:</span> <span class="text-green-400">"{job.role}"</span><span class="text-muted">,</span></span>
+                  </div>
+                  <div class="code-line" data-line={ln()}>
+                    <span>    company<span class="text-muted">:</span> <a href={job.url} target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">"{job.company}"</a><span class="text-muted">,</span></span>
+                  </div>
+                  <div class="code-line" data-line={ln()}>
+                    <span>    period<span class="text-muted">:</span> <span class="text-green-400">"{job.start} → {job.end}"</span><span class="text-muted">,</span></span>
+                  </div>
+                  <div class="code-line" data-line={ln()}>
+                    <span>    highlights<span class="text-muted">: [</span></span>
+                  </div>
+                  {job.bullets.map((bullet) => (
+                    <div class="code-line" data-line={ln()}>
+                      <span>      <span class="text-green-400">"{bullet}"</span><span class="text-muted">,</span></span>
+                    </div>
+                  ))}
+                  <div class="code-line" data-line={ln()}><span class="text-muted">    ],</span></div>
+                  <div class="code-line" data-line={ln()}><span class="text-muted">  {'}'},</span></div>
+                  {i < experience.length - 1 && (
+                    <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
+                  )}
+                </>
+              ))}
+
+              <div class="code-line" data-line={ln()}><span class="text-muted">];</span></div>
+            </section>
+
+            <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
+
+            <section id="skills">
+              <div class="code-line" data-line={ln()}><span class="text-muted italic">// ═══════════════════════════════════════</span></div>
+              <div class="code-line" data-line={ln()}><span class="text-muted italic">// Skills</span></div>
+              <div class="code-line" data-line={ln()}><span class="text-muted italic">// ═══════════════════════════════════════</span></div>
+              <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
+              <div class="code-line" data-line={ln()}>
+                <span><span class="text-accent">type</span> <span class="text-accent-secondary">Stack</span> <span class="text-muted">= {'{'}</span></span>
+              </div>
+
+              {Object.entries(skills).map(([category, items]) => (
+                <div class="code-line" data-line={ln()}>
+                  <span>  {category.toLowerCase()}<span class="text-muted">:</span> <span class="text-muted">[</span>{items.map((item, i) => <><span class="text-green-400">"{item}"</span>{i < items.length - 1 && <span class="text-muted">, </span>}</> )}<span class="text-muted">],</span></span>
+                </div>
+              ))}
+
+              <div class="code-line" data-line={ln()}><span class="text-muted">{'}'};</span></div>
+            </section>
+
+            <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
+
+            <section id="education">
+              <div class="code-line" data-line={ln()}><span class="text-muted italic">// ═══════════════════════════════════════</span></div>
+              <div class="code-line" data-line={ln()}><span class="text-muted italic">// Education</span></div>
+              <div class="code-line" data-line={ln()}><span class="text-muted italic">// ═══════════════════════════════════════</span></div>
+              <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
+
+              {education.map((edu) => (
+                <>
+                  <div class="code-line" data-line={ln()}>
+                    <span><span class="text-accent">const</span> education <span class="text-muted">= {'{'}</span></span>
+                  </div>
+                  <div class="code-line" data-line={ln()}>
+                    <span>  credential<span class="text-muted">:</span> <span class="text-green-400">"{edu.credential}"</span><span class="text-muted">,</span></span>
+                  </div>
+                  <div class="code-line" data-line={ln()}>
+                    <span>  institution<span class="text-muted">:</span> <a href={edu.url} target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">"{edu.institution}"</a><span class="text-muted">,</span></span>
+                  </div>
+                  <div class="code-line" data-line={ln()}>
+                    <span>  period<span class="text-muted">:</span> <span class="text-green-400">"{edu.start} → {edu.end}"</span><span class="text-muted">,</span></span>
+                  </div>
+                  <div class="code-line" data-line={ln()}><span class="text-muted">{'}'};</span></div>
+                </>
+              ))}
+            </section>
           </div>
         </div>
 
@@ -71,3 +158,27 @@ import { experience, education, skills } from '@/data/resume';
     </div>
   </div>
 </BaseLayout>
+
+<style>
+  .code-line {
+    display: flex;
+    min-height: 1.5em;
+  }
+  .code-line::before {
+    content: attr(data-line);
+    width: 3rem;
+    text-align: right;
+    padding-right: 1rem;
+    color: var(--color-muted);
+    opacity: 0.5;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  @media (max-width: 640px) {
+    .code-line::before {
+      width: 2rem;
+      padding-right: 0.5rem;
+      font-size: 0.65rem;
+    }
+  }
+</style>
