@@ -6,7 +6,8 @@ import { experience, education, skills } from '@/data/resume';
 let line = 0;
 const ln = () => String(++line);
 const resetLn = () => { line = 0; };
-const ind = (n: number) => `pl-[${n * 2}ch]`;
+const indents = ['', 'pl-[2ch]', 'pl-[4ch]', 'pl-[6ch]'] as const;
+const ind = (n: number) => indents[n] ?? '';
 ---
 
 <BaseLayout title="Resume" description="Ryan Choi's work experience and skills">
