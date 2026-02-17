@@ -71,43 +71,49 @@ const latestPosts = (await getCollection('blog', ({ data }) => !data.draft))
 
     <!-- Featured Projects -->
     {featuredProjects.length > 0 && (
-      <section class="py-16 border-t border-border">
-        <div class="flex items-baseline justify-between mb-8">
-          <h2 class="font-mono text-sm text-muted uppercase tracking-widest">Featured Work</h2>
-          <a href="/projects" class="text-sm text-accent hover:underline font-mono">All projects &rarr;</a>
-        </div>
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredProjects.map((project) => (
-            <ProjectCard
-              title={project.data.title}
-              description={project.data.description}
-              tech={project.data.tech}
-              url={project.data.url}
-              github={project.data.github}
-            />
-          ))}
-        </div>
-      </section>
+      <>
+        <hr class="section-divider" aria-hidden="true" />
+        <section class="py-16">
+          <div class="flex items-baseline justify-between mb-8">
+            <h2 class="font-mono text-sm text-muted uppercase tracking-widest">Featured Work</h2>
+            <a href="/projects" class="text-sm text-accent hover:underline font-mono">All projects &rarr;</a>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredProjects.map((project) => (
+              <ProjectCard
+                title={project.data.title}
+                description={project.data.description}
+                tech={project.data.tech}
+                url={project.data.url}
+                github={project.data.github}
+              />
+            ))}
+          </div>
+        </section>
+      </>
     )}
 
     <!-- Latest Writing -->
     {latestPosts.length > 0 && (
-      <section class="py-16 border-t border-border">
-        <div class="flex items-baseline justify-between mb-8">
-          <h2 class="font-mono text-sm text-muted uppercase tracking-widest">Latest Writing</h2>
-          <a href="/blog" class="text-sm text-accent hover:underline font-mono">All posts &rarr;</a>
-        </div>
-        <div>
-          {latestPosts.map((post) => (
-            <PostRow
-              title={post.data.title}
-              date={post.data.date}
-              slug={post.id.replace(/\.md$/, '')}
-              tags={post.data.tags}
-            />
-          ))}
-        </div>
-      </section>
+      <>
+        <hr class="section-divider" aria-hidden="true" />
+        <section class="py-16">
+          <div class="flex items-baseline justify-between mb-8">
+            <h2 class="font-mono text-sm text-muted uppercase tracking-widest">Latest Writing</h2>
+            <a href="/blog" class="text-sm text-accent hover:underline font-mono">All posts &rarr;</a>
+          </div>
+          <div>
+            {latestPosts.map((post) => (
+              <PostRow
+                title={post.data.title}
+                date={post.data.date}
+                slug={post.id.replace(/\.md$/, '')}
+                tags={post.data.tags}
+              />
+            ))}
+          </div>
+        </section>
+      </>
     )}
 
   </div>{/* /page content */}

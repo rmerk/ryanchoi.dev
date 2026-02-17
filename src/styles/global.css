@@ -42,6 +42,16 @@ html.light {
 html.light #icon-moon { display: block; }
 html.light #icon-sun { display: none; }
 
+/* Section divider with dot texture */
+.section-divider {
+  border: none;
+  height: 1px;
+  background-image: radial-gradient(circle, var(--color-muted) 1px, transparent 1px);
+  background-size: 16px 1px;
+  opacity: 0.3;
+  margin: 0;
+}
+
 /* Grain texture overlay */
 body::before {
   content: '';
