@@ -2,6 +2,8 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
+  /* Dark mode is the default theme. Tokens here become CSS custom properties at :root.
+     Light mode overrides are applied via the html.light class selector below. */
   --color-bg: #0e0e10;
   --color-surface: #1a1a1f;
   --color-border: #2a2a2f;
@@ -13,20 +15,26 @@
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
-/* Light mode overrides */
+html {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    transition: none;
+  }
+}
+
+/* Light mode overrides (--color-accent intentionally unchanged across modes) */
 html.light {
   --color-bg: #f5f5f3;
   --color-surface: #ffffff;
   --color-border: #e0e0dc;
   --color-text: #111110;
   --color-muted: #666662;
-}
-
-html {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-sans);
-  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Grain texture overlay */
