@@ -31,15 +31,17 @@ const latestPosts = (await getCollection('blog', ({ data }) => !data.draft))
     <div class="absolute top-1/2 right-8 w-px h-24 bg-accent opacity-20 pointer-events-none" aria-hidden="true"></div>
 
     <div class="relative z-10 max-w-3xl mx-auto px-6">
-      <!-- Photo placeholder -->
+      <!-- TODO: replace with <img src="..." alt="Ryan Choi" class="w-24 h-24 rounded-full object-cover"> when photo is ready -->
       <div class="mx-auto mb-8 w-24 h-24 rounded-full border-2 border-dashed border-accent/40 flex items-center justify-center" aria-hidden="true">
         <span class="font-mono text-xs text-muted">[ photo ]</span>
       </div>
 
-      <p class="font-mono text-sm text-muted mb-4">Hello, I'm</p>
-      <h1 class="text-6xl md:text-8xl font-bold text-text mb-6 leading-tight tracking-tight">
-        Ryan Choi
-      </h1>
+      <hgroup class="mb-6">
+        <p class="font-mono text-sm text-muted mb-4">Hello, I'm</p>
+        <h1 class="text-6xl md:text-8xl font-bold text-text leading-tight tracking-tight">
+          Ryan Choi
+        </h1>
+      </hgroup>
       <p class="text-xl text-muted max-w-xl mx-auto leading-relaxed mb-10">
         Senior Frontend Engineer. I build fast, accessible web experiences
         with Vue, React, and modern tooling.
@@ -49,13 +51,13 @@ const latestPosts = (await getCollection('blog', ({ data }) => !data.draft))
         <a href="/projects" class="inline-flex items-center gap-2 bg-accent text-white text-sm font-medium px-6 py-3 rounded-md hover:bg-accent/90 transition-colors">
           View Work
         </a>
-        <a href="/resume" class="inline-flex items-center gap-2 border border-border text-text text-sm font-medium px-6 py-3 rounded-md hover:border-accent transition-colors">
+        <a href="/resume" class="inline-flex items-center gap-2 border border-border text-text text-sm font-medium px-6 py-3 rounded-md hover:border-accent hover:text-accent transition-colors">
           Resume
         </a>
       </div>
 
       <!-- Tech badge row -->
-      <div class="flex flex-wrap justify-center gap-2">
+      <div class="flex flex-wrap justify-center gap-2" aria-label="Technologies I work with">
         {['TypeScript', 'Vue', 'React', 'Astro', 'Tailwind CSS', 'Node.js'].map((tech) => (
           <span class="font-mono text-xs text-muted border border-border rounded-full px-3 py-1">
             {tech}
@@ -108,5 +110,5 @@ const latestPosts = (await getCollection('blog', ({ data }) => !data.draft))
       </section>
     )}
 
-  </div>
+  </div>{/* /page content */}
 </BaseLayout>
