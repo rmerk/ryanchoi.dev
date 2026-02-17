@@ -48,6 +48,23 @@ const indent = (n: number) => '\u00A0'.repeat(n * 2);
               <div class="code-line" data-line={ln()}><span class="text-muted italic">// Experience</span></div>
               <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
               <div class="code-line" data-line={ln()}>
+                <span><span class="text-accent">interface</span> <span class="text-accent-secondary">Role</span> <span class="text-muted">{'{'}</span></span>
+              </div>
+              <div class="code-line" data-line={ln()}>
+                <span>{indent(1)}role<span class="text-muted">:</span> <span class="text-accent-secondary">string</span><span class="text-muted">;</span></span>
+              </div>
+              <div class="code-line" data-line={ln()}>
+                <span>{indent(1)}company<span class="text-muted">:</span> <span class="text-accent-secondary">string</span><span class="text-muted">;</span></span>
+              </div>
+              <div class="code-line" data-line={ln()}>
+                <span>{indent(1)}period<span class="text-muted">:</span> <span class="text-accent-secondary">string</span><span class="text-muted">;</span></span>
+              </div>
+              <div class="code-line" data-line={ln()}>
+                <span>{indent(1)}highlights<span class="text-muted">:</span> <span class="text-accent-secondary">string</span><span class="text-muted">[];</span></span>
+              </div>
+              <div class="code-line" data-line={ln()}><span class="text-muted">{'}'}</span></div>
+              <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
+              <div class="code-line" data-line={ln()}>
                 <span><span class="text-accent">const</span> experience<span class="text-muted">:</span> <span class="text-accent-secondary">Role</span><span class="text-muted">[] = [</span></span>
               </div>
 
