@@ -1,0 +1,79 @@
+---
+// src/pages/resume.astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { experience, education, skills } from '@/data/resume';
+---
+
+<BaseLayout title="Resume" description="Ryan Choi's work experience and skills">
+  <div class="max-w-4xl mx-auto px-6 py-16">
+    <h1 class="text-3xl font-bold text-text mb-2">Resume</h1>
+    <p class="text-muted mb-12">8+ years building frontend systems in fintech and SaaS.</p>
+
+    <!-- Experience -->
+    <section class="mb-16">
+      <h2 class="font-mono text-sm text-muted uppercase tracking-widest mb-8">Experience</h2>
+
+      <div class="relative">
+        <!-- Timeline line -->
+        <div class="absolute left-0 top-0 bottom-0 w-px bg-border"></div>
+
+        <div class="space-y-12 pl-8">
+          {experience.map((job) => (
+            <div class="relative">
+              <!-- Timeline dot -->
+              <div class="absolute -left-8 top-1.5 w-2 h-2 rounded-full bg-accent"></div>
+
+              <div class="flex flex-wrap items-baseline justify-between gap-2 mb-1">
+                <h3 class="font-semibold text-text">{job.role}</h3>
+                <span class="font-mono text-xs text-muted">{job.start} – {job.end}</span>
+              </div>
+
+              <a href={job.url} target="_blank" rel="noopener noreferrer"
+                class="text-accent text-sm hover:underline mb-3 inline-block">
+                {job.company}
+              </a>
+
+              <ul class="space-y-1.5 mt-3">
+                {job.bullets.map((bullet) => (
+                  <li class="text-muted text-sm leading-relaxed pl-4 relative before:absolute before:left-0 before:content-['–'] before:text-border">
+                    {bullet}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Education -->
+    <section class="mb-16">
+      <h2 class="font-mono text-sm text-muted uppercase tracking-widest mb-8">Education</h2>
+      {education.map((edu) => (
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <div>
+            <h3 class="font-semibold text-text">{edu.credential}</h3>
+            <a href={edu.url} target="_blank" rel="noopener noreferrer"
+              class="text-accent text-sm hover:underline">
+              {edu.institution}
+            </a>
+          </div>
+          <span class="font-mono text-xs text-muted">{edu.start} – {edu.end}</span>
+        </div>
+      ))}
+    </section>
+
+    <!-- Skills -->
+    <section>
+      <h2 class="font-mono text-sm text-muted uppercase tracking-widest mb-8">Skills</h2>
+      <div class="space-y-3">
+        {Object.entries(skills).map(([category, items]) => (
+          <div class="flex gap-4">
+            <span class="font-mono text-sm text-muted w-28 shrink-0">{category}</span>
+            <span class="text-sm text-text">{items.join(', ')}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  </div>
+</BaseLayout>
