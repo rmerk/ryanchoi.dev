@@ -21,6 +21,7 @@ import { experience, education, skills } from '@/data/resume';
           {experience.map((job) => (
             <div class="relative">
               <!-- Timeline dot -->
+              {/* dot: w-3 (12px), centered on w-0.5 line at left-0; offset = -(dot/2) = -6px ≈ -[0.375rem], adjusted +1px for line = -[1.125rem] with 4px visual ring */}
               <div class="absolute -left-[1.125rem] top-1.5 w-3 h-3 rounded-full bg-accent ring-4 ring-bg"></div>
 
               <div class="flex flex-wrap items-baseline justify-between gap-2 mb-1">
