@@ -16,12 +16,20 @@ const { title, description = 'Ryan Choi — Senior Frontend Engineer' } = Astro.
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Inline: runs synchronously before body renders to prevent FOUC on theme restore -->
     <script is:inline>
       (function () {
-        const stored = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const theme = stored ?? (prefersDark ? 'dark' : 'light');
-        document.documentElement.classList.toggle('light', theme === 'light');
+        function applyTheme() {
+          let stored = null;
+          try { stored = localStorage.getItem('theme'); } catch (_) {}
+          const valid = ['light', 'dark'];
+          const preference = valid.includes(stored) ? stored : null;
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const theme = preference ?? (prefersDark ? 'dark' : 'light');
+          document.documentElement.classList.toggle('light', theme === 'light');
+        }
+        applyTheme();
+        document.addEventListener('astro:after-swap', applyTheme);
       })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
