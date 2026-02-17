@@ -6,7 +6,7 @@ import { experience, education, skills } from '@/data/resume';
 let line = 0;
 const ln = () => String(++line);
 const resetLn = () => { line = 0; };
-const indent = (n: number) => '\u00A0'.repeat(n * 2);
+const ind = (n: number) => `pl-[${n * 2}ch]`;
 ---
 
 <BaseLayout title="Resume" description="Ryan Choi's work experience and skills">
@@ -51,16 +51,16 @@ const indent = (n: number) => '\u00A0'.repeat(n * 2);
                 <span><span class="text-accent">interface</span> <span class="text-accent-secondary">Role</span> <span class="text-muted">{'{'}</span></span>
               </div>
               <div class="code-line" data-line={ln()}>
-                <span>{indent(1)}role<span class="text-muted">:</span> <span class="text-accent-secondary">string</span><span class="text-muted">;</span></span>
+                <span class={ind(1)}>role<span class="text-muted">:</span> <span class="text-accent-secondary">string</span><span class="text-muted">;</span></span>
               </div>
               <div class="code-line" data-line={ln()}>
-                <span>{indent(1)}company<span class="text-muted">:</span> <span class="text-accent-secondary">string</span><span class="text-muted">;</span></span>
+                <span class={ind(1)}>company<span class="text-muted">:</span> <span class="text-accent-secondary">string</span><span class="text-muted">;</span></span>
               </div>
               <div class="code-line" data-line={ln()}>
-                <span>{indent(1)}period<span class="text-muted">:</span> <span class="text-accent-secondary">string</span><span class="text-muted">;</span></span>
+                <span class={ind(1)}>period<span class="text-muted">:</span> <span class="text-accent-secondary">string</span><span class="text-muted">;</span></span>
               </div>
               <div class="code-line" data-line={ln()}>
-                <span>{indent(1)}highlights<span class="text-muted">:</span> <span class="text-accent-secondary">string</span><span class="text-muted">[];</span></span>
+                <span class={ind(1)}>highlights<span class="text-muted">:</span> <span class="text-accent-secondary">string</span><span class="text-muted">[];</span></span>
               </div>
               <div class="code-line" data-line={ln()}><span class="text-muted">{'}'}</span></div>
               <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
@@ -70,26 +70,26 @@ const indent = (n: number) => '\u00A0'.repeat(n * 2);
 
               {experience.map((job, i) => (
                 <>
-                  <div class="code-line" data-line={ln()}><span class="text-muted">{indent(1)}{'{'}</span></div>
+                  <div class="code-line" data-line={ln()}><span class={`text-muted ${ind(1)}`}>{'{'}</span></div>
                   <div class="code-line" data-line={ln()}>
-                    <span>{indent(2)}role<span class="text-muted">:</span> <span class="text-green-400">"{job.role}"</span><span class="text-muted">,</span></span>
+                    <span class={ind(2)}>role<span class="text-muted">:</span> <span class="text-green-400">"{job.role}"</span><span class="text-muted">,</span></span>
                   </div>
                   <div class="code-line" data-line={ln()}>
-                    <span>{indent(2)}company<span class="text-muted">:</span> <a href={job.url} target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">"{job.company}"</a><span class="text-muted">,</span></span>
+                    <span class={ind(2)}>company<span class="text-muted">:</span> <a href={job.url} target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">"{job.company}"</a><span class="text-muted">,</span></span>
                   </div>
                   <div class="code-line" data-line={ln()}>
-                    <span>{indent(2)}period<span class="text-muted">:</span> <span class="text-green-400">"{job.start} → {job.end}"</span><span class="text-muted">,</span></span>
+                    <span class={ind(2)}>period<span class="text-muted">:</span> <span class="text-green-400">"{job.start} → {job.end}"</span><span class="text-muted">,</span></span>
                   </div>
                   <div class="code-line" data-line={ln()}>
-                    <span>{indent(2)}highlights<span class="text-muted">: [</span></span>
+                    <span class={ind(2)}>highlights<span class="text-muted">: [</span></span>
                   </div>
                   {job.bullets.map((bullet) => (
                     <div class="code-line" data-line={ln()}>
-                      <span>{indent(3)}<span class="text-green-400">"{bullet}"</span><span class="text-muted">,</span></span>
+                      <span class={ind(3)}><span class="text-green-400">"{bullet}"</span><span class="text-muted">,</span></span>
                     </div>
                   ))}
-                  <div class="code-line" data-line={ln()}><span class="text-muted">{indent(2)}],</span></div>
-                  <div class="code-line" data-line={ln()}><span class="text-muted">{indent(1)}{'}'},</span></div>
+                  <div class="code-line" data-line={ln()}><span class={`text-muted ${ind(2)}`}>],</span></div>
+                  <div class="code-line" data-line={ln()}><span class={`text-muted ${ind(1)}`}>{'}'},</span></div>
                   {i < experience.length - 1 && (
                     <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
                   )}
@@ -109,7 +109,7 @@ const indent = (n: number) => '\u00A0'.repeat(n * 2);
 
               {Object.entries(skills).map(([category, items]) => (
                 <div class="code-line" data-line={ln()}>
-                  <span>{indent(1)}{category.toLowerCase()}<span class="text-muted">:</span> <span class="text-muted">[</span>{items.map((item, i) => <><span class="text-green-400">"{item}"</span>{i < items.length - 1 && <span class="text-muted">, </span>}</> )}<span class="text-muted">],</span></span>
+                  <span class={ind(1)}>{category.toLowerCase()}<span class="text-muted">:</span> <span class="text-muted">[</span>{items.map((item, i) => <><span class="text-green-400">"{item}"</span>{i < items.length - 1 && <span class="text-muted">, </span>}</> )}<span class="text-muted">],</span></span>
                 </div>
               ))}
 
@@ -127,13 +127,13 @@ const indent = (n: number) => '\u00A0'.repeat(n * 2);
                     <span><span class="text-accent">const</span> education <span class="text-muted">= {'{'}</span></span>
                   </div>
                   <div class="code-line" data-line={ln()}>
-                    <span>{indent(1)}credential<span class="text-muted">:</span> <span class="text-green-400">"{edu.credential}"</span><span class="text-muted">,</span></span>
+                    <span class={ind(1)}>credential<span class="text-muted">:</span> <span class="text-green-400">"{edu.credential}"</span><span class="text-muted">,</span></span>
                   </div>
                   <div class="code-line" data-line={ln()}>
-                    <span>{indent(1)}institution<span class="text-muted">:</span> <a href={edu.url} target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">"{edu.institution}"</a><span class="text-muted">,</span></span>
+                    <span class={ind(1)}>institution<span class="text-muted">:</span> <a href={edu.url} target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">"{edu.institution}"</a><span class="text-muted">,</span></span>
                   </div>
                   <div class="code-line" data-line={ln()}>
-                    <span>{indent(1)}period<span class="text-muted">:</span> <span class="text-green-400">"{edu.start} → {edu.end}"</span><span class="text-muted">,</span></span>
+                    <span class={ind(1)}>period<span class="text-muted">:</span> <span class="text-green-400">"{edu.start} → {edu.end}"</span><span class="text-muted">,</span></span>
                   </div>
                   <div class="code-line" data-line={ln()}><span class="text-muted">{'}'};</span></div>
                 </>
