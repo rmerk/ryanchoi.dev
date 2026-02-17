@@ -13,7 +13,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     <h1 class="text-3xl font-bold text-text mb-2">Writing</h1>
     <p class="text-muted mb-12">Thoughts on frontend engineering, tooling, and software craft.</p>
 
-    <div>
+    <div class="[&>article:last-child_a]:border-b-0">
       {posts.map((post) => (
         <PostRow
           title={post.data.title}

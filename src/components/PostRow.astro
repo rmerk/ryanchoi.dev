@@ -7,6 +7,7 @@ interface Props {
   tags: string[];
 }
 
+// tags is accepted for future use (e.g. tag filtering) but not rendered in the row view
 const { title, date, slug, tags: _tags } = Astro.props;
 
 const formattedDate = date.toLocaleDateString('en-US', {
@@ -17,7 +18,7 @@ const formattedDate = date.toLocaleDateString('en-US', {
 ---
 
 <article class="group -mx-3 px-3 rounded-md transition-colors hover:bg-surface">
-  <a href={`/blog/${slug}`} class="flex items-center gap-6 py-4 border-b border-border">
+  <a href={`/blog/${slug}`} class="flex items-center gap-6 py-4 border-b border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:rounded-md">
     <time
       class="font-mono text-xs text-muted bg-surface border border-border rounded-full px-3 py-1 shrink-0 group-hover:border-accent/30 transition-colors"
       datetime={date.toISOString()}
