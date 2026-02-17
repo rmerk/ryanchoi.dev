@@ -24,7 +24,7 @@ const ln = () => String(++line);
       </div>
 
       <!-- Tab bar -->
-      <div class="flex overflow-x-auto border-b border-border bg-bg" role="tablist">
+      <div class="flex overflow-x-auto border-b border-border bg-bg tab-scroll" role="tablist">
         <a href="#experience" class="editor-tab active-tab font-mono text-xs px-4 py-2 border-r border-border whitespace-nowrap" data-tab="experience">
           experience.ts
         </a>
@@ -40,7 +40,7 @@ const ln = () => String(++line);
       <div class="flex">
         <!-- Line numbers + content -->
         <div class="flex-1 min-w-0 overflow-x-auto">
-          <div id="editor-content" class="font-mono text-sm sm:text-sm text-xs leading-relaxed p-4">
+          <div id="editor-content" class="font-mono text-xs sm:text-sm leading-relaxed p-4">
             <section id="experience">
               <div class="code-line" data-line={ln()}><span class="text-muted italic">// ═══════════════════════════════════════</span></div>
               <div class="code-line" data-line={ln()}><span class="text-muted italic">// Experience</span></div>
@@ -151,12 +151,49 @@ const ln = () => String(++line);
             <span class="text-green-400">✓</span> TypeScript
           </span>
           <span class="hidden sm:inline">UTF-8</span>
-          <span class="hidden sm:inline">Ln 1, Col 1</span>
+          <span class="hidden sm:inline">Ln {line}, Col 1</span>
         </div>
       </div>
 
     </div>
   </div>
+<script>
+  function setupTabTracking() {
+    const sections = document.querySelectorAll<HTMLElement>('#experience, #skills, #education');
+    const tabs = document.querySelectorAll<HTMLAnchorElement>('.editor-tab');
+
+    if (!sections.length || !tabs.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            tabs.forEach((tab) => {
+              tab.classList.toggle('active-tab', tab.dataset.tab === id);
+            });
+          }
+        });
+      },
+      { rootMargin: '-20% 0px -60% 0px' }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+  }
+
+  function setupMinimap() {
+    const source = document.getElementById('editor-content');
+    const target = document.getElementById('minimap-content');
+    if (source && target) {
+      target.replaceChildren(source.cloneNode(true));
+    }
+  }
+
+  setupTabTracking();
+  setupMinimap();
+  document.addEventListener('astro:after-swap', setupTabTracking);
+  document.addEventListener('astro:after-swap', setupMinimap);
+</script>
 </BaseLayout>
 
 <style>
@@ -180,5 +217,25 @@ const ln = () => String(++line);
       padding-right: 0.5rem;
       font-size: 0.65rem;
     }
+  }
+  .editor-tab {
+    color: var(--color-muted);
+    border-bottom: 2px solid transparent;
+    background: var(--color-bg);
+    transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+  }
+  .editor-tab:hover {
+    color: var(--color-text);
+  }
+  .editor-tab.active-tab {
+    color: var(--color-text);
+    border-bottom-color: var(--color-accent);
+    background: var(--color-surface);
+  }
+  .tab-scroll::-webkit-scrollbar { display: none; }
+  .tab-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+  .code-line > span {
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 </style>
