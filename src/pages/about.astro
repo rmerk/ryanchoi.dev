@@ -1,0 +1,41 @@
+---
+// src/pages/about.astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="About" description="About Ryan Choi">
+  <div class="max-w-2xl mx-auto px-6 py-16">
+    <h1 class="text-3xl font-bold text-text mb-12">About</h1>
+
+    <div class="space-y-6 text-muted leading-relaxed">
+      <p>
+        I'm a Senior Frontend Engineer with 8+ years of experience in fintech and SaaS.
+        I specialize in Vue and React, building reusable component systems and improving
+        developer workflows.
+      </p>
+      <p>
+        Currently at <a href="https://kount.com" target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">Kount, an Equifax Company</a>,
+        where I work on frontend infrastructure and branded Help Center tooling.
+      </p>
+      <p>
+        Outside of work I'm interested in developer tooling, AI-assisted workflows,
+        and building things that scratch my own itch.
+      </p>
+    </div>
+
+    <div class="mt-12 pt-12 border-t border-border space-y-3">
+      <div class="flex gap-4">
+        <span class="font-mono text-sm text-muted w-20 shrink-0">Email</span>
+        <a href="mailto:ryan@ryanchoi.dev" class="text-sm text-accent hover:underline">ryan@ryanchoi.dev</a>
+      </div>
+      <div class="flex gap-4">
+        <span class="font-mono text-sm text-muted w-20 shrink-0">GitHub</span>
+        <a href="https://github.com/rmerk" target="_blank" rel="noopener noreferrer" class="text-sm text-accent hover:underline">github.com/rmerk</a>
+      </div>
+      <div class="flex gap-4">
+        <span class="font-mono text-sm text-muted w-20 shrink-0">LinkedIn</span>
+        <a href="https://www.linkedin.com/in/2ch01/" target="_blank" rel="noopener noreferrer" class="text-sm text-accent hover:underline">linkedin.com/in/2ch01</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
