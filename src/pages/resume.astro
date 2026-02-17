@@ -5,6 +5,7 @@ import { experience, education, skills } from '@/data/resume';
 
 let line = 0;
 const ln = () => String(++line);
+const resetLn = () => { line = 0; };
 const indent = (n: number) => '\u00A0'.repeat(n * 2);
 ---
 
@@ -26,15 +27,15 @@ const indent = (n: number) => '\u00A0'.repeat(n * 2);
 
       <!-- Tab bar -->
       <div class="flex overflow-x-auto border-b border-border bg-bg tab-scroll" role="tablist">
-        <a href="#experience" class="editor-tab active-tab font-mono text-xs px-4 py-2 border-r border-border whitespace-nowrap" data-tab="experience">
+        <button type="button" class="editor-tab active-tab font-mono text-xs px-4 py-2 border-r border-border whitespace-nowrap cursor-pointer" data-tab="experience" role="tab" aria-selected="true">
           experience.ts
-        </a>
-        <a href="#skills" class="editor-tab font-mono text-xs px-4 py-2 border-r border-border whitespace-nowrap" data-tab="skills">
+        </button>
+        <button type="button" class="editor-tab font-mono text-xs px-4 py-2 border-r border-border whitespace-nowrap cursor-pointer" data-tab="skills" role="tab" aria-selected="false">
           skills.ts
-        </a>
-        <a href="#education" class="editor-tab font-mono text-xs px-4 py-2 border-r border-border whitespace-nowrap" data-tab="education">
+        </button>
+        <button type="button" class="editor-tab font-mono text-xs px-4 py-2 border-r border-border whitespace-nowrap cursor-pointer" data-tab="education" role="tab" aria-selected="false">
           education.ts
-        </a>
+        </button>
       </div>
 
       <!-- Editor body -->
@@ -42,10 +43,9 @@ const indent = (n: number) => '\u00A0'.repeat(n * 2);
         <!-- Line numbers + content -->
         <div class="flex-1 min-w-0 overflow-x-auto">
           <div id="editor-content" class="font-mono text-xs sm:text-sm leading-relaxed p-4">
+            {resetLn()}
             <section id="experience">
-              <div class="code-line" data-line={ln()}><span class="text-muted italic">// ═══════════════════════════════════════</span></div>
               <div class="code-line" data-line={ln()}><span class="text-muted italic">// Experience</span></div>
-              <div class="code-line" data-line={ln()}><span class="text-muted italic">// ═══════════════════════════════════════</span></div>
               <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
               <div class="code-line" data-line={ln()}>
                 <span><span class="text-accent">const</span> experience<span class="text-muted">:</span> <span class="text-accent-secondary">Role</span><span class="text-muted">[] = [</span></span>
@@ -82,12 +82,9 @@ const indent = (n: number) => '\u00A0'.repeat(n * 2);
               <div class="code-line" data-line={ln()}><span class="text-muted">];</span></div>
             </section>
 
-            <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
-
+            {resetLn()}
             <section id="skills">
-              <div class="code-line" data-line={ln()}><span class="text-muted italic">// ═══════════════════════════════════════</span></div>
               <div class="code-line" data-line={ln()}><span class="text-muted italic">// Skills</span></div>
-              <div class="code-line" data-line={ln()}><span class="text-muted italic">// ═══════════════════════════════════════</span></div>
               <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
               <div class="code-line" data-line={ln()}>
                 <span><span class="text-accent">type</span> <span class="text-accent-secondary">Stack</span> <span class="text-muted">= {'{'}</span></span>
@@ -102,12 +99,9 @@ const indent = (n: number) => '\u00A0'.repeat(n * 2);
               <div class="code-line" data-line={ln()}><span class="text-muted">{'}'};</span></div>
             </section>
 
-            <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
-
+            {resetLn()}
             <section id="education">
-              <div class="code-line" data-line={ln()}><span class="text-muted italic">// ═══════════════════════════════════════</span></div>
               <div class="code-line" data-line={ln()}><span class="text-muted italic">// Education</span></div>
-              <div class="code-line" data-line={ln()}><span class="text-muted italic">// ═══════════════════════════════════════</span></div>
               <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
 
               {education.map((edu) => (
@@ -159,27 +153,33 @@ const indent = (n: number) => '\u00A0'.repeat(n * 2);
     </div>
   </div>
 <script>
-  function setupTabTracking() {
+  function setupTabs() {
     const sections = document.querySelectorAll<HTMLElement>('#experience, #skills, #education');
-    const tabs = document.querySelectorAll<HTMLAnchorElement>('.editor-tab');
+    const tabs = document.querySelectorAll<HTMLButtonElement>('.editor-tab');
 
     if (!sections.length || !tabs.length) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const id = entry.target.id;
-            tabs.forEach((tab) => {
-              tab.classList.toggle('active-tab', tab.dataset.tab === id);
-            });
-          }
-        });
-      },
-      { rootMargin: '-20% 0px -60% 0px' }
-    );
+    function switchTab(targetId: string) {
+      sections.forEach((section) => {
+        section.style.display = section.id === targetId ? '' : 'none';
+      });
+      tabs.forEach((tab) => {
+        const isActive = tab.dataset.tab === targetId;
+        tab.classList.toggle('active-tab', isActive);
+        tab.setAttribute('aria-selected', String(isActive));
+      });
+      setupMinimap();
+    }
 
-    sections.forEach((section) => observer.observe(section));
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const targetId = tab.dataset.tab;
+        if (targetId) switchTab(targetId);
+      });
+    });
+
+    // Show experience by default, hide others
+    switchTab('experience');
   }
 
   function setupMinimap() {
@@ -190,10 +190,8 @@ const indent = (n: number) => '\u00A0'.repeat(n * 2);
     }
   }
 
-  setupTabTracking();
-  setupMinimap();
-  document.addEventListener('astro:after-swap', setupTabTracking);
-  document.addEventListener('astro:after-swap', setupMinimap);
+  setupTabs();
+  document.addEventListener('astro:after-swap', setupTabs);
 </script>
 </BaseLayout>
 
