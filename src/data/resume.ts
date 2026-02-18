@@ -22,8 +22,8 @@ type Skills = Record<string, string[]>;
 export const experience: ExperienceEntry[] = [
   {
     role: 'Web Development Engineer',
-    company: 'Kount, an Equifax Company',
-    url: 'https://kount.com',
+    company: 'Equifax',
+    url: 'https://www.equifax.com',
     start: 'June 2024',
     end: 'Present',
     bullets: [
@@ -39,7 +39,7 @@ export const experience: ExperienceEntry[] = [
     start: 'September 2022',
     end: 'June 2024',
     bullets: [
-      'Initially contracted to Kount, an Equifax Company to handle frontend web development projects, later converted to full-time.',
+      'Initially contracted to Equifax to handle frontend web development projects, later converted to full-time.',
     ],
   },
   {

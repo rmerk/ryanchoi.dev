@@ -3,13 +3,23 @@
     "PreToolUse": [
       {
         "matcher": "Edit|Write",
-        "command": "case \"$CLAUDE_FILE_PATH\" in */deploy.sh) echo 'BLOCK: deploy.sh is protected — edit it manually' >&2; exit 2;; esac"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "case \"$CLAUDE_FILE_PATH\" in */deploy.sh) echo 'BLOCK: deploy.sh is protected — edit it manually' >&2; exit 2;; esac"
+          }
+        ]
       }
     ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
-        "command": "cd /Users/rchoi/Personal/ryanchoi-dev && npx astro check 2>&1 | tail -10"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/rchoi/Personal/ryanchoi-dev && npx astro check 2>&1 | tail -10"
+          }
+        ]
       }
     ]
   }

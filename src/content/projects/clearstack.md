@@ -6,6 +6,7 @@ url: https://clearstackdev.com
 github: https://github.com/rmerk/clearstack-dev
 featured: true
 order: 1
+cover: /covers/clearstack.png
 ---
 
 ClearStack Dev is a software agency site built for a small business audience in Minnesota. The marketing site uses Astro 5 with Vue 3 islands for interactive components, Tailwind CSS v4, and deploys to Cloudflare Pages.
