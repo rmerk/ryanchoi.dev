@@ -10,6 +10,8 @@
   --color-accent: #e8398d;
   --color-text: #f0f0f0;
   --color-muted: #888888;
+  --color-accent-secondary: #d946ef;
+  --color-glow: #e8398d;
 
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -19,6 +21,7 @@ html {
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
+  color-scheme: dark;
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -30,11 +33,14 @@ html {
 
 /* Light mode overrides (--color-accent intentionally unchanged across modes) */
 html.light {
+  color-scheme: light;
   --color-bg: #f5f5f3;
   --color-surface: #ffffff;
   --color-border: #e0e0dc;
   --color-text: #111110;
   --color-muted: #666662;
+  --color-accent-secondary: #c026d3;
+  --color-glow: #e8398d;
 }
 
 /* Theme toggle icon visibility */
