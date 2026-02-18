@@ -205,10 +205,21 @@ const contributionColors = [
   'bg-accent',
 ];
 
+// Frontend languages first, then backend, then everything else
+const frontendLangs = new Set(['TypeScript', 'JavaScript', 'Vue', 'CSS', 'HTML', 'Astro', 'Svelte', 'SCSS', 'Sass', 'Less']);
+const backendLangs = new Set(['Python', 'Ruby', 'PHP', 'Go', 'Rust', 'Java', 'Kotlin', 'Swift', 'C#', 'C++', 'C']);
+
+function sortByCategory(langs: string[]): string[] {
+  const frontend = langs.filter((l) => frontendLangs.has(l));
+  const backend = langs.filter((l) => backendLangs.has(l));
+  const other = langs.filter((l) => !frontendLangs.has(l) && !backendLangs.has(l));
+  return [...frontend, ...backend, ...other];
+}
+
 // Use GraphQL language data (by bytes across all repos) if available, else fall back to REST
 let languages: string[];
 if (graphqlLanguages.length > 0) {
-  languages = graphqlLanguages;
+  languages = sortByCategory(graphqlLanguages);
 } else {
   const languageCounts = new Map<string, number>();
   for (const repo of repos) {
@@ -216,9 +227,11 @@ if (graphqlLanguages.length > 0) {
       languageCounts.set(repo.language, (languageCounts.get(repo.language) || 0) + 1);
     }
   }
-  languages = [...languageCounts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .map(([name]) => name);
+  languages = sortByCategory(
+    [...languageCounts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([name]) => name)
+  );
 }
 ---
 
