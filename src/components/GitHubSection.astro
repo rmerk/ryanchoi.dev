@@ -45,6 +45,7 @@ let recentActivity: { repo: string; type: string; timeAgo: string }[] = [];
 let repos: GitHubRepo[] = [];
 let contributionWeeks: ContributionWeek[] = [];
 let totalContributions = 0;
+let graphqlLanguages: string[] = [];
 
 const GITHUB_TOKEN = import.meta.env.GITHUB_TOKEN;
 
@@ -75,6 +76,16 @@ try {
                     contributionDays {
                       contributionCount
                       date
+                    }
+                  }
+                }
+              }
+              repositories(first: 100, ownerAffiliations: OWNER, isFork: false) {
+                nodes {
+                  languages(first: 5, orderBy: { field: SIZE, direction: DESC }) {
+                    edges {
+                      size
+                      node { name }
                     }
                   }
                 }
@@ -132,10 +143,24 @@ try {
 
   if (graphqlRes?.ok) {
     const gql = await graphqlRes.json();
-    const calendar = gql?.data?.user?.contributionsCollection?.contributionCalendar;
+    const user = gql?.data?.user;
+    const calendar = user?.contributionsCollection?.contributionCalendar;
     if (calendar) {
       totalContributions = calendar.totalContributions;
       contributionWeeks = calendar.weeks;
+    }
+    // Aggregate language bytes across all repos
+    const langBytes = new Map<string, number>();
+    for (const repo of user?.repositories?.nodes || []) {
+      for (const edge of repo?.languages?.edges || []) {
+        const name = edge.node.name;
+        langBytes.set(name, (langBytes.get(name) || 0) + edge.size);
+      }
+    }
+    if (langBytes.size > 0) {
+      graphqlLanguages = [...langBytes.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .map(([name]) => name);
     }
   }
 } catch {
@@ -180,16 +205,21 @@ const contributionColors = [
   'bg-accent',
 ];
 
-// Aggregate languages from top repos
-const languageCounts = new Map<string, number>();
-for (const repo of repos) {
-  if (repo.language) {
-    languageCounts.set(repo.language, (languageCounts.get(repo.language) || 0) + 1);
+// Use GraphQL language data (by bytes across all repos) if available, else fall back to REST
+let languages: string[];
+if (graphqlLanguages.length > 0) {
+  languages = graphqlLanguages;
+} else {
+  const languageCounts = new Map<string, number>();
+  for (const repo of repos) {
+    if (repo.language) {
+      languageCounts.set(repo.language, (languageCounts.get(repo.language) || 0) + 1);
+    }
   }
+  languages = [...languageCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([name]) => name);
 }
-const languages = [...languageCounts.entries()]
-  .sort((a, b) => b[1] - a[1])
-  .map(([name]) => name);
 ---
 
 <section class="py-16">
