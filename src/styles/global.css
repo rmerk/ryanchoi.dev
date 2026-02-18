@@ -29,6 +29,9 @@ html {
   html {
     transition: none;
   }
+  .animate-ping {
+    animation: none;
+  }
 }
 
 /* Light mode overrides (--color-accent intentionally unchanged across modes) */
