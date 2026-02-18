@@ -51,6 +51,11 @@ html.light {
 html.light #icon-moon { display: block; }
 html.light #icon-sun { display: none; }
 
+/* Mobile theme toggle icon visibility */
+.icon-moon-m { display: none; }
+html.light .icon-moon-m { display: block; }
+html.light .icon-sun-m { display: none; }
+
 /* Section divider with dot texture */
 .section-divider {
   border: none;
