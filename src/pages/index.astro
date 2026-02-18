@@ -22,6 +22,8 @@ const latestPosts = (await getCollection('blog', ({ data }) => !data.draft))
 
   <div class="max-w-6xl mx-auto px-6">
 
+    <GitHubSection />
+
     <!-- Featured Work -->
     {featuredProjects.length > 0 && (
       <section class="py-16">
@@ -51,8 +53,6 @@ const latestPosts = (await getCollection('blog', ({ data }) => !data.draft))
         </div>
       </section>
     )}
-
-    <GitHubSection />
 
     <!-- Latest Writing -->
     {latestPosts.length > 0 && (

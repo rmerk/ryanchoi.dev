@@ -32,21 +32,61 @@ let profile: GitHubProfile = {
   html_url: 'https://github.com/rmerk',
 };
 
+interface ContributionDay {
+  contributionCount: number;
+  date: string;
+}
+
+interface ContributionWeek {
+  contributionDays: ContributionDay[];
+}
+
 let recentActivity: { repo: string; type: string; timeAgo: string }[] = [];
 let repos: GitHubRepo[] = [];
+let contributionWeeks: ContributionWeek[] = [];
+let totalContributions = 0;
+
+const GITHUB_TOKEN = import.meta.env.GITHUB_TOKEN;
 
 try {
-  const [profileRes, eventsRes, reposRes] = await Promise.all([
-    fetch('https://api.github.com/users/rmerk', {
-      headers: { 'User-Agent': 'ryanchoi-dev' },
-    }),
-    fetch('https://api.github.com/users/rmerk/events?per_page=5', {
-      headers: { 'User-Agent': 'ryanchoi-dev' },
-    }),
-    fetch('https://api.github.com/users/rmerk/repos?sort=stars&per_page=6&direction=desc', {
-      headers: { 'User-Agent': 'ryanchoi-dev' },
-    }),
-  ]);
+  const restHeaders = { 'User-Agent': 'ryanchoi-dev' };
+  const fetches: Promise<Response>[] = [
+    fetch('https://api.github.com/users/rmerk', { headers: restHeaders }),
+    fetch('https://api.github.com/users/rmerk/events?per_page=5', { headers: restHeaders }),
+    fetch('https://api.github.com/users/rmerk/repos?sort=stars&per_page=6&direction=desc', { headers: restHeaders }),
+  ];
+
+  if (GITHUB_TOKEN) {
+    fetches.push(
+      fetch('https://api.github.com/graphql', {
+        method: 'POST',
+        headers: {
+          'Authorization': `bearer ${GITHUB_TOKEN}`,
+          'Content-Type': 'application/json',
+          'User-Agent': 'ryanchoi-dev',
+        },
+        body: JSON.stringify({
+          query: `{
+            user(login: "rmerk") {
+              contributionsCollection {
+                contributionCalendar {
+                  totalContributions
+                  weeks {
+                    contributionDays {
+                      contributionCount
+                      date
+                    }
+                  }
+                }
+              }
+            }
+          }`,
+        }),
+      })
+    );
+  }
+
+  const [profileRes, eventsRes, reposRes, graphqlRes] = await Promise.all(fetches);
 
   if (profileRes.ok) {
     const data = await profileRes.json();
@@ -89,6 +129,15 @@ try {
   if (reposRes.ok) {
     repos = (await reposRes.json()) as GitHubRepo[];
   }
+
+  if (graphqlRes?.ok) {
+    const gql = await graphqlRes.json();
+    const calendar = gql?.data?.user?.contributionsCollection?.contributionCalendar;
+    if (calendar) {
+      totalContributions = calendar.totalContributions;
+      contributionWeeks = calendar.weeks;
+    }
+  }
 } catch {
   // Use hardcoded fallbacks
 }
@@ -113,6 +162,23 @@ const eventDotColors: Record<string, string> = {
   'Starred': 'bg-amber-400',
   'Forked': 'bg-cyan-400',
 };
+
+// Map contribution count to intensity level (0-4)
+function getContributionLevel(count: number): number {
+  if (count === 0) return 0;
+  if (count <= 3) return 1;
+  if (count <= 6) return 2;
+  if (count <= 9) return 3;
+  return 4;
+}
+
+const contributionColors = [
+  'bg-border/50',
+  'bg-accent/20',
+  'bg-accent/40',
+  'bg-accent/70',
+  'bg-accent',
+];
 
 // Aggregate languages from top repos
 const languageCounts = new Map<string, number>();
@@ -167,6 +233,37 @@ const languages = [...languageCounts.entries()]
       </div>
     </div>
   </div>
+
+  <!-- Contribution heatmap -->
+  {contributionWeeks.length > 0 && (
+    <div class="mb-8">
+      <div class="flex items-baseline justify-between mb-3">
+        <h3 class="font-mono text-xs text-muted uppercase tracking-widest">Contributions</h3>
+        <span class="font-mono text-xs text-muted">{totalContributions} in the last year</span>
+      </div>
+      <div class="border border-border bg-surface rounded-lg p-4 overflow-x-auto">
+        <div class="flex gap-[3px]">
+          {contributionWeeks.map((week) => (
+            <div class="flex flex-col gap-[3px]">
+              {week.contributionDays.map((day) => (
+                <div
+                  class={`w-[10px] h-[10px] rounded-sm ${contributionColors[getContributionLevel(day.contributionCount)]}`}
+                  title={`${day.contributionCount} contributions on ${day.date}`}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+        <div class="flex items-center justify-end gap-1.5 mt-3">
+          <span class="text-[10px] text-muted font-mono">Less</span>
+          {contributionColors.map((color) => (
+            <div class={`w-[10px] h-[10px] rounded-sm ${color}`} aria-hidden="true" />
+          ))}
+          <span class="text-[10px] text-muted font-mono">More</span>
+        </div>
+      </div>
+    </div>
+  )}
 
   <h3 class="font-mono text-xs text-muted uppercase tracking-widest mb-4">Popular Repositories</h3>
 
