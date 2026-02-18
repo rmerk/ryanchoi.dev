@@ -168,11 +168,12 @@ const languages = [...languageCounts.entries()]
     </div>
   </div>
 
+  <h3 class="font-mono text-xs text-muted uppercase tracking-widest mb-4">Popular Repositories</h3>
+
   <!-- Main content grid -->
   <div class="grid gap-6 lg:grid-cols-[1fr_280px]">
     <!-- Left: Popular Repositories -->
     <div>
-      <h3 class="font-mono text-xs text-muted uppercase tracking-widest mb-4">Popular Repositories</h3>
       <div class="grid gap-4 sm:grid-cols-2">
         {repos.slice(0, 6).map((repo) => (
           <a
