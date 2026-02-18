@@ -10,7 +10,7 @@ const projects = (await getCollection('projects'))
 
 <BaseLayout title="Projects" description="Things I've built">
   <div class="max-w-4xl mx-auto px-6 py-16">
-    <h1 class="text-3xl font-bold text-text mb-2">Projects</h1>
+    <h1 class="text-3xl font-bold text-text mb-2 text-balance">Projects</h1>
     <p class="text-muted mb-12">Things I've built, side projects, and open source work.</p>
 
     <div class="grid gap-4 sm:grid-cols-2">
@@ -21,6 +21,7 @@ const projects = (await getCollection('projects'))
           tech={project.data.tech}
           url={project.data.url}
           github={project.data.github}
+          cover={project.data.cover}
         />
       ))}
     </div>
