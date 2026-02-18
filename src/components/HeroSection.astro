@@ -1,0 +1,137 @@
+---
+// src/components/HeroSection.astro
+---
+
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+  <!-- Radial gradient overlay -->
+  <div
+    class="absolute inset-0 opacity-40"
+    aria-hidden="true"
+    style="background: radial-gradient(ellipse at 50% 50%, var(--color-accent) 0%, transparent 70%);"
+  ></div>
+
+  <!-- Animated blur orbs -->
+  <div
+    class="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-20 blur-3xl animate-orb-1"
+    aria-hidden="true"
+    style="background-color: var(--color-accent);"
+  ></div>
+  <div
+    class="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full opacity-15 blur-3xl animate-orb-2"
+    aria-hidden="true"
+    style="background-color: var(--color-accent-secondary);"
+  ></div>
+
+  <!-- Dot grid texture -->
+  <div
+    class="absolute inset-0 opacity-[0.08]"
+    aria-hidden="true"
+    style="background-image: radial-gradient(circle, var(--color-muted) 1px, transparent 1px); background-size: 24px 24px;"
+  ></div>
+
+  <!-- Content -->
+  <div class="relative z-10 max-w-3xl mx-auto px-6 text-center">
+    <!-- Status badge -->
+    <div class="inline-flex items-center gap-2 border border-border bg-surface/50 backdrop-blur-sm rounded-full px-4 py-1.5 mb-8">
+      <span class="relative flex h-2.5 w-2.5">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-400"></span>
+      </span>
+      <span class="font-mono text-xs text-muted">open_to_work</span>
+    </div>
+
+    <!-- Gradient headline -->
+    <h1 class="text-6xl md:text-8xl font-bold leading-tight tracking-tight mb-4">
+      <span class="text-text">
+        Ryan Choi
+      </span>
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="text-xl md:text-2xl hero-subtitle mb-6">Senior Frontend Engineer</p>
+
+    <!-- Code snippet -->
+    <div class="inline-block hero-console border border-border rounded-lg px-5 py-3 mb-10">
+      <code class="font-mono text-sm text-muted">
+        <span class="text-accent">console</span>.<span class="text-accent-secondary">log</span>(<span class="text-green-400 dark:text-green-400 hero-string">'building fast, accessible web experiences'</span>)
+      </code>
+    </div>
+
+    <!-- CTA buttons -->
+    <div class="flex flex-wrap justify-center gap-4 mb-12">
+      <a
+        href="/projects"
+        class="inline-flex items-center gap-2 text-white text-sm font-medium px-6 py-3 rounded-md transition-[opacity,box-shadow] hover:opacity-90 hover:shadow-lg hover:shadow-glow/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+        style="background: linear-gradient(135deg, var(--color-accent), var(--color-accent-secondary));"
+      >
+        View Work
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+        </svg>
+      </a>
+      <a
+        href="/resume"
+        class="hero-pill inline-flex items-center gap-2 border border-text/20 text-text text-sm font-medium px-6 py-3 rounded-md hover:border-text/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+      >
+        Resume
+      </a>
+    </div>
+
+    <!-- Tech pills -->
+    <div class="flex flex-wrap justify-center gap-2" aria-label="Technologies I work with">
+      {[
+        { name: 'TypeScript', color: '#3178c6' },
+        { name: 'Vue', color: '#42b883' },
+        { name: 'React', color: '#61dafb' },
+        { name: 'Astro', color: '#ff5d01' },
+        { name: 'Tailwind CSS', color: '#06b6d4' },
+        { name: 'Node.js', color: '#339933' },
+      ].map(({ name, color }) => (
+        <span class="hero-pill inline-flex items-center gap-1.5 font-mono text-xs text-muted border border-text/20 rounded-full px-3 py-1 hover:border-text/40 transition-colors">
+          <span class="w-2 h-2 rounded-full shrink-0" style={`background-color: ${color};`} aria-hidden="true"></span>
+          {name}
+        </span>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes orb-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+  @keyframes orb-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(-40px, 30px) scale(0.9); }
+    66% { transform: translate(20px, -40px) scale(1.1); }
+  }
+  .animate-orb-1 { animation: orb-1 15s ease-in-out infinite; }
+  .animate-orb-2 { animation: orb-2 18s ease-in-out infinite; }
+
+  .hero-console {
+    background: color-mix(in srgb, var(--color-surface) 60%, transparent);
+    backdrop-filter: blur(4px);
+  }
+  :global(html.light) .hero-console {
+    background: var(--color-surface);
+    backdrop-filter: none;
+  }
+
+  :global(html.light) .hero-pill {
+    border-color: #000000 !important;
+  }
+  :global(html.light) .hero-pill:hover {
+    border-color: var(--color-accent) !important;
+  }
+
+  :global(html.light) .hero-string { color: #15803d; }
+
+  .hero-subtitle { color: #a78bfa; }
+  :global(html.light) .hero-subtitle { color: #7c3aed; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-orb-1, .animate-orb-2 { animation: none; }
+  }
+</style>
