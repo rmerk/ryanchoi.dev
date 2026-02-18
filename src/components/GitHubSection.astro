@@ -63,20 +63,20 @@ try {
     const events: GitHubEvent[] = await eventsRes.json();
     const now = Date.now();
 
+    const typeMap: Record<string, string> = {
+      PushEvent: 'Pushed to',
+      CreateEvent: 'Created',
+      PullRequestEvent: 'PR on',
+      IssuesEvent: 'Issue on',
+      WatchEvent: 'Starred',
+      ForkEvent: 'Forked',
+    };
+
     recentActivity = events.slice(0, 5).map((event) => {
       const diff = now - new Date(event.created_at).getTime();
       const hours = Math.floor(diff / (1000 * 60 * 60));
       const days = Math.floor(hours / 24);
       const timeAgo = days > 0 ? `${days}d ago` : hours > 0 ? `${hours}h ago` : 'just now';
-
-      const typeMap: Record<string, string> = {
-        PushEvent: 'Pushed to',
-        CreateEvent: 'Created',
-        PullRequestEvent: 'PR on',
-        IssuesEvent: 'Issue on',
-        WatchEvent: 'Starred',
-        ForkEvent: 'Forked',
-      };
 
       return {
         repo: event.repo.name.split('/').pop() || event.repo.name,
@@ -87,7 +87,7 @@ try {
   }
 
   if (reposRes.ok) {
-    repos = await reposRes.json();
+    repos = (await reposRes.json()) as GitHubRepo[];
   }
 } catch {
   // Use hardcoded fallbacks
@@ -136,7 +136,7 @@ const languages = [...languageCounts.entries()]
       </span>
       <h2 class="font-mono text-sm text-muted uppercase tracking-widest">GitHub</h2>
     </div>
-    <a href={profile.html_url} target="_blank" rel="noopener noreferrer" class="text-sm text-accent hover:underline font-mono">View profile &rarr;</a>
+    <a href={profile.html_url} target="_blank" rel="noopener noreferrer" class="text-sm text-accent hover:underline font-mono focus-visible:ring-2 focus-visible:ring-accent">View profile &rarr;</a>
   </div>
   <p class="font-mono text-xs text-muted/50 mb-8">// open_source</p>
 
@@ -157,11 +157,11 @@ const languages = [...languageCounts.entries()]
       {profile.bio && <p class="text-xs text-muted truncate">{profile.bio}</p>}
     </div>
     <div class="hidden sm:flex items-center gap-4">
-      <div class="text-center">
+      <div class="border border-border rounded-md px-4 py-2 text-center">
         <p class="font-mono text-lg text-text font-medium">{profile.public_repos}</p>
         <p class="text-xs text-muted">Repos</p>
       </div>
-      <div class="text-center">
+      <div class="border border-border rounded-md px-4 py-2 text-center">
         <p class="font-mono text-lg text-text font-medium">{profile.followers}</p>
         <p class="text-xs text-muted">Followers</p>
       </div>
@@ -174,12 +174,12 @@ const languages = [...languageCounts.entries()]
     <div>
       <h3 class="font-mono text-xs text-muted uppercase tracking-widest mb-4">Popular Repositories</h3>
       <div class="grid gap-4 sm:grid-cols-2">
-        {repos.map((repo) => (
+        {repos.slice(0, 6).map((repo) => (
           <a
             href={repo.html_url}
             target="_blank"
             rel="noopener noreferrer"
-            class="border border-border bg-surface rounded-lg p-4 hover:border-accent transition-colors group block"
+            class="border border-border bg-surface rounded-lg p-4 hover:border-accent/50 transition-colors group block focus-visible:ring-2 focus-visible:ring-accent"
           >
             <p class="font-mono text-sm text-text font-medium group-hover:text-accent transition-colors truncate">{repo.name}</p>
             {repo.description && (
@@ -222,7 +222,7 @@ const languages = [...languageCounts.entries()]
           <h3 class="font-mono text-xs text-muted uppercase tracking-widest mb-3">Languages</h3>
           <div class="flex flex-wrap gap-2">
             {languages.map((lang) => (
-              <span class="flex items-center gap-1.5 text-xs text-muted bg-bg border border-border rounded-full px-2.5 py-1">
+              <span class="flex items-center gap-1.5 text-xs text-text font-mono border border-border rounded-md px-2.5 py-1">
                 <span class={`w-2 h-2 rounded-full ${languageColors[lang] || 'bg-gray-400'}`} aria-hidden="true"></span>
                 {lang}
               </span>
