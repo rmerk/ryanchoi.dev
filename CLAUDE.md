@@ -6,6 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal portfolio and blog for Ryan Choi (`ryanchoi.dev`). A static site built with Astro 5, Tailwind CSS v4, and TypeScript. Deployed to a Vultr VPS via rsync.
 
+## Deployment
+
+- **Config**: `.env.deploy` (gitignored) contains `REMOTE_USER`, `REMOTE_HOST`, `REMOTE_PATH`, `SSH_KEY`
+- **SSH key**: `~/.ssh/ryanchoi_deploy` (ed25519, must be loaded via `ssh-add` before deploy)
+- **Nginx config**: `/etc/nginx/conf.d/http.conf` on the VPS (static site, SSL via Certbot)
+- **Shared VPS**: Also hosts clearstack (Node+PM2, config in `/etc/nginx/conf.d/clearstackdev.com.conf`)
+
 ## Commands
 
 ```bash

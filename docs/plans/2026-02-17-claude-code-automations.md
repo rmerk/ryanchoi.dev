@@ -122,7 +122,7 @@ Build the site and deploy to the Vultr VPS.
 
 1. Run `pnpm build` and confirm it succeeds with no errors.
 2. Show the user the build output summary (page count, bundle size).
-3. Ask the user to confirm deployment to production (`REDACTED_IP`).
+3. Ask the user to confirm deployment to production (the VPS).
 4. Only after explicit confirmation, run `./deploy.sh` from the project root.
 5. Report the rsync output to the user.
 

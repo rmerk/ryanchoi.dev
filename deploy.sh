@@ -3,7 +3,7 @@ set -euo pipefail
 
 REMOTE_USER="root"
 REMOTE_HOST="REDACTED_IP"
-REMOTE_PATH="/var/www/html/"
+REMOTE_PATH="/var/www/ryanchoi.dev/"
 
 echo "Building..."
 pnpm build
