@@ -49,6 +49,7 @@ Deployment is currently handled by `./deploy.sh`. Treat that script as the sourc
 
 Current behavior:
 
+- Loads private connection details from `.env.deploy`.
 - Runs `pnpm build`.
 - Uses `rsync -avz --delete` to sync `dist/` to the configured VPS destination.
 - Keeps private host, user, path, and key details out of this public README.
@@ -60,7 +61,13 @@ Deployment prerequisites:
 3. Load the deployment SSH key with `ssh-add` before running the script.
 4. Keep private host/IP values, SSH key material, and production secrets out of checked-in files.
 
-`.env.deploy` is gitignored and may be used for private deployment notes or future parameterization, but the current `deploy.sh` does not source it. Changing `.env.deploy` alone will not change deployment behavior.
+`.env.deploy` is gitignored and must define the private deployment target used by `deploy.sh`:
+
+```bash
+REMOTE_USER="..."
+REMOTE_HOST="..."
+REMOTE_PATH="..."
+```
 
 ### Safe Deploy Checklist
 
@@ -68,7 +75,7 @@ Because deployment uses `rsync --delete`, treat each deploy as a production sync
 
 1. Run `pnpm check`.
 2. Run `pnpm validate:build`.
-3. Confirm `deploy.sh` still points at the intended production user, host, and path before syncing.
+3. Confirm `.env.deploy` points at the intended production user, host, and path before syncing.
 4. Confirm SSH access and deployment credentials are available locally, with the deployment key loaded via `ssh-add`.
 5. Confirm no private files, tokens, SSH keys, or host-specific notes are being added to git; `.env` and `.env.deploy` must remain untracked.
 6. Confirm build-time secrets use private names such as `GITHUB_TOKEN`, never client-exposed names such as `PUBLIC_GITHUB_TOKEN`.

@@ -20,5 +20,5 @@ Build the site and deploy to the Vultr VPS.
 
 - NEVER deploy without explicit user confirmation.
 - If `pnpm build` fails, stop and show the errors — do not deploy.
-- The deploy script is the source of truth for connection details and currently does not source `.env.deploy`.
+- The deploy script loads private connection details from `.env.deploy`.
 - The deploy script rsyncs `dist/` to the VPS with `--delete`, meaning files not in `dist/` will be removed from the server.

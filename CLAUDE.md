@@ -8,9 +8,9 @@ Personal portfolio and blog for Ryan Choi (`ryanchoi.dev`). A static site built 
 
 ## Deployment
 
-- **Deploy script**: `deploy.sh` is the current source of truth. It runs `pnpm build`, then `rsync -avz --delete dist/` to the configured VPS destination.
-- **Current target**: `deploy.sh` uses `REMOTE_USER="root"`, `REMOTE_HOST="REDACTED_IP"`, and `REMOTE_PATH="/var/www/ryanchoi.dev/"`.
-- **Private config**: `.env.deploy` is gitignored and may hold private deployment notes or future parameterization values, but the current `deploy.sh` does not source it. Do not assume `.env.deploy` changes affect deployment behavior.
+- **Deploy script**: `deploy.sh` loads `.env.deploy`, runs `pnpm build`, then `rsync -avz --delete dist/` to the configured VPS destination.
+- **Current target**: `.env.deploy` must define `REMOTE_USER`, `REMOTE_HOST`, and `REMOTE_PATH`.
+- **Private config**: `.env.deploy` is gitignored and holds private deployment target details. Keep it out of git.
 - **SSH key**: `~/.ssh/ryanchoi_deploy` (ed25519, must be loaded via `ssh-add` before deploy)
 - **Nginx config**: `/etc/nginx/conf.d/http.conf` on the VPS (static site, SSL via Certbot)
 - **Shared VPS**: Also hosts clearstack (Node+PM2, config in `/etc/nginx/conf.d/clearstackdev.com.conf`)
