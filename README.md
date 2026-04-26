@@ -22,6 +22,16 @@ Environment variables are optional for local development. Keep local secrets in 
 | :-- | :-- | :-- |
 | `GITHUB_TOKEN` | No | Enables GraphQL-backed GitHub contribution and language details on the home page. Without it, the site still uses public REST API data and built-in fallbacks. |
 
+### GitHub Data
+
+`src/components/GitHubSection.astro` fetches GitHub data during the Astro build. By default, it uses unauthenticated REST API requests for the profile summary, recent activity, and popular repository cards.
+
+`GITHUB_TOKEN` is optional. When present, it enables a build-time GraphQL request for the contribution calendar and richer language aggregation by bytes across owner repositories. The token only needs access to public GitHub data for this site.
+
+Without `GITHUB_TOKEN`, builds still complete. The profile card has hardcoded defaults if REST profile data is unavailable. Recent activity, repository cards, and REST-derived languages do not have hardcoded content fallbacks, so those cards can be absent when REST responses are rate-limited, non-OK, empty, or unavailable. The contribution calendar is also absent without successful GraphQL data.
+
+For local builds, put `GITHUB_TOKEN=...` in an untracked `.env` file. Deployment environments should configure `GITHUB_TOKEN` as a private build-time environment variable. Do not use `PUBLIC_GITHUB_TOKEN` or another client-exposed variable name, and never commit tokens or private environment files.
+
 ## Verification
 
 Use these checks before merging or deploying content and UI changes:
