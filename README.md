@@ -14,6 +14,33 @@ Run commands from the project root:
 | `pnpm preview` | Preview the production build locally |
 | `pnpm astro check` | Validate Astro, TypeScript, and content collection types |
 
+## Deployment
+
+Deployment is currently handled by `./deploy.sh`. Treat that script as the source of truth for the production path unless it is deliberately changed.
+
+Current behavior:
+
+- Runs `pnpm build`.
+- Uses `rsync -avz --delete` to sync `dist/` to `/var/www/ryanchoi.dev/` on the VPS.
+- Uses the checked-in `root` remote user and a redacted host placeholder.
+
+Deployment prerequisites:
+
+1. Install dependencies with `pnpm install`.
+2. Confirm SSH access to the VPS is configured locally.
+3. Load the deployment SSH key with `ssh-add` before running the script.
+4. Keep private host/IP values, SSH key material, and production secrets out of checked-in files.
+
+`.env.deploy` is gitignored and may be used for private deployment notes or future parameterization, but the current `deploy.sh` does not source it. Changing `.env.deploy` alone will not change deployment behavior.
+
+Before deploying:
+
+1. Run `pnpm astro check`.
+2. Run `pnpm build`.
+3. Confirm the deployment SSH key is loaded.
+4. Run `./deploy.sh`.
+5. Check the live site after rsync completes.
+
 ## Project Structure
 
 ```text

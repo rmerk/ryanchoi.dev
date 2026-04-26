@@ -1,12 +1,13 @@
 {
   "blockedBy": [],
-  "completedDate": null,
+  "claimedBySession": "e076815a-192a-4fc7-a5bc-c57f0658eac7",
+  "completedDate": "2026-04-26",
   "createdDate": "2026-04-26",
   "description": "Reconcile the deployment documentation with the current deploy.sh behavior, including VPS target, rsync destination, SSH key expectations, .env.deploy notes, and which values must stay out of checked-in docs. Do not edit deploy.sh unless explicitly requested because it is production-sensitive.",
   "id": "T-004",
   "order": 40,
   "phase": "p0",
-  "status": "open",
+  "status": "complete",
   "title": "Capture deployment and environment configuration baseline",
   "type": "task"
 }

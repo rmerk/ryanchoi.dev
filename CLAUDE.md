@@ -8,10 +8,13 @@ Personal portfolio and blog for Ryan Choi (`ryanchoi.dev`). A static site built 
 
 ## Deployment
 
-- **Config**: `.env.deploy` (gitignored) contains `REMOTE_USER`, `REMOTE_HOST`, `REMOTE_PATH`, `SSH_KEY`
+- **Deploy script**: `deploy.sh` is the current source of truth. It runs `pnpm build`, then `rsync -avz --delete dist/` to the configured VPS destination.
+- **Current target**: `deploy.sh` uses `REMOTE_USER="root"`, `REMOTE_HOST="REDACTED_IP"`, and `REMOTE_PATH="/var/www/ryanchoi.dev/"`.
+- **Private config**: `.env.deploy` is gitignored and may hold private deployment notes or future parameterization values, but the current `deploy.sh` does not source it. Do not assume `.env.deploy` changes affect deployment behavior.
 - **SSH key**: `~/.ssh/ryanchoi_deploy` (ed25519, must be loaded via `ssh-add` before deploy)
 - **Nginx config**: `/etc/nginx/conf.d/http.conf` on the VPS (static site, SSL via Certbot)
 - **Shared VPS**: Also hosts clearstack (Node+PM2, config in `/etc/nginx/conf.d/clearstackdev.com.conf`)
+- **Sensitive values**: Keep real host/IP values, SSH key material, and production secrets out of checked-in docs and config.
 
 ## Commands
 
