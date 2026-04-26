@@ -1,5 +1,7 @@
 ---
 // src/pages/index.astro
+// Design decision: compose the homepage with spacious editorial sections,
+// product-style headers, and card grids that scale cleanly across breakpoints.
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import HeroSection from '@/components/HeroSection.astro';
@@ -20,26 +22,23 @@ const latestPosts = (await getCollection('blog', ({ data }) => !data.draft))
 
   <HeroSection />
 
-  <div class="max-w-6xl mx-auto px-6">
+  <div class="mx-auto max-w-6xl px-5 sm:px-6">
 
     <GitHubSection />
 
     <!-- Featured Work -->
     {featuredProjects.length > 0 && (
-      <section class="py-16">
-        <div class="flex items-baseline justify-between mb-2">
-          <div class="flex items-center gap-2">
-            <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
-            </span>
-            <h2 class="font-mono text-sm text-muted uppercase tracking-widest">Featured Work</h2>
+      <section class="py-16 sm:py-20">
+        <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p class="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-accent">Featured Work</p>
+            <h2 class="text-3xl font-semibold tracking-tight text-text sm:text-4xl">Selected projects</h2>
+            <p class="mt-3 max-w-2xl text-sm leading-7 text-muted">A focused sample of product, tooling, and frontend infrastructure work.</p>
           </div>
-          <a href="/projects" class="text-sm text-accent hover:underline font-mono">All projects &rarr;</a>
+          <a href="/projects" class="text-sm font-semibold text-accent hover:underline">All projects &rarr;</a>
         </div>
-        <p class="font-mono text-xs text-muted/50 mb-8">// latest_commits</p>
 
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {featuredProjects.map((project) => (
               <ProjectCard
                 title={project.data.title}
@@ -56,20 +55,17 @@ const latestPosts = (await getCollection('blog', ({ data }) => !data.draft))
 
     <!-- Latest Writing -->
     {latestPosts.length > 0 && (
-      <section class="py-16">
-        <div class="flex items-baseline justify-between mb-2">
-          <div class="flex items-center gap-2">
-            <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
-            </span>
-            <h2 class="font-mono text-sm text-muted uppercase tracking-widest">Latest Writing</h2>
+      <section class="py-16 sm:py-20">
+        <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p class="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-accent">Latest Writing</p>
+            <h2 class="text-3xl font-semibold tracking-tight text-text sm:text-4xl">Notes on engineering craft</h2>
+            <p class="mt-3 max-w-2xl text-sm leading-7 text-muted">Short essays on frontend systems, tooling, and building reliable user interfaces.</p>
           </div>
-          <a href="/blog" class="text-sm text-accent hover:underline font-mono">All posts &rarr;</a>
+          <a href="/blog" class="text-sm font-semibold text-accent hover:underline">All posts &rarr;</a>
         </div>
-        <p class="font-mono text-xs text-muted/50 mb-8">// recent_posts</p>
 
-        <div class="[&>article:last-child_a]:border-b-0">
+        <div class="rounded-3xl border border-border bg-surface/55 p-2">
           {latestPosts.map((post) => (
             <PostRow
               title={post.data.title}

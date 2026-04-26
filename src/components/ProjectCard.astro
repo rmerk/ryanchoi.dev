@@ -1,5 +1,7 @@
 ---
 // src/components/ProjectCard.astro
+// Design decision: make project cards feel like polished product tiles with
+// quiet surfaces, restrained hover states, and clear recruiter-readable details.
 interface Props {
   title: string;
   description: string;
@@ -12,61 +14,59 @@ interface Props {
 const { title, description, tech, url, github, cover } = Astro.props;
 ---
 
-<article class="group relative flex flex-col border border-border bg-surface rounded-lg overflow-hidden transition-[border-color,box-shadow] duration-200 hover:border-accent/50 hover:shadow-lg hover:shadow-glow/10">
+<article class="group relative flex flex-col overflow-hidden rounded-3xl border border-border bg-surface/80 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-1 hover:border-accent/35 hover:shadow-2xl hover:shadow-black/20">
   <!-- Cover image or gradient placeholder -->
-  <div class="relative h-40 overflow-hidden">
+  <div class="relative h-44 overflow-hidden border-b border-border/80">
     {cover ? (
       <img
         src={cover}
         alt=""
         width="640"
         height="360"
-        class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        class="h-full w-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105"
         loading="lazy"
       />
     ) : (
       <div
-        class="w-full h-full"
-        style="background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-border) 100%);"
+        class="h-full w-full"
+        style="background: radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--color-accent) 20%, transparent), transparent 40%), linear-gradient(135deg, var(--color-surface) 0%, var(--color-bg) 100%);"
         aria-hidden="true"
       ></div>
     )}
     <!-- Gradient overlay -->
-    <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/5 to-transparent"></div>
     <!-- Status badge -->
     <div class="absolute top-3 right-3">
-      <span class="inline-flex items-center gap-1 font-mono text-[10px] text-green-400 bg-surface/80 backdrop-blur-sm border border-border rounded-full px-2 py-0.5">
-        <span class="w-1.5 h-1.5 rounded-full bg-green-400" aria-hidden="true"></span>
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-bg/70 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent backdrop-blur">
+        <span class="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true"></span>
         active
       </span>
     </div>
   </div>
 
-  <div class="p-5 flex flex-col flex-1">
-    <div class="flex items-start justify-between gap-3 mb-2">
-      <h2 class="font-semibold text-text text-lg group-hover:text-accent transition-colors">{title}</h2>
-    </div>
+  <div class="flex flex-1 flex-col p-5 sm:p-6">
+    <h2 class="mb-3 text-xl font-semibold tracking-tight text-text transition-colors group-hover:text-accent">{title}</h2>
 
-    <p class="text-muted text-sm leading-relaxed mb-4 line-clamp-3">{description}</p>
+    <p class="mb-5 line-clamp-3 text-sm leading-7 text-muted">{description}</p>
 
     <!-- Tech tags -->
-    <div class="flex flex-wrap gap-1.5 mb-4">
+    <div class="mb-5 flex flex-wrap gap-2">
       {tech.map((t) => (
-        <span class="font-mono text-[11px] text-accent border border-accent/30 rounded px-2 py-0.5">
+        <span class="rounded-full border border-border bg-bg/40 px-2.5 py-1 font-mono text-[11px] text-muted">
           {t}
         </span>
       ))}
     </div>
 
     <!-- Links -->
-    <div class="flex gap-2 mt-auto">
+    <div class="mt-auto flex flex-wrap gap-2">
       {github && (
         <a
           href={github}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`GitHub repository for ${title}`}
-          class="inline-flex items-center gap-1.5 font-mono text-xs text-muted border border-border rounded-md px-3 py-1.5 hover:border-accent hover:text-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          class="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-accent/45 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
@@ -80,7 +80,7 @@ const { title, description, tech, url, github, cover } = Astro.props;
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`Live site for ${title}`}
-          class="inline-flex items-center gap-1.5 font-mono text-xs text-muted border border-border rounded-md px-3 py-1.5 hover:border-accent hover:text-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          class="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-accent/45 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />

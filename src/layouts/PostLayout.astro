@@ -1,5 +1,7 @@
 ---
 // src/layouts/PostLayout.astro
+// Design decision: use a restrained editorial reading layout with generous rhythm,
+// quiet metadata, and cyan accents reserved for tags and links.
 import BaseLayout from '@/layouts/BaseLayout.astro';
 
 interface Props {
@@ -19,29 +21,32 @@ const formattedDate = date.toLocaleDateString('en-US', {
 ---
 
 <BaseLayout title={title} description={description}>
-  <div class="max-w-2xl mx-auto px-6 py-16">
-    <a href="/blog" class="font-mono text-sm text-muted hover:text-accent transition-colors mb-8 inline-block">
+  <div class="max-w-3xl mx-auto px-6 py-16 sm:py-24">
+    <a href="/blog" class="inline-flex items-center text-sm font-medium text-muted hover:text-accent transition-colors mb-12 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
       &larr; Back to writing
     </a>
 
-    <header class="mb-12">
-      <time class="font-mono text-sm text-muted" datetime={date.toISOString()}>{formattedDate}</time>
-      <h1 class="text-3xl font-bold text-text mt-2 mb-4">{title}</h1>
-      <div class="flex gap-2 flex-wrap">
+    <header class="mb-14 border-b border-border pb-10">
+      <time class="font-mono text-xs uppercase tracking-[0.18em] text-muted-soft" datetime={date.toISOString()}>{formattedDate}</time>
+      <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight text-text mt-4 mb-6 text-balance">{title}</h1>
+      <div class="flex gap-2.5 flex-wrap">
         {tags.map((tag) => (
-          <span class="font-mono text-xs text-accent border border-accent/30 rounded px-2 py-0.5">
+          <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-accent border border-accent/25 bg-accent/5 rounded-full px-3 py-1">
             {tag}
           </span>
         ))}
       </div>
     </header>
 
-    <article class="prose prose-invert prose-sm max-w-none
-      prose-headings:font-bold prose-headings:text-text
-      prose-p:text-muted prose-p:leading-relaxed
+    <article class="prose prose-invert max-w-none
+      prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-text
+      prose-p:text-muted prose-p:leading-8
+      prose-li:text-muted prose-li:leading-8
+      prose-strong:text-text
       prose-a:text-accent prose-a:no-underline hover:prose-a:underline
-      prose-code:font-mono prose-code:text-accent prose-code:text-sm
-      prose-pre:bg-surface prose-pre:border prose-pre:border-border">
+      prose-code:font-mono prose-code:text-accent prose-code:text-sm prose-code:before:content-none prose-code:after:content-none
+      prose-blockquote:border-accent/50 prose-blockquote:text-text
+      prose-pre:bg-surface prose-pre:border prose-pre:border-border prose-pre:rounded-2xl">
       <slot />
     </article>
   </div>

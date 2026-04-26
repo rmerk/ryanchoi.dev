@@ -1,5 +1,7 @@
 ---
 // src/components/PostRow.astro
+// Design decision: treat writing rows as editorial index items with clear dates,
+// generous touch targets, and subtle interaction instead of dense list styling.
 interface Props {
   title: string;
   date: Date;
@@ -17,15 +19,15 @@ const formattedDate = date.toLocaleDateString('en-US', {
 });
 ---
 
-<article class="group -mx-3 px-3 rounded-md transition-colors hover:bg-surface">
-  <a href={`/blog/${slug}`} class="flex items-center gap-6 py-4 border-b border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:rounded-md">
+<article class="group">
+  <a href={`/blog/${slug}`} class="grid gap-3 rounded-2xl border border-transparent px-4 py-5 transition-colors hover:border-border hover:bg-surface/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:grid-cols-[9rem_1fr_auto] sm:items-center">
     <time
-      class="font-mono text-xs text-muted bg-surface border border-border rounded-full px-3 py-1 shrink-0 group-hover:border-accent/30 transition-colors"
+      class="font-mono text-xs uppercase tracking-[0.14em] text-muted-soft transition-colors group-hover:text-muted"
       datetime={date.toISOString()}
     >
       {formattedDate}
     </time>
-    <span class="text-text group-hover:text-accent transition-colors flex-1">{title}</span>
+    <span class="text-base font-medium text-text transition-colors group-hover:text-accent">{title}</span>
     <svg
       width="16"
       height="16"
@@ -33,7 +35,7 @@ const formattedDate = date.toLocaleDateString('en-US', {
       fill="none"
       stroke="currentColor"
       stroke-width="2"
-      class="text-accent opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+      class="hidden shrink-0 text-accent opacity-0 transition-opacity group-hover:opacity-100 sm:block"
       aria-hidden="true"
     >
       <line x1="5" y1="12" x2="19" y2="12"/>

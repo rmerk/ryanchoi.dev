@@ -1,24 +1,28 @@
 ---
 // src/components/Footer.astro
+// Design decision: simplify the footer into a quiet product-style close with
+// restrained borders, text hierarchy, and accessible social links.
 const year = new Date().getFullYear();
 ---
 
-<footer class="border-t border-border mt-24">
-  <div class="max-w-6xl mx-auto px-6 py-8">
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+<footer class="border-t border-border/80 mt-24">
+  <div class="max-w-6xl mx-auto px-5 sm:px-6 py-10">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-5">
       <!-- Logo mark + wordmark -->
-      <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-        <img src="/logo.svg" alt="" aria-hidden="true" width="28" height="16" class="h-7 w-auto" />
-        <span class="font-mono text-sm text-muted">ryanchoi</span>
+      <a href="/" class="flex items-center gap-2.5 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+        <span class="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-surface">
+          <img src="/logo.svg" alt="" aria-hidden="true" width="24" height="14" class="h-4 w-auto" />
+        </span>
+        <span class="text-sm font-semibold tracking-tight text-text">Ryan Choi</span>
       </a>
 
       <!-- Social icons -->
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3">
         <a
           href="https://github.com/rmerk"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-muted hover:text-text transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface/60 text-muted transition-colors hover:border-accent/40 hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           aria-label="GitHub"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -29,7 +33,7 @@ const year = new Date().getFullYear();
           href="https://www.linkedin.com/in/ryanchoimn/"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-muted hover:text-text transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface/60 text-muted transition-colors hover:border-accent/40 hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           aria-label="LinkedIn"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -39,8 +43,8 @@ const year = new Date().getFullYear();
       </div>
 
       <!-- Terminal copyright -->
-      <span class="font-mono text-xs text-muted">
-        <span class="text-accent">$</span> npm run build <span class="text-green-400">✓</span> &copy; {year} Ryan Choi
+      <span class="text-center text-xs text-muted sm:text-right">
+        Built with Astro and Tailwind. &copy; {year} Ryan Choi
       </span>
     </div>
   </div>

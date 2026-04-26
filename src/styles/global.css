@@ -1,17 +1,21 @@
+/* Global design decisions: token-first product/editorial system with near-black dark mode,
+   polished light mode, Inter typography, and a restrained cyan accent. */
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
 @theme {
-  /* Dark mode is the default theme. Tokens here become CSS custom properties at :root.
-     Light mode overrides are applied via the html.light class selector below. */
-  --color-bg: #0e0e10;
-  --color-surface: #1a1a1f;
-  --color-border: #2a2a2f;
-  --color-accent: #e8398d;
-  --color-text: #f0f0f0;
-  --color-muted: #888888;
-  --color-accent-secondary: #d946ef;
-  --color-glow: #e8398d;
+  /* Dark mode is the default theme. Tokens here become Tailwind utilities and
+     CSS custom properties; light mode overrides live under html.light. */
+  --color-bg: #0a0a0a;
+  --color-surface: #111113;
+  --color-surface-raised: #18181b;
+  --color-border: #27272a;
+  --color-accent: #22d3ee;
+  --color-text: #f8fafc;
+  --color-muted: #a1a1aa;
+  --color-muted-soft: #71717a;
+  --color-accent-secondary: #67e8f9;
+  --color-glow: #22d3ee;
 
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -23,9 +27,30 @@ html {
   font-family: var(--font-sans);
   color-scheme: dark;
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-width: 320px;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--color-accent) 12%, transparent) 0, transparent 30rem),
+    var(--color-bg);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 28%, transparent);
+  color: var(--color-text);
 }
 
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+
   html {
     transition: none;
   }
@@ -37,13 +62,30 @@ html {
 /* Light mode overrides (--color-accent intentionally unchanged across modes) */
 html.light {
   color-scheme: light;
-  --color-bg: #f5f5f3;
+  --color-bg: #f8fafc;
   --color-surface: #ffffff;
-  --color-border: #e0e0dc;
-  --color-text: #111110;
-  --color-muted: #666662;
-  --color-accent-secondary: #c026d3;
-  --color-glow: #e8398d;
+  --color-surface-raised: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-text: #0f172a;
+  --color-muted: #475569;
+  --color-muted-soft: #64748b;
+  --color-accent-secondary: #0891b2;
+  --color-glow: #06b6d4;
+}
+
+html.light body {
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--color-accent) 18%, transparent) 0, transparent 28rem),
+    var(--color-bg);
+}
+
+a {
+  text-underline-offset: 0.2em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
 }
 
 /* Theme toggle icon visibility */
@@ -56,14 +98,13 @@ html.light #icon-sun { display: none; }
 html.light .icon-moon-m { display: block; }
 html.light .icon-sun-m { display: none; }
 
-/* Section divider with dot texture */
+/* Section divider */
 .section-divider {
   border: none;
-  height: 4px;
-  background-image: radial-gradient(circle, var(--color-muted) 1px, transparent 1px);
-  background-size: 16px 4px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-border), transparent);
   background-position: 0 50%;
-  opacity: 0.3;
+  opacity: 0.8;
   margin: 0;
 }
 
@@ -74,6 +115,10 @@ body::before {
   inset: 0;
   pointer-events: none;
   z-index: 1000;
-  opacity: 0.03;
+  opacity: 0.018;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+html.light body::before {
+  opacity: 0.012;
 }
