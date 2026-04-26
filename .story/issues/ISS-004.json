@@ -1,0 +1,22 @@
+{
+  "components": [
+    "design",
+    "web",
+    "navigation"
+  ],
+  "discoveredDate": "2026-04-26",
+  "id": "ISS-004",
+  "impact": "At a 390px mobile viewport, the header shows only the logo; the theme toggle and hamburger menu are not visible, so mobile users cannot open site navigation or switch themes. Verified with headless Chrome screenshots for `/`, `/projects`, `/resume`, `/blog`, and `/blog/hello-world`.",
+  "location": [
+    "src/components/Nav.astro"
+  ],
+  "phase": "visual-system",
+  "relatedTickets": [
+    "T-009"
+  ],
+  "resolution": null,
+  "resolvedDate": null,
+  "severity": "high",
+  "status": "open",
+  "title": "Mobile navigation controls are not visible at narrow widths"
+}

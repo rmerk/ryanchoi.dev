@@ -1,0 +1,26 @@
+{
+  "components": [
+    "design",
+    "web",
+    "responsive-layout"
+  ],
+  "discoveredDate": "2026-04-26",
+  "id": "ISS-005",
+  "impact": "At a 390px mobile viewport, multiple routes render wider than the viewport and clip content horizontally. The projects heading/cards, resume intro/editor, blog intro, and blog post prose extend offscreen, making content hard to read without horizontal scrolling. Verified with headless Chrome screenshots for `/projects`, `/resume`, `/blog`, and `/blog/hello-world`.",
+  "location": [
+    "src/pages/projects.astro",
+    "src/pages/resume.astro",
+    "src/pages/blog/index.astro",
+    "src/layouts/PostLayout.astro",
+    "src/components/Nav.astro"
+  ],
+  "phase": "visual-system",
+  "relatedTickets": [
+    "T-009"
+  ],
+  "resolution": null,
+  "resolvedDate": null,
+  "severity": "high",
+  "status": "open",
+  "title": "Mobile routes horizontally overflow and clip content"
+}

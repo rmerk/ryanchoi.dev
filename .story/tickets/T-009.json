@@ -3,13 +3,14 @@
     "T-007",
     "T-008"
   ],
-  "completedDate": null,
+  "claimedBySession": "e076815a-192a-4fc7-a5bc-c57f0658eac7",
+  "completedDate": "2026-04-26",
   "createdDate": "2026-04-26",
   "description": "Verify the refreshed UI across home, projects, about, resume, blog index, and individual blog posts at mobile and desktop widths. Check theme toggle behavior, keyboard focus, mobile navigation, external links, GitHub cards, resume tabs, and reduced-motion behavior.",
   "id": "T-009",
   "order": 30,
   "phase": "visual-system",
-  "status": "open",
+  "status": "complete",
   "title": "Run full route visual QA",
   "type": "task"
 }
