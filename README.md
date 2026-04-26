@@ -12,7 +12,7 @@ Run commands from the project root:
 | `pnpm dev` | Start the local dev server at `localhost:4321` |
 | `pnpm build` | Build the static site to `./dist/` |
 | `pnpm preview` | Preview the production build locally |
-| `pnpm astro check` | Validate Astro, TypeScript, and content collection types |
+| `pnpm check` | Run `astro check` to validate Astro, TypeScript, and content collection types |
 
 ## Environment Variables
 
@@ -36,7 +36,7 @@ For local builds, put `GITHUB_TOKEN=...` in an untracked `.env` file. Deployment
 
 Use these checks before merging or deploying content and UI changes:
 
-1. Run `pnpm astro check`.
+1. Run `pnpm check`.
 2. Run `pnpm build`.
 3. Preview production output with `pnpm preview` when visual behavior needs a local production check.
 
@@ -61,7 +61,7 @@ Deployment prerequisites:
 
 Before deploying:
 
-1. Run `pnpm astro check`.
+1. Run `pnpm check`.
 2. Run `pnpm build`.
 3. Confirm SSH access and deployment credentials are available locally.
 4. Run `./deploy.sh`.
@@ -142,4 +142,4 @@ Before publishing a blog post or project entry:
 2. Keep filenames lowercase and slug-friendly.
 3. Set `draft: false` only when the post is ready to appear publicly.
 4. Confirm project `url`, `github`, and `cover` paths work when present.
-5. Run `pnpm astro check` and `pnpm build`.
+5. Run `pnpm check` and `pnpm build`.

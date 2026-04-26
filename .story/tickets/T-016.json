@@ -1,12 +1,13 @@
 {
   "blockedBy": [],
-  "completedDate": null,
+  "claimedBySession": "e076815a-192a-4fc7-a5bc-c57f0658eac7",
+  "completedDate": "2026-04-26",
   "createdDate": "2026-04-26",
   "description": "Add a package script that exposes the existing Astro type/content check as a first-class validation command, likely pnpm check -> astro check. This gives humans, hooks, and CI a stable command name.",
   "id": "T-016",
   "order": 10,
   "phase": "quality-and-ops",
-  "status": "open",
+  "status": "complete",
   "title": "Add check script alias for astro check",
   "type": "chore"
 }
