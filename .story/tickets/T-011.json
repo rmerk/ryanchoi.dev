@@ -3,13 +3,14 @@
     "T-003",
     "T-010"
   ],
-  "completedDate": null,
+  "claimedBySession": "e076815a-192a-4fc7-a5bc-c57f0658eac7",
+  "completedDate": "2026-04-26",
   "createdDate": "2026-04-26",
   "description": "Expand project collection entries beyond short summaries into stronger portfolio case studies where appropriate. Prioritize recruiter-readable context: problem, role, stack, constraints, outcomes, links, images, and whether each project should be featured.",
   "id": "T-011",
   "order": 20,
   "phase": "portfolio-content",
-  "status": "open",
+  "status": "complete",
   "title": "Add or update project case studies",
   "type": "task"
 }
