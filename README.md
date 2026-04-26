@@ -14,15 +14,31 @@ Run commands from the project root:
 | `pnpm preview` | Preview the production build locally |
 | `pnpm astro check` | Validate Astro, TypeScript, and content collection types |
 
+## Environment Variables
+
+Environment variables are optional for local development. Keep local secrets in `.env` or deployment-specific files that are not checked in.
+
+| Variable | Required | Purpose |
+| :-- | :-- | :-- |
+| `GITHUB_TOKEN` | No | Enables GraphQL-backed GitHub contribution and language details on the home page. Without it, the site still uses public REST API data and built-in fallbacks. |
+
+## Verification
+
+Use these checks before merging or deploying content and UI changes:
+
+1. Run `pnpm astro check`.
+2. Run `pnpm build`.
+3. Preview production output with `pnpm preview` when visual behavior needs a local production check.
+
 ## Deployment
 
-Deployment is currently handled by `./deploy.sh`. Treat that script as the source of truth for the production path unless it is deliberately changed.
+Deployment is currently handled by `./deploy.sh`. Treat that script as the source of truth for the production target and rsync destination unless it is deliberately changed.
 
 Current behavior:
 
 - Runs `pnpm build`.
-- Uses `rsync -avz --delete` to sync `dist/` to `/var/www/ryanchoi.dev/` on the VPS.
-- Uses the checked-in `root` remote user and a redacted host placeholder.
+- Uses `rsync -avz --delete` to sync `dist/` to the configured VPS destination.
+- Keeps private host, user, path, and key details out of this public README.
 
 Deployment prerequisites:
 
@@ -37,7 +53,7 @@ Before deploying:
 
 1. Run `pnpm astro check`.
 2. Run `pnpm build`.
-3. Confirm the deployment SSH key is loaded.
+3. Confirm SSH access and deployment credentials are available locally.
 4. Run `./deploy.sh`.
 5. Check the live site after rsync completes.
 
