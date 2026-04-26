@@ -12,9 +12,9 @@
     "T-004",
     "T-020"
   ],
-  "resolution": null,
-  "resolvedDate": null,
+  "resolution": "Resolved by documenting deploy.sh as the source of truth, clarifying that .env.deploy is not sourced, and adding safe deploy checklist guidance without exposing private host or secret values.",
+  "resolvedDate": "2026-04-26",
   "severity": "medium",
-  "status": "open",
+  "status": "resolved",
   "title": "Deployment docs and deploy script disagree on configuration source"
 }

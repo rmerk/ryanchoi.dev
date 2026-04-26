@@ -10,9 +10,9 @@
   "relatedTickets": [
     "T-010"
   ],
-  "resolution": null,
-  "resolvedDate": null,
+  "resolution": "Resolved by replacing the Astro starter README with project-specific ryanchoi.dev documentation covering commands, environment variables, verification, deployment, project structure, and content authoring.",
+  "resolvedDate": "2026-04-26",
   "severity": "medium",
-  "status": "open",
+  "status": "resolved",
   "title": "README still uses Astro starter content"
 }

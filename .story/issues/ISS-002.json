@@ -10,9 +10,9 @@
   "relatedTickets": [
     "T-006"
   ],
-  "resolution": null,
-  "resolvedDate": null,
+  "resolution": "Resolved in the current Cursor/MCP session: storybloq_status now detects the ryanchoi-dev .story project and reports the full project status through the configured project MCP server.",
+  "resolvedDate": "2026-04-26",
   "severity": "medium",
-  "status": "open",
+  "status": "resolved",
   "title": "Story MCP status does not detect this workspace"
 }
