@@ -1,7 +1,7 @@
 ---
 // src/components/GitHubSection.astro
 // Design decision: present GitHub activity as a clean engineering dashboard,
-// with consistent cards, restrained data color, and no changes to fetch logic.
+// with consistent cards, restrained data color, and resilient build-time data.
 
 interface GitHubProfile {
   avatar_url: string;
@@ -17,6 +17,12 @@ interface GitHubEvent {
   created_at: string;
 }
 
+interface GitHubActivityItem {
+  repo: string;
+  type: string;
+  timeAgo: string;
+}
+
 interface GitHubRepo {
   name: string;
   description: string | null;
@@ -26,13 +32,62 @@ interface GitHubRepo {
   language: string | null;
 }
 
-let profile: GitHubProfile = {
+interface GitHubGraphQLResponse {
+  data?: {
+    user?: {
+      contributionsCollection?: {
+        contributionCalendar?: {
+          totalContributions?: number;
+          weeks?: ContributionWeek[];
+        };
+      };
+      repositories?: {
+        nodes?: {
+          languages?: {
+            edges?: {
+              size?: number;
+              node?: { name?: string };
+            }[];
+          };
+        }[];
+      };
+    };
+  };
+}
+
+const fallbackProfile: GitHubProfile = {
   avatar_url: 'https://github.com/rmerk.png',
   public_repos: 30,
   followers: 15,
   bio: 'Senior Frontend Engineer',
   html_url: 'https://github.com/rmerk',
 };
+
+const fallbackRecentActivity: GitHubActivityItem[] = [
+  { repo: 'ryanchoi-dev', type: 'Maintains', timeAgo: 'portfolio' },
+  { repo: 'clearstack-dev', type: 'Maintains', timeAgo: 'client work' },
+];
+
+const fallbackRepos: GitHubRepo[] = [
+  {
+    name: 'ryanchoi-dev',
+    description: 'Personal portfolio and blog built with Astro, TypeScript, and Tailwind CSS.',
+    html_url: 'https://github.com/rmerk/ryanchoi-dev',
+    stargazers_count: 0,
+    forks_count: 0,
+    language: 'TypeScript',
+  },
+  {
+    name: 'clearstack-dev',
+    description: 'Marketing site for a software agency serving small businesses in Minnesota.',
+    html_url: 'https://github.com/rmerk/clearstack-dev',
+    stargazers_count: 0,
+    forks_count: 0,
+    language: 'Astro',
+  },
+];
+
+const fallbackLanguages = ['TypeScript', 'Astro', 'CSS'];
 
 interface ContributionDay {
   contributionCount: number;
@@ -43,13 +98,38 @@ interface ContributionWeek {
   contributionDays: ContributionDay[];
 }
 
-let recentActivity: { repo: string; type: string; timeAgo: string }[] = [];
-let repos: GitHubRepo[] = [];
 let contributionWeeks: ContributionWeek[] = [];
 let totalContributions = 0;
 let graphqlLanguages: string[] = [];
 
 const GITHUB_TOKEN = import.meta.env.GITHUB_TOKEN;
+const restHeaders = { 'User-Agent': 'ryanchoi-dev' };
+const eventTypeLabels: Record<string, string> = {
+  PushEvent: 'Pushed to',
+  CreateEvent: 'Created',
+  PullRequestEvent: 'PR on',
+  IssuesEvent: 'Issue on',
+  WatchEvent: 'Starred',
+  ForkEvent: 'Forked',
+};
+
+async function readJsonResponse<T>(response: Response): Promise<T | null> {
+  if (!response.ok) return null;
+
+  try {
+    return (await response.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchJson<T>(url: string, init?: RequestInit): Promise<T | null> {
+  try {
+    return await readJsonResponse<T>(await fetch(url, init));
+  } catch {
+    return null;
+  }
+}
 
 function getTimeAgo(createdAt: string, now: number): string {
   const diff = now - new Date(createdAt).getTime();
@@ -61,117 +141,155 @@ function getTimeAgo(createdAt: string, now: number): string {
   return 'just now';
 }
 
-try {
-  const restHeaders = { 'User-Agent': 'ryanchoi-dev' };
-  const fetches: Promise<Response>[] = [
-    fetch('https://api.github.com/users/rmerk', { headers: restHeaders }),
-    fetch('https://api.github.com/users/rmerk/events?per_page=5', { headers: restHeaders }),
-    fetch('https://api.github.com/users/rmerk/repos?sort=stars&per_page=6&direction=desc', { headers: restHeaders }),
-  ];
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
 
-  if (GITHUB_TOKEN) {
-    fetches.push(
-      fetch('https://api.github.com/graphql', {
-        method: 'POST',
-        headers: {
-          'Authorization': `bearer ${GITHUB_TOKEN}`,
-          'Content-Type': 'application/json',
-          'User-Agent': 'ryanchoi-dev',
-        },
-        body: JSON.stringify({
-          query: `{
-            user(login: "rmerk") {
-              contributionsCollection {
-                contributionCalendar {
-                  totalContributions
-                  weeks {
-                    contributionDays {
-                      contributionCount
-                      date
-                    }
-                  }
-                }
-              }
-              repositories(first: 100, ownerAffiliations: OWNER, isFork: false) {
-                nodes {
-                  languages(first: 5, orderBy: { field: SIZE, direction: DESC }) {
-                    edges {
-                      size
-                      node { name }
-                    }
-                  }
+function isGitHubEvent(value: unknown): value is GitHubEvent {
+  if (!isRecord(value) || !isRecord(value.repo)) return false;
+
+  return (
+    typeof value.type === 'string' &&
+    typeof value.repo.name === 'string' &&
+    typeof value.created_at === 'string'
+  );
+}
+
+function isGitHubRepo(value: unknown): value is GitHubRepo {
+  if (!isRecord(value)) return false;
+
+  return (
+    typeof value.name === 'string' &&
+    (typeof value.description === 'string' || value.description === null) &&
+    typeof value.html_url === 'string' &&
+    typeof value.stargazers_count === 'number' &&
+    typeof value.forks_count === 'number' &&
+    (typeof value.language === 'string' || value.language === null)
+  );
+}
+
+function isContributionDay(value: unknown): value is ContributionDay {
+  return isRecord(value) && typeof value.contributionCount === 'number' && typeof value.date === 'string';
+}
+
+function isContributionWeek(value: unknown): value is ContributionWeek {
+  return (
+    isRecord(value) &&
+    Array.isArray(value.contributionDays) &&
+    value.contributionDays.every(isContributionDay)
+  );
+}
+
+function isLanguageEdge(value: unknown): value is { size: number; node: { name: string } } {
+  return (
+    isRecord(value) &&
+    typeof value.size === 'number' &&
+    isRecord(value.node) &&
+    typeof value.node.name === 'string'
+  );
+}
+
+function resolveProfile(data: Partial<GitHubProfile> | null): GitHubProfile {
+  if (!data) return { ...fallbackProfile };
+
+  return {
+    avatar_url: data.avatar_url || fallbackProfile.avatar_url,
+    public_repos: typeof data.public_repos === 'number' ? data.public_repos : fallbackProfile.public_repos,
+    followers: typeof data.followers === 'number' ? data.followers : fallbackProfile.followers,
+    bio: data.bio ?? fallbackProfile.bio,
+    html_url: data.html_url || fallbackProfile.html_url,
+  };
+}
+
+function resolveRecentActivity(events: unknown): GitHubActivityItem[] {
+  const validEvents = Array.isArray(events) ? events.filter(isGitHubEvent) : [];
+  if (validEvents.length === 0) return [...fallbackRecentActivity];
+
+  const now = Date.now();
+
+  return validEvents.slice(0, 5).map((event) => {
+    return {
+      repo: event.repo.name.split('/').pop() || event.repo.name,
+      type: eventTypeLabels[event.type] || event.type.replace('Event', ''),
+      timeAgo: getTimeAgo(event.created_at, now),
+    };
+  });
+}
+
+function resolveRepos(data: unknown): GitHubRepo[] {
+  const validRepos = Array.isArray(data) ? data.filter(isGitHubRepo) : [];
+  return validRepos.length > 0 ? validRepos : [...fallbackRepos];
+}
+
+const [profileData, eventsData, reposData] = await Promise.all([
+  fetchJson<Partial<GitHubProfile>>('https://api.github.com/users/rmerk', { headers: restHeaders }),
+  fetchJson<unknown[]>('https://api.github.com/users/rmerk/events?per_page=5', { headers: restHeaders }),
+  fetchJson<unknown[]>('https://api.github.com/users/rmerk/repos?sort=stars&per_page=6&direction=desc', { headers: restHeaders }),
+]);
+
+const profile = resolveProfile(profileData);
+const recentActivity = resolveRecentActivity(eventsData);
+const repos = resolveRepos(reposData);
+
+if (GITHUB_TOKEN) {
+  const gql = await fetchJson<GitHubGraphQLResponse>('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: {
+      'Authorization': `bearer ${GITHUB_TOKEN}`,
+      'Content-Type': 'application/json',
+      'User-Agent': 'ryanchoi-dev',
+    },
+    body: JSON.stringify({
+      query: `{
+        user(login: "rmerk") {
+          contributionsCollection {
+            contributionCalendar {
+              totalContributions
+              weeks {
+                contributionDays {
+                  contributionCount
+                  date
                 }
               }
             }
-          }`,
-        }),
-      })
-    );
+          }
+          repositories(first: 100, ownerAffiliations: OWNER, isFork: false) {
+            nodes {
+              languages(first: 5, orderBy: { field: SIZE, direction: DESC }) {
+                edges {
+                  size
+                  node { name }
+                }
+              }
+            }
+          }
+        }
+      }`,
+    }),
+  });
+
+  const user = gql?.data?.user;
+  const calendar = user?.contributionsCollection?.contributionCalendar;
+  const validWeeks = Array.isArray(calendar?.weeks) ? calendar.weeks.filter(isContributionWeek) : [];
+  if (typeof calendar?.totalContributions === 'number' && validWeeks.length > 0) {
+    totalContributions = calendar.totalContributions;
+    contributionWeeks = validWeeks;
   }
 
-  const [profileRes, eventsRes, reposRes, graphqlRes] = await Promise.all(fetches);
-
-  if (profileRes.ok) {
-    const data = await profileRes.json();
-    profile = {
-      avatar_url: data.avatar_url,
-      public_repos: data.public_repos,
-      followers: data.followers,
-      bio: data.bio,
-      html_url: data.html_url,
-    };
-  }
-
-  if (eventsRes.ok) {
-    const events: GitHubEvent[] = await eventsRes.json();
-    const now = Date.now();
-
-    const typeMap: Record<string, string> = {
-      PushEvent: 'Pushed to',
-      CreateEvent: 'Created',
-      PullRequestEvent: 'PR on',
-      IssuesEvent: 'Issue on',
-      WatchEvent: 'Starred',
-      ForkEvent: 'Forked',
-    };
-
-    recentActivity = events.slice(0, 5).map((event) => {
-      return {
-        repo: event.repo.name.split('/').pop() || event.repo.name,
-        type: typeMap[event.type] || event.type.replace('Event', ''),
-        timeAgo: getTimeAgo(event.created_at, now),
-      };
-    });
-  }
-
-  if (reposRes.ok) {
-    repos = (await reposRes.json()) as GitHubRepo[];
-  }
-
-  if (graphqlRes?.ok) {
-    const gql = await graphqlRes.json();
-    const user = gql?.data?.user;
-    const calendar = user?.contributionsCollection?.contributionCalendar;
-    if (calendar) {
-      totalContributions = calendar.totalContributions;
-      contributionWeeks = calendar.weeks;
-    }
-    // Aggregate language bytes across all repos
-    const langBytes = new Map<string, number>();
-    for (const repo of user?.repositories?.nodes || []) {
-      for (const edge of repo?.languages?.edges || []) {
-        const name = edge.node.name;
-        langBytes.set(name, (langBytes.get(name) || 0) + edge.size);
-      }
-    }
-    if (langBytes.size > 0) {
-      graphqlLanguages = [...langBytes.entries()]
-        .sort((a, b) => b[1] - a[1])
-        .map(([name]) => name);
+  // Aggregate language bytes across all repos when GraphQL data is available.
+  const langBytes = new Map<string, number>();
+  const repoNodes = Array.isArray(user?.repositories?.nodes) ? user.repositories.nodes : [];
+  for (const repo of repoNodes) {
+    const languageEdges = Array.isArray(repo?.languages?.edges) ? repo.languages.edges : [];
+    for (const edge of languageEdges.filter(isLanguageEdge)) {
+      langBytes.set(edge.node.name, (langBytes.get(edge.node.name) || 0) + edge.size);
     }
   }
-} catch {
-  // Use hardcoded fallbacks
+  if (langBytes.size > 0) {
+    graphqlLanguages = [...langBytes.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([name]) => name);
+  }
 }
 
 const languageColors: Record<string, string> = {
@@ -223,23 +341,24 @@ function sortByCategory(langs: string[]): string[] {
   return [...frontend, ...backend, ...other];
 }
 
-// Use GraphQL language data (by bytes across all repos) if available, else fall back to REST
-let languages: string[];
-if (graphqlLanguages.length > 0) {
-  languages = sortByCategory(graphqlLanguages);
-} else {
+function getRestLanguages(sourceRepos: GitHubRepo[]): string[] {
   const languageCounts = new Map<string, number>();
-  for (const repo of repos) {
+  for (const repo of sourceRepos) {
     if (repo.language) {
       languageCounts.set(repo.language, (languageCounts.get(repo.language) || 0) + 1);
     }
   }
-  languages = sortByCategory(
+
+  const languages = sortByCategory(
     [...languageCounts.entries()]
       .sort((a, b) => b[1] - a[1])
       .map(([name]) => name)
   );
+
+  return languages.length > 0 ? languages : fallbackLanguages;
 }
+
+const languages = graphqlLanguages.length > 0 ? sortByCategory(graphqlLanguages) : getRestLanguages(repos);
 ---
 
 <section class="py-16 sm:py-20">
