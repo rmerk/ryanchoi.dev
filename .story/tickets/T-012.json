@@ -2,13 +2,14 @@
   "blockedBy": [
     "T-003"
   ],
-  "completedDate": null,
+  "claimedBySession": "e076815a-192a-4fc7-a5bc-c57f0658eac7",
+  "completedDate": "2026-04-26",
   "createdDate": "2026-04-26",
   "description": "Create a small backlog of blog post ideas and publication steps that fit the site's frontend engineering and developer tooling themes. Include draft workflow, tagging conventions, and how the /new-post skill should be used.",
   "id": "T-012",
   "order": 30,
   "phase": "portfolio-content",
-  "status": "open",
+  "status": "complete",
   "title": "Build blog publishing backlog",
   "type": "task"
 }

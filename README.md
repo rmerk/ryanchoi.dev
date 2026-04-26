@@ -95,6 +95,7 @@ description: Redesigning my personal site from the ground up with Astro 5.
 - `draft` defaults to `false`, but set it explicitly so publishing intent is obvious.
 - `description` is optional and is passed to the post layout for page metadata.
 - Draft posts are filtered out of the blog index, home page latest-writing section, and static post routes.
+- Blog ideas and drafting workflow live in `docs/blog-backlog.md`.
 
 ### Project Entries
 
