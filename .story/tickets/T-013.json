@@ -2,13 +2,14 @@
   "blockedBy": [
     "T-007"
   ],
-  "completedDate": null,
+  "claimedBySession": "e076815a-192a-4fc7-a5bc-c57f0658eac7",
+  "completedDate": "2026-04-26",
   "createdDate": "2026-04-26",
   "description": "Maintain src/data/resume.ts and the IDE-style resume presentation as experience, skills, and messaging evolve. Verify the tabbed editor view, minimap, line numbering, and links remain readable across themes and breakpoints.",
   "id": "T-013",
   "order": 40,
   "phase": "portfolio-content",
-  "status": "open",
+  "status": "complete",
   "title": "Keep resume content and IDE presentation current",
   "type": "task"
 }

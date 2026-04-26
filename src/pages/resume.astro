@@ -45,13 +45,13 @@ function ind(n: number): string {
 
       <!-- Tab bar -->
       <div class="tab-scroll flex overflow-x-auto border-b border-border bg-bg/70" role="tablist">
-        <button type="button" class="editor-tab active-tab cursor-pointer whitespace-nowrap border-r border-border px-4 py-2.5 font-mono text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" data-tab="experience" role="tab" aria-selected="true">
+        <button id="tab-experience" type="button" class="editor-tab active-tab cursor-pointer whitespace-nowrap border-r border-border px-4 py-2.5 font-mono text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" data-tab="experience" role="tab" aria-selected="true" aria-controls="experience" tabindex="0">
           experience.ts
         </button>
-        <button type="button" class="editor-tab cursor-pointer whitespace-nowrap border-r border-border px-4 py-2.5 font-mono text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" data-tab="skills" role="tab" aria-selected="false">
+        <button id="tab-skills" type="button" class="editor-tab cursor-pointer whitespace-nowrap border-r border-border px-4 py-2.5 font-mono text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" data-tab="skills" role="tab" aria-selected="false" aria-controls="skills" tabindex="-1">
           skills.ts
         </button>
-        <button type="button" class="editor-tab cursor-pointer whitespace-nowrap border-r border-border px-4 py-2.5 font-mono text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" data-tab="education" role="tab" aria-selected="false">
+        <button id="tab-education" type="button" class="editor-tab cursor-pointer whitespace-nowrap border-r border-border px-4 py-2.5 font-mono text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" data-tab="education" role="tab" aria-selected="false" aria-controls="education" tabindex="-1">
           education.ts
         </button>
       </div>
@@ -62,7 +62,7 @@ function ind(n: number): string {
         <div class="min-w-0 flex-1 overflow-hidden">
           <div id="editor-content" class="p-4 font-mono text-xs leading-relaxed sm:p-6 sm:text-sm">
             {resetLn()}
-            <section id="experience">
+            <section id="experience" role="tabpanel" aria-labelledby="tab-experience">
               <div class="code-line" data-line={ln()}><span class="text-muted italic">// Experience</span></div>
               <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
               <div class="code-line" data-line={ln()}>
@@ -118,7 +118,7 @@ function ind(n: number): string {
             </section>
 
             {resetLn()}
-            <section id="skills">
+            <section id="skills" role="tabpanel" aria-labelledby="tab-skills" hidden>
               <div class="code-line" data-line={ln()}><span class="text-muted italic">// Skills</span></div>
               <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
               <div class="code-line" data-line={ln()}>
@@ -135,7 +135,7 @@ function ind(n: number): string {
             </section>
 
             {resetLn()}
-            <section id="education">
+            <section id="education" role="tabpanel" aria-labelledby="tab-education" hidden>
               <div class="code-line" data-line={ln()}><span class="text-muted italic">// Education</span></div>
               <div class="code-line" data-line={ln()}><span>&nbsp;</span></div>
 
@@ -194,22 +194,58 @@ function ind(n: number): string {
 
     if (!sections.length || !tabs.length) return;
 
-    function switchTab(targetId: string) {
+    function switchTab(targetId: string, shouldFocus = false) {
       sections.forEach((section) => {
-        section.style.display = section.id === targetId ? '' : 'none';
+        section.hidden = section.id !== targetId;
       });
       tabs.forEach((tab) => {
         const isActive = tab.dataset.tab === targetId;
         tab.classList.toggle('active-tab', isActive);
         tab.setAttribute('aria-selected', String(isActive));
+        tab.tabIndex = isActive ? 0 : -1;
+        if (isActive && shouldFocus) {
+          tab.focus();
+        }
       });
       setupMinimap();
+    }
+
+    function moveTabFocus(currentTab: HTMLButtonElement, direction: 'previous' | 'next' | 'first' | 'last') {
+      const tabList = Array.from(tabs);
+      const currentIndex = tabList.indexOf(currentTab);
+      let nextIndex = currentIndex;
+
+      if (direction === 'first') nextIndex = 0;
+      if (direction === 'last') nextIndex = tabList.length - 1;
+      if (direction === 'previous') nextIndex = currentIndex === 0 ? tabList.length - 1 : currentIndex - 1;
+      if (direction === 'next') nextIndex = currentIndex === tabList.length - 1 ? 0 : currentIndex + 1;
+
+      const targetId = tabList[nextIndex]?.dataset.tab;
+      if (targetId) switchTab(targetId, true);
     }
 
     tabs.forEach((tab) => {
       tab.addEventListener('click', () => {
         const targetId = tab.dataset.tab;
         if (targetId) switchTab(targetId);
+      });
+      tab.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          moveTabFocus(tab, 'previous');
+        }
+        if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          moveTabFocus(tab, 'next');
+        }
+        if (event.key === 'Home') {
+          event.preventDefault();
+          moveTabFocus(tab, 'first');
+        }
+        if (event.key === 'End') {
+          event.preventDefault();
+          moveTabFocus(tab, 'last');
+        }
       });
     });
 
@@ -221,7 +257,14 @@ function ind(n: number): string {
     const source = document.getElementById('editor-content');
     const target = document.getElementById('minimap-content');
     if (source && target) {
-      target.replaceChildren(source.cloneNode(true));
+      const clone = source.cloneNode(true) as HTMLElement;
+      clone.inert = true;
+      clone.querySelectorAll<HTMLElement>('a, button, input, select, textarea, [tabindex]').forEach((element) => {
+        element.setAttribute('tabindex', '-1');
+        element.setAttribute('aria-hidden', 'true');
+        element.removeAttribute('href');
+      });
+      target.replaceChildren(clone);
     }
   }
 
