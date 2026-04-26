@@ -1,0 +1,18 @@
+{
+  "components": [],
+  "discoveredDate": "2026-04-26",
+  "id": "ISS-001",
+  "impact": "The root README describes the Astro starter template instead of ryanchoi.dev, so new sessions and visitors get stale setup guidance and miss project-specific commands, content workflow, and deployment context.",
+  "location": [
+    "README.md"
+  ],
+  "phase": "portfolio-content",
+  "relatedTickets": [
+    "T-010"
+  ],
+  "resolution": null,
+  "resolvedDate": null,
+  "severity": "medium",
+  "status": "open",
+  "title": "README still uses Astro starter content"
+}

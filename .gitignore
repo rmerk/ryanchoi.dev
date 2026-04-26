@@ -3,3 +3,6 @@ dist
 .env
 .env.deploy
 .astro
+.story/snapshots/
+.story/sessions/
+.story/status.json

@@ -1,0 +1,12 @@
+{
+  "blockedBy": [],
+  "completedDate": "2026-04-26",
+  "createdDate": "2026-04-26",
+  "description": "Backfill the completed visual refresh: editorial layout, rounded card surfaces, cyan accent token system, light and dark themes, product-style hero, project cards, blog rows, footer, and IDE-inspired resume page. Treat this as documentation of shipped behavior rather than new implementation.",
+  "id": "T-007",
+  "order": 10,
+  "phase": "visual-system",
+  "status": "complete",
+  "title": "Track refreshed editorial visual system",
+  "type": "chore"
+}

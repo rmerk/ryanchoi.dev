@@ -1,0 +1,12 @@
+{
+  "blockedBy": [],
+  "completedDate": "2026-04-26",
+  "createdDate": "2026-04-26",
+  "description": "Record the checked-in Claude Code automation setup: context7 MCP configuration, PreToolUse deploy.sh protection, PostToolUse astro check hook, and the /deploy and /new-post skills. This is current project operating context for future coding sessions.",
+  "id": "T-005",
+  "order": 50,
+  "phase": "p0",
+  "status": "complete",
+  "title": "Capture Claude Code automation baseline",
+  "type": "chore"
+}

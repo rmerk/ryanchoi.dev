@@ -1,0 +1,18 @@
+{
+  "components": [],
+  "discoveredDate": "2026-04-26",
+  "id": "ISS-002",
+  "impact": "The Story MCP status tool reported no .story project while the CLI in the repo detected the scaffold. This can block the intended /story workflow until the MCP server is restarted or pointed at the repository correctly.",
+  "location": [
+    ".story/config.json"
+  ],
+  "phase": "p0",
+  "relatedTickets": [
+    "T-006"
+  ],
+  "resolution": null,
+  "resolvedDate": null,
+  "severity": "medium",
+  "status": "open",
+  "title": "Story MCP status does not detect this workspace"
+}

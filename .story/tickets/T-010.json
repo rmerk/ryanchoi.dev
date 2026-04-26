@@ -1,0 +1,15 @@
+{
+  "blockedBy": [
+    "T-001",
+    "T-004"
+  ],
+  "completedDate": null,
+  "createdDate": "2026-04-26",
+  "description": "Replace the default Astro starter README with documentation specific to ryanchoi.dev: project purpose, tech stack, commands, content workflow, deployment notes, environment variables, and verification commands. Keep secrets and private infrastructure details out of the file.",
+  "id": "T-010",
+  "order": 10,
+  "phase": "portfolio-content",
+  "status": "open",
+  "title": "Replace starter README with project-specific docs",
+  "type": "chore"
+}

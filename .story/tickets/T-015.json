@@ -1,0 +1,14 @@
+{
+  "blockedBy": [
+    "T-014"
+  ],
+  "completedDate": null,
+  "createdDate": "2026-04-26",
+  "description": "Review build-time GitHub fetch behavior for rate limits, transient failures, missing token, malformed GraphQL responses, and empty repo/activity data. Keep the site build resilient and preserve useful fallback content when API data is unavailable.",
+  "id": "T-015",
+  "order": 20,
+  "phase": "github-signal",
+  "status": "open",
+  "title": "Harden GitHub API rate-limit and fallback behavior",
+  "type": "task"
+}

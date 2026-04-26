@@ -1,0 +1,12 @@
+{
+  "blockedBy": [],
+  "completedDate": "2026-04-26",
+  "createdDate": "2026-04-26",
+  "description": "Backfill the completed accessibility and responsive work: skip link, focus-visible rings, mobile hamburger menu, reduced-motion handling, color-scheme metadata, image dimensions, and text-balance heading polish. This preserves the rationale for the current accessibility baseline.",
+  "id": "T-008",
+  "order": 20,
+  "phase": "visual-system",
+  "status": "complete",
+  "title": "Track accessibility and responsive nav fixes",
+  "type": "chore"
+}

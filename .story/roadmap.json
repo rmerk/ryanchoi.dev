@@ -1,0 +1,42 @@
+{
+  "blockers": [],
+  "date": "2026-04-26",
+  "phases": [
+    {
+      "description": "Backfill and maintain the existing Astro/Tailwind site architecture, content schemas, deployment context, Claude Code automation, and Story baseline.",
+      "id": "p0",
+      "label": "PHASE 1",
+      "name": "Foundation",
+      "summary": "Existing project baseline"
+    },
+    {
+      "description": "Track the completed visual refresh, responsive navigation, accessibility fixes, theme behavior, and ongoing visual QA for all routes.",
+      "id": "visual-system",
+      "label": "PHASE 2",
+      "name": "Visual System",
+      "summary": "Design and accessibility polish"
+    },
+    {
+      "description": "Expand and maintain the portfolio content system: project case studies, blog publishing, resume data, and public-facing documentation.",
+      "id": "portfolio-content",
+      "label": "PHASE 3",
+      "name": "Portfolio Content",
+      "summary": "Case studies, blog, and resume content"
+    },
+    {
+      "description": "Maintain the GitHub dashboard, optional token-backed GraphQL data, language aggregation, contribution display, and resilient fallbacks.",
+      "id": "github-signal",
+      "label": "PHASE 4",
+      "name": "GitHub Signal",
+      "summary": "GitHub dashboard reliability"
+    },
+    {
+      "description": "Add durable validation, CI, SEO metadata, deployment safety checks, and secrets/configuration documentation for production confidence.",
+      "id": "quality-and-ops",
+      "label": "PHASE 5",
+      "name": "Quality and Ops",
+      "summary": "Validation, SEO, and production safety"
+    }
+  ],
+  "title": "ryanchoi-dev"
+}

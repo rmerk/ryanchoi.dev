@@ -1,0 +1,20 @@
+{
+  "components": [],
+  "discoveredDate": "2026-04-26",
+  "id": "ISS-003",
+  "impact": "CLAUDE.md describes a .env.deploy-based deployment configuration, but deploy.sh currently hardcodes remote user, host, and path. Future deployment work needs to resolve the source of truth without exposing secrets.",
+  "location": [
+    "CLAUDE.md",
+    "deploy.sh"
+  ],
+  "phase": "quality-and-ops",
+  "relatedTickets": [
+    "T-004",
+    "T-020"
+  ],
+  "resolution": null,
+  "resolvedDate": null,
+  "severity": "medium",
+  "status": "open",
+  "title": "Deployment docs and deploy script disagree on configuration source"
+}

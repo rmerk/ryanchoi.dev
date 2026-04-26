@@ -1,0 +1,15 @@
+{
+  "blockedBy": [
+    "T-001",
+    "T-005"
+  ],
+  "completedDate": "2026-04-26",
+  "createdDate": "2026-04-26",
+  "description": "Create the first Story snapshot and handover after setup, documenting that early completed tickets were backfilled from existing source, docs, and commit history. Capture how future sessions should use snapshots, handovers, and lessons for continuity.",
+  "id": "T-006",
+  "order": 60,
+  "phase": "p0",
+  "status": "complete",
+  "title": "Create initial Story snapshot and handover conventions",
+  "type": "chore"
+}

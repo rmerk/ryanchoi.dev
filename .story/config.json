@@ -1,0 +1,32 @@
+{
+  "features": {
+    "handovers": true,
+    "issues": true,
+    "reviews": true,
+    "roadmap": true,
+    "tickets": true
+  },
+  "language": "typescript",
+  "project": "ryanchoi-dev",
+  "schemaVersion": 1,
+  "type": "npm",
+  "version": 2,
+  "recipeOverrides": {
+    "stages": {
+      "WRITE_TESTS": {
+        "enabled": false
+      },
+      "TEST": {
+        "enabled": true,
+        "command": "pnpm astro check"
+      },
+      "VERIFY": {
+        "enabled": false
+      },
+      "BUILD": {
+        "enabled": true,
+        "command": "pnpm build"
+      }
+    }
+  }
+}

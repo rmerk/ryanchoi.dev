@@ -1,0 +1,14 @@
+{
+  "blockedBy": [
+    "T-004"
+  ],
+  "completedDate": null,
+  "createdDate": "2026-04-26",
+  "description": "Document how GitHubSection uses unauthenticated REST API data by default and optional GITHUB_TOKEN-backed GraphQL data for contributions and richer language aggregation. Clarify where the token is configured and how builds behave without it.",
+  "id": "T-014",
+  "order": 10,
+  "phase": "github-signal",
+  "status": "open",
+  "title": "Document GITHUB_TOKEN behavior and GitHub API fallbacks",
+  "type": "task"
+}

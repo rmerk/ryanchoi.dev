@@ -1,0 +1,12 @@
+{
+  "blockedBy": [],
+  "completedDate": "2026-04-26",
+  "createdDate": "2026-04-26",
+  "description": "Record the current static-site architecture: Astro file routing, BaseLayout/PostLayout usage, shared components, Content Collections, global Tailwind v4 tokens, and the @/ import alias. This creates a stable reference for future sessions without needing to rediscover the project shape from source.",
+  "id": "T-001",
+  "order": 10,
+  "phase": "p0",
+  "status": "complete",
+  "title": "Document existing Astro project architecture",
+  "type": "chore"
+}

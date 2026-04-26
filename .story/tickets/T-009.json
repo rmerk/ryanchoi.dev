@@ -1,0 +1,15 @@
+{
+  "blockedBy": [
+    "T-007",
+    "T-008"
+  ],
+  "completedDate": null,
+  "createdDate": "2026-04-26",
+  "description": "Verify the refreshed UI across home, projects, about, resume, blog index, and individual blog posts at mobile and desktop widths. Check theme toggle behavior, keyboard focus, mobile navigation, external links, GitHub cards, resume tabs, and reduced-motion behavior.",
+  "id": "T-009",
+  "order": 30,
+  "phase": "visual-system",
+  "status": "open",
+  "title": "Run full route visual QA",
+  "type": "task"
+}

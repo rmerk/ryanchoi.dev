@@ -1,0 +1,12 @@
+{
+  "blockedBy": [],
+  "completedDate": "2026-04-26",
+  "createdDate": "2026-04-26",
+  "description": "Capture the existing blog and projects collection schemas from src/content.config.ts, including draft filtering, project ordering, featured flags, optional URLs, and cover images. This keeps content-related work aligned with the current Zod contracts.",
+  "id": "T-002",
+  "order": 20,
+  "phase": "p0",
+  "status": "complete",
+  "title": "Preserve content collection schema baseline",
+  "type": "chore"
+}
