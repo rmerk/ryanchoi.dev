@@ -62,13 +62,18 @@ Deployment prerequisites:
 
 `.env.deploy` is gitignored and may be used for private deployment notes or future parameterization, but the current `deploy.sh` does not source it. Changing `.env.deploy` alone will not change deployment behavior.
 
-Before deploying:
+### Safe Deploy Checklist
+
+Because deployment uses `rsync --delete`, treat each deploy as a production sync:
 
 1. Run `pnpm check`.
 2. Run `pnpm validate:build`.
-3. Confirm SSH access and deployment credentials are available locally.
-4. Run `./deploy.sh`, which runs `pnpm build` again before syncing `dist/`.
-5. Check the live site after rsync completes.
+3. Confirm `deploy.sh` still points at the intended production user, host, and path before syncing.
+4. Confirm SSH access and deployment credentials are available locally, with the deployment key loaded via `ssh-add`.
+5. Confirm no private files, tokens, SSH keys, or host-specific notes are being added to git; `.env` and `.env.deploy` must remain untracked.
+6. Confirm build-time secrets use private names such as `GITHUB_TOKEN`, never client-exposed names such as `PUBLIC_GITHUB_TOKEN`.
+7. Run `./deploy.sh`, which runs `pnpm build` again before syncing `dist/`.
+8. Check the live site after rsync completes.
 
 ## Project Structure
 

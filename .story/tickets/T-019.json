@@ -2,13 +2,13 @@
   "blockedBy": [
     "T-010"
   ],
-  "completedDate": null,
+  "completedDate": "2026-04-26",
   "createdDate": "2026-04-26",
   "description": "Review per-page titles, descriptions, canonical URLs, Open Graph/Twitter metadata, favicon/logo behavior, sitemap and robots needs, and social preview images. Prioritize changes that improve sharing and search clarity for a personal portfolio.",
   "id": "T-019",
   "order": 40,
   "phase": "quality-and-ops",
-  "status": "open",
+  "status": "complete",
   "title": "Audit SEO and social metadata across routes",
   "type": "task"
 }

@@ -10,9 +10,19 @@ import '@/styles/global.css';
 interface Props {
   title: string;
   description?: string;
+  image?: string;
 }
 
-const { title, description = 'Ryan Choi - Senior Frontend Engineer' } = Astro.props;
+const {
+  title,
+  description = 'Ryan Choi is a senior frontend engineer building fast, accessible interfaces for product teams.',
+  image = '/social-card.png',
+} = Astro.props;
+
+const site = Astro.site ?? new URL('https://ryanchoi.dev');
+const canonicalUrl = new URL(Astro.url.pathname, site);
+const imageUrl = new URL(image, site);
+const pageTitle = title === 'Home' ? 'Ryan Choi | Senior Frontend Engineer' : `${title} | Ryan Choi`;
 ---
 
 <!doctype html>
@@ -37,10 +47,24 @@ const { title, description = 'Ryan Choi - Senior Frontend Engineer' } = Astro.pr
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl.href} />
     <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title} | Ryan Choi</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Ryan Choi" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl.href} />
+    <meta property="og:image" content={imageUrl.href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Ryan Choi - Senior Frontend Engineer" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl.href} />
+    <title>{pageTitle}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />

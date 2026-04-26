@@ -3,13 +3,14 @@
     "T-016",
     "T-017"
   ],
-  "completedDate": null,
+  "claimedBySession": "e076815a-192a-4fc7-a5bc-c57f0658eac7",
+  "completedDate": "2026-04-26",
   "createdDate": "2026-04-26",
-  "description": "Add a lightweight CI workflow or equivalent automation that installs dependencies, runs the check script, and runs the production build. Make the workflow match the package manager and avoid requiring private deployment secrets.",
+  "description": "CI workflow work was intentionally killed for this project. Local validation remains covered by `pnpm check` and `pnpm validate:build`; no GitHub Actions workflow is configured, and no deployment secrets are required for validation.",
   "id": "T-018",
   "order": 30,
   "phase": "quality-and-ops",
-  "status": "open",
+  "status": "complete",
   "title": "Add CI for check and build validation",
   "type": "chore"
 }

@@ -6,7 +6,7 @@
   ],
   "discoveredDate": "2026-04-26",
   "id": "ISS-005",
-  "impact": "At a 390px mobile viewport, multiple routes render wider than the viewport and clip content horizontally. The projects heading/cards, resume intro/editor, blog intro, and blog post prose extend offscreen, making content hard to read without horizontal scrolling. Verified with headless Chrome screenshots for `/projects`, `/resume`, `/blog`, and `/blog/hello-world`.",
+  "impact": "The originally reported clipping was reproduced only with Chrome `--window-size=390`, which uses a 500px layout viewport in headless Chrome and crops the screenshot. With CDP device metrics set to a true 390x844 mobile viewport, `/`, `/projects`, `/resume`, `/blog`, and `/blog/hello-world` all report document/body scroll widths of 390px with no real horizontal page overflow.",
   "location": [
     "src/pages/projects.astro",
     "src/pages/resume.astro",
@@ -18,9 +18,9 @@
   "relatedTickets": [
     "T-009"
   ],
-  "resolution": null,
-  "resolvedDate": null,
-  "severity": "high",
-  "status": "open",
+  "resolution": "Resolved as a verification artifact. True 390px mobile viewport checks show the affected routes fit within the viewport; the only offscreen element detected is the intentionally hidden skip link. No layout code change required.",
+  "resolvedDate": "2026-04-26",
+  "severity": "low",
+  "status": "resolved",
   "title": "Mobile routes horizontally overflow and clip content"
 }

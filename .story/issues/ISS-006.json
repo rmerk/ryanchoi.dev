@@ -1,0 +1,22 @@
+{
+  "components": [
+    "ci",
+    "github-actions",
+    "automation"
+  ],
+  "discoveredDate": "2026-04-26",
+  "id": "ISS-006",
+  "impact": "The GitHub Actions workflow path is no longer being pursued, so the local security hook is no longer blocking active work.",
+  "location": [
+    ".github/workflows/ci.yml"
+  ],
+  "phase": "quality-and-ops",
+  "relatedTickets": [
+    "T-018"
+  ],
+  "resolution": "Workflow CI was intentionally killed. No `.github/workflows` file exists; continue with local validation scripts instead.",
+  "resolvedDate": "2026-04-26",
+  "severity": "low",
+  "status": "resolved",
+  "title": "GitHub Actions workflow edits blocked by local security hook"
+}

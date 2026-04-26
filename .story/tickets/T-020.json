@@ -3,13 +3,13 @@
     "T-004",
     "T-017"
   ],
-  "completedDate": null,
+  "completedDate": "2026-04-26",
   "createdDate": "2026-04-26",
   "description": "Review the production deployment path for accidental secret exposure, rsync delete risk, SSH key assumptions, environment variable handling, and pre-deploy validation. Capture the safe deploy checklist without committing secrets or private host details.",
   "id": "T-020",
   "order": 50,
   "phase": "quality-and-ops",
-  "status": "open",
+  "status": "complete",
   "title": "Confirm deploy safety and secrets handling",
   "type": "chore"
 }

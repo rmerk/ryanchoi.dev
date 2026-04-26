@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "storybloq": {
+      "type": "stdio",
+      "command": "/bin/zsh",
+      "args": [
+        "-lc",
+        "cd /Users/rchoi/Personal/ryanchoi-dev && exec /Users/rchoi/.vite-plus/bin/storybloq --mcp"
+      ]
+    }
+  }
+}

@@ -6,7 +6,7 @@
   ],
   "discoveredDate": "2026-04-26",
   "id": "ISS-004",
-  "impact": "At a 390px mobile viewport, the header shows only the logo; the theme toggle and hamburger menu are not visible, so mobile users cannot open site navigation or switch themes. Verified with headless Chrome screenshots for `/`, `/projects`, `/resume`, `/blog`, and `/blog/hello-world`.",
+  "impact": "Initial screenshots that showed only the logo were taken with Chrome `--window-size=390`, but headless Chrome still used a 500px layout viewport and cropped the 390px image before the right-side controls. A true 390px mobile viewport keeps the theme and menu controls visible in the header.",
   "location": [
     "src/components/Nav.astro"
   ],
@@ -14,9 +14,9 @@
   "relatedTickets": [
     "T-009"
   ],
-  "resolution": null,
-  "resolvedDate": null,
-  "severity": "high",
-  "status": "open",
+  "resolution": "Resolved as a verification artifact. CDP device metrics at 390x844 show `#theme-toggle-mobile` at x=290-326 and `#mobile-menu-btn` at x=334-370, both visible inside a 390px header. No code change required for the navigation controls.",
+  "resolvedDate": "2026-04-26",
+  "severity": "low",
+  "status": "resolved",
   "title": "Mobile navigation controls are not visible at narrow widths"
 }
