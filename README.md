@@ -13,6 +13,7 @@ Run commands from the project root:
 | `pnpm build` | Build the static site to `./dist/` |
 | `pnpm preview` | Preview the production build locally |
 | `pnpm check` | Run `astro check` to validate Astro, TypeScript, and content collection types |
+| `pnpm validate:build` | Run the production Astro build as a validation-only step |
 
 ## Environment Variables
 
@@ -32,12 +33,14 @@ Without `GITHUB_TOKEN`, builds still complete. The profile card has hardcoded de
 
 For local builds, put `GITHUB_TOKEN=...` in an untracked `.env` file. Deployment environments should configure `GITHUB_TOKEN` as a private build-time environment variable. Do not use `PUBLIC_GITHUB_TOKEN` or another client-exposed variable name, and never commit tokens or private environment files.
 
+Production build validation should pass without `GITHUB_TOKEN`; running it with a private token additionally exercises GraphQL-backed contribution and language data.
+
 ## Verification
 
 Use these checks before merging or deploying content and UI changes:
 
 1. Run `pnpm check`.
-2. Run `pnpm build`.
+2. Run `pnpm validate:build` to exercise production rendering and build-time GitHub data fallbacks.
 3. Preview production output with `pnpm preview` when visual behavior needs a local production check.
 
 ## Deployment
@@ -62,9 +65,9 @@ Deployment prerequisites:
 Before deploying:
 
 1. Run `pnpm check`.
-2. Run `pnpm build`.
+2. Run `pnpm validate:build`.
 3. Confirm SSH access and deployment credentials are available locally.
-4. Run `./deploy.sh`.
+4. Run `./deploy.sh`, which runs `pnpm build` again before syncing `dist/`.
 5. Check the live site after rsync completes.
 
 ## Project Structure
@@ -142,4 +145,4 @@ Before publishing a blog post or project entry:
 2. Keep filenames lowercase and slug-friendly.
 3. Set `draft: false` only when the post is ready to appear publicly.
 4. Confirm project `url`, `github`, and `cover` paths work when present.
-5. Run `pnpm check` and `pnpm build`.
+5. Run `pnpm check` and `pnpm validate:build`.

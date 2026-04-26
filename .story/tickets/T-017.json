@@ -2,13 +2,14 @@
   "blockedBy": [
     "T-016"
   ],
-  "completedDate": null,
+  "claimedBySession": "e076815a-192a-4fc7-a5bc-c57f0658eac7",
+  "completedDate": "2026-04-26",
   "createdDate": "2026-04-26",
   "description": "Define and verify the production build validation path for this static site, including pnpm build and any relevant preconditions for GitHub API data. Keep it separate from type checking because build-time fetch behavior can fail differently.",
   "id": "T-017",
   "order": 20,
   "phase": "quality-and-ops",
-  "status": "open",
+  "status": "complete",
   "title": "Add production build validation path",
   "type": "chore"
 }
