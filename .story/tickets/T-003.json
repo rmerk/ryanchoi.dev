@@ -2,13 +2,14 @@
   "blockedBy": [
     "T-002"
   ],
-  "completedDate": null,
+  "claimedBySession": "e076815a-192a-4fc7-a5bc-c57f0658eac7",
+  "completedDate": "2026-04-26",
   "createdDate": "2026-04-26",
   "description": "Write practical conventions for adding blog posts and project entries: required frontmatter, draft defaults, tags, project order, featured project behavior, cover image expectations, and publication checklist. This should build on the existing content schemas rather than changing them.",
   "id": "T-003",
   "order": 30,
   "phase": "p0",
-  "status": "open",
+  "status": "complete",
   "title": "Document content authoring conventions",
   "type": "task"
 }
