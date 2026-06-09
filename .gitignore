@@ -6,3 +6,6 @@ dist
 .story/snapshots/
 .story/sessions/
 .story/status.json
+
+# Large video asset — served from public/ and deployed via rsync, but kept out of git
+public/ryan-choi-senior-frontend-eng-intro.mp4
