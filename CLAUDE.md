@@ -64,7 +64,7 @@ Defined in `src/content.config.ts` with Zod schemas:
 - **File comment**: `.astro` files start with `// src/path/to/file.astro` in frontmatter
 - **Page container**: `max-w-5xl mx-auto px-5 sm:px-8` (prose narrows to `max-w-3xl`)
 - **Section headings**: numbered `01 / SECTION NAME` in the `label` utility, over a `border-t border-border` rule
-- **Focus styles**: `focus-visible:ring-2 focus-visible:ring-accent` (global `:focus-visible` outline is the baseline)
+- **Focus styles**: handled globally by the unlayered `:focus-visible` rule in `global.css`. Do not add `focus-visible:outline-none`/`ring-*` utilities — the global rule outranks them, so they are dead code.
 - **SVG icons**: inlined directly in components (no icon library)
 - **Fonts**: Archivo (sans), IBM Plex Mono (mono) via Google Fonts, loaded `display=optional` to avoid CLS
 - **Geometry**: squared — no `rounded-*` beyond `rounded-sm`, no shadows, no `backdrop-blur`. Separation comes from hairline rules.

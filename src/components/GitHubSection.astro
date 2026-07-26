@@ -342,7 +342,11 @@ function getRestLanguages(sourceRepos: GitHubRepo[]): string[] {
   return languages.length > 0 ? languages : fallbackLanguages;
 }
 
-const languages = graphqlLanguages.length > 0 ? sortByCategory(graphqlLanguages) : getRestLanguages(repos);
+// Capped: the GraphQL aggregate returns every language ever committed, which tails
+// off into noise (PureBasic, G-code) and buries the signal in a flat mono list.
+const LANGUAGE_LIMIT = 10;
+const languages = (graphqlLanguages.length > 0 ? sortByCategory(graphqlLanguages) : getRestLanguages(repos))
+  .slice(0, LANGUAGE_LIMIT);
 
 const stats: { key: string; value: string }[] = [
   { key: 'Repositories', value: String(profile.public_repos) },
@@ -419,7 +423,7 @@ const stats: { key: string; value: string }[] = [
               href={repo.html_url}
               target="_blank"
               rel="noopener noreferrer"
-              class="rule-link transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              class="rule-link transition-colors hover:text-accent"
             >
               {repo.name}
             </a>

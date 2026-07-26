@@ -1,0 +1,28 @@
+---
+// src/components/Logo.astro
+// Design decision: a monochrome rendering of the /logo.svg mark that inherits
+// currentColor, so it sits inside the palette instead of importing the original's
+// yellow-to-magenta gradient (the magenta stop clashes badly with amber).
+// public/logo.svg is left untouched — swap this component back for an <img> to
+// restore the gradient mark.
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 190.15 108.83"
+  fill="currentColor"
+  class={className}
+  role="img"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path d="M89.83,44.86a16.56,16.56,0,0,0-5.51-12.68,19.2,19.2,0,0,0-13.55-5.12H45.24V82.21H55.8V62.78H68.65L78.13,78.7l4.73-11.85L79.35,61A17.43,17.43,0,0,0,89.83,44.86ZM70.77,53h-15V36.86h15a7.78,7.78,0,0,1,8,8A7.85,7.85,0,0,1,70.77,53Z"/>
+  <path d="M139.55,64.05A17.43,17.43,0,0,1,124,73.19a16.92,16.92,0,0,1-12.7-5.29,18.44,18.44,0,0,1-5-13.26,2.23,2.23,0,0,1,0-.37L99.78,70.63a28.86,28.86,0,0,0,3.68,4.58A28.14,28.14,0,0,0,124,83.41a29,29,0,0,0,15.43-4.17A27,27,0,0,0,149.78,67.9Zm-.08-33.89A28.5,28.5,0,0,0,124,25.89a29.69,29.69,0,0,0-6.71.71l-5.87,14.7A16.9,16.9,0,0,1,124,36.06a17.42,17.42,0,0,1,15.51,9.24l10.23-3.88A26.18,26.18,0,0,0,139.47,30.16Z"/>
+  <polygon points="112.87 27.89 123.99 0 113.43 0 70.06 108.83 80.62 108.83 112.87 27.89"/>
+  <polygon points="150.85 7.28 150.85 22.2 182.69 54.04 150.85 85.85 150.85 100.77 190.15 61.5 190.15 46.58 150.85 7.28"/>
+  <polygon points="0 62.28 39.3 101.56 39.3 86.64 7.46 54.82 39.3 22.98 39.3 8.06 0 47.36 0 62.28"/>
+</svg>

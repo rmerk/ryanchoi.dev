@@ -3,6 +3,8 @@
 // Design decision: a solid, sticky masthead rule rather than a floating translucent
 // pill bar. Links are full-height tabs whose active state is a 2px accent underline
 // sitting on the header's own hairline, so the current section reads structurally.
+import Logo from '@/components/Logo.astro';
+
 const navLinks = [
   { href: '/projects', label: 'work' },
   { href: '/resume', label: 'resume' },
@@ -17,7 +19,7 @@ function isActive(href: string): boolean {
 }
 
 const iconButton =
-  'inline-flex h-9 w-9 items-center justify-center border border-border-strong text-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
+  'inline-flex h-9 w-9 items-center justify-center border border-border-strong text-muted transition-colors hover:border-accent hover:text-accent';
 ---
 
 <header class="sticky top-0 z-50 border-b border-border bg-bg">
@@ -25,10 +27,10 @@ const iconButton =
     <!-- Wordmark -->
     <a
       href="/"
-      class="group flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      class="group flex items-center gap-2.5"
     >
-      <span class="flex h-7 w-7 items-center justify-center border border-border-strong transition-colors group-hover:border-accent">
-        <img src="/logo.svg" alt="" aria-hidden="true" width="28" height="16" class="h-4 w-auto" />
+      <span class="flex h-7 w-7 items-center justify-center border border-border-strong text-muted transition-colors group-hover:border-accent group-hover:text-accent">
+        <Logo class="h-3.5 w-auto" />
       </span>
       <span class="label text-text">Ryan Choi</span>
     </a>
@@ -39,7 +41,7 @@ const iconButton =
         <a
           href={href}
           aria-current={isActive(href) ? 'page' : undefined}
-          class={`label -mb-px flex items-center border-b-2 px-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset ${
+          class={`label -mb-px flex items-center border-b-2 px-4 transition-colors ${
             isActive(href)
               ? 'border-accent text-accent'
               : 'border-transparent text-muted hover:border-border-strong hover:text-text'
@@ -130,7 +132,7 @@ const iconButton =
         <a
           href={href}
           aria-current={isActive(href) ? 'page' : undefined}
-          class={`label flex items-center border-b border-border py-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset ${
+          class={`label flex items-center border-b border-border py-4 transition-colors ${
             isActive(href) ? 'text-accent' : 'text-muted hover:text-text'
           }`}
         >

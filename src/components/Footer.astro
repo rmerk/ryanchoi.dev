@@ -2,6 +2,8 @@
 // src/components/Footer.astro
 // Design decision: close the document like a spec sheet colophon — a top rule,
 // label-headed columns, and a final metadata line. No cards, no shadows.
+import Logo from '@/components/Logo.astro';
+
 const year = new Date().getFullYear();
 
 const siteLinks = [
@@ -25,10 +27,10 @@ const elsewhereLinks = [
       <div class="col-span-2">
         <a
           href="/"
-          class="group inline-flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          class="group inline-flex items-center gap-2.5"
         >
-          <span class="flex h-7 w-7 items-center justify-center border border-border-strong transition-colors group-hover:border-accent">
-            <img src="/logo.svg" alt="" aria-hidden="true" width="28" height="16" class="h-4 w-auto" />
+          <span class="flex h-7 w-7 items-center justify-center border border-border-strong text-muted transition-colors group-hover:border-accent group-hover:text-accent">
+            <Logo class="h-3.5 w-auto" />
           </span>
           <span class="label text-text">Ryan Choi</span>
         </a>
@@ -45,7 +47,7 @@ const elsewhereLinks = [
             <li>
               <a
                 href={href}
-                class="rule-link text-sm text-muted transition-colors hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                class="rule-link text-sm text-muted transition-colors hover:text-text"
               >
                 {label}
               </a>
@@ -64,7 +66,7 @@ const elsewhereLinks = [
                 href={href}
                 target={external ? '_blank' : undefined}
                 rel={external ? 'noopener noreferrer' : undefined}
-                class="rule-link text-sm text-muted transition-colors hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                class="rule-link text-sm text-muted transition-colors hover:text-text"
               >
                 {label}
               </a>
