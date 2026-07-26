@@ -1,9 +1,10 @@
 ---
 // src/pages/blog/index.astro
-// Design decision: make the writing index feel like a clean editorial archive
-// with a strong intro and roomy, mobile-friendly post rows.
+// Design decision: an archive index — dates aligned in a mono gutter down the page,
+// entries separated by hairlines rather than boxed in a panel.
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/PageHeader.astro';
 import PostRow from '@/components/PostRow.astro';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
@@ -11,22 +12,29 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
 ---
 
 <BaseLayout title="Blog" description="Writing from Ryan Choi on frontend engineering, software craft, reliable interfaces, and calmer developer workflows.">
-  <div class="mx-auto max-w-4xl px-5 py-16 sm:px-6 sm:py-24">
-    <div class="mb-12">
-      <p class="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-accent">Writing</p>
-      <h1 class="text-4xl font-semibold tracking-tight text-text text-balance sm:text-5xl">Notes on frontend engineering and software craft.</h1>
-      <p class="mt-5 max-w-2xl text-lg leading-8 text-muted">Thoughts on building reliable interfaces, better tooling, and calmer developer workflows.</p>
-    </div>
+  <div class="mx-auto max-w-5xl px-5 py-16 sm:px-8 sm:py-24">
+    <PageHeader
+      eyebrow="Writing"
+      title="Notes on frontend engineering and software craft."
+      lede="Thoughts on building reliable interfaces, better tooling, and calmer developer workflows."
+    />
 
-    <div class="rounded-3xl border border-border bg-surface/55 p-2">
-      {posts.map((post) => (
-        <PostRow
-          title={post.data.title}
-          date={post.data.date}
-          slug={post.id.replace(/\.md$/, '')}
-          tags={post.data.tags}
-        />
-      ))}
+    <div class="mt-12">
+      <p class="label border-t border-border py-3 text-muted-soft">
+        {posts.length} {posts.length === 1 ? 'post' : 'posts'}
+      </p>
+
+      <div class="border-t border-border">
+        {posts.map((post) => (
+          <PostRow
+            headingLevel={2}
+            title={post.data.title}
+            date={post.data.date}
+            slug={post.id.replace(/\.md$/, '')}
+            tags={post.data.tags}
+          />
+        ))}
+      </div>
     </div>
   </div>
 </BaseLayout>

@@ -1,0 +1,20 @@
+---
+// src/components/PageHeader.astro
+// Design decision: every non-home page opens identically — an accent mono eyebrow,
+// the h1, an optional lede, and a closing rule that the page content hangs from.
+interface Props {
+  eyebrow: string;
+  title: string;
+  lede?: string;
+}
+
+const { eyebrow, title, lede } = Astro.props;
+---
+
+<header class="border-b border-border pb-10">
+  <p class="label text-accent">{eyebrow}</p>
+  <h1 class="mt-5 max-w-3xl text-display-2 font-semibold leading-[1.1] tracking-[-0.025em] text-text text-balance">
+    {title}
+  </h1>
+  {lede && <p class="mt-5 max-w-2xl text-base leading-8 text-muted">{lede}</p>}
+</header>

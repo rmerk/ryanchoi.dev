@@ -12,10 +12,13 @@ interface Props {
   github?: string;
   cover?: string;
   index?: number;
+  /** 2 on pages where projects are the top-level content, 3 under a section h2. */
+  headingLevel?: 2 | 3;
 }
 
-const { title, description, tech, url, github, cover, index } = Astro.props;
+const { title, description, tech, url, github, cover, index, headingLevel = 3 } = Astro.props;
 
+const Heading = `h${headingLevel}` as const;
 const primaryHref = url ?? github;
 const indexLabel = typeof index === 'number' ? String(index + 1).padStart(2, '0') : undefined;
 
@@ -32,7 +35,7 @@ const metaLink =
     )}
 
     <div class={indexLabel ? '' : 'sm:col-span-2'}>
-      <h3 class="text-xl font-semibold tracking-tight text-text sm:text-2xl">
+      <Heading class="text-xl font-semibold tracking-tight text-text sm:text-2xl">
         {primaryHref ? (
           <a
             href={primaryHref}
@@ -45,7 +48,7 @@ const metaLink =
         ) : (
           title
         )}
-      </h3>
+      </Heading>
 
       <p class="mt-3 max-w-2xl text-sm leading-7 text-muted">{description}</p>
 

@@ -9,9 +9,13 @@ interface Props {
   date: Date;
   slug: string;
   tags: string[];
+  /** 2 on the blog index where posts are the top-level content, 3 under a section h2. */
+  headingLevel?: 2 | 3;
 }
 
-const { title, date, slug, tags } = Astro.props;
+const { title, date, slug, tags, headingLevel = 3 } = Astro.props;
+
+const Heading = `h${headingLevel}` as const;
 
 const formattedDate = date.toLocaleDateString('en-US', {
   year: 'numeric',
@@ -30,14 +34,14 @@ const formattedDate = date.toLocaleDateString('en-US', {
     </time>
 
     <div class="min-w-0">
-      <h3 class="text-base font-medium text-text sm:text-lg">
+      <Heading class="text-base font-medium text-text sm:text-lg">
         <a
           href={`/blog/${slug}`}
           class="rule-link transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           {title}
         </a>
-      </h3>
+      </Heading>
 
       {tags.length > 0 && (
         <ul class="mt-2.5 flex flex-wrap gap-x-2 gap-y-1">
