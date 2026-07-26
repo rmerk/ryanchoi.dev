@@ -1,7 +1,8 @@
 ---
 // src/layouts/PostLayout.astro
-// Design decision: use a restrained editorial reading layout with generous rhythm,
-// quiet metadata, and cyan accents reserved for tags and links.
+// Design decision: a reading document — narrow measure, a ruled masthead carrying
+// date and tags as one metadata line, and prose colored entirely from tokens so
+// light mode is a first-class rendering rather than an inverted dark one.
 import BaseLayout from '@/layouts/BaseLayout.astro';
 
 interface Props {
@@ -21,32 +22,36 @@ const formattedDate = date.toLocaleDateString('en-US', {
 ---
 
 <BaseLayout title={title} description={description ?? `Read ${title} by Ryan Choi.`}>
-  <div class="max-w-3xl mx-auto px-6 py-16 sm:py-24">
-    <a href="/blog" class="inline-flex items-center text-sm font-medium text-muted hover:text-accent transition-colors mb-12 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+  <div class="mx-auto max-w-3xl px-5 py-16 sm:px-8 sm:py-24">
+    <a
+      href="/blog"
+      class="rule-link label text-muted transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+    >
       &larr; Back to writing
     </a>
 
-    <header class="mb-14 border-b border-border pb-10">
-      <time class="font-mono text-xs uppercase tracking-[0.18em] text-muted-soft" datetime={date.toISOString()}>{formattedDate}</time>
-      <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight text-text mt-4 mb-6 text-balance">{title}</h1>
-      <div class="flex gap-2.5 flex-wrap">
+    <header class="mt-10 border-t border-border pt-6">
+      <div class="label flex flex-wrap items-baseline gap-x-2 gap-y-1 text-muted-soft">
+        <time datetime={date.toISOString()}>{formattedDate}</time>
         {tags.map((tag) => (
-          <span class="font-mono text-[11px] uppercase tracking-[0.14em] text-accent border border-accent/25 bg-accent/5 rounded-full px-3 py-1">
-            {tag}
-          </span>
+          <>
+            <span class="text-border-strong" aria-hidden="true">/</span>
+            <span class="text-accent">{tag}</span>
+          </>
         ))}
       </div>
+
+      <h1 class="mt-6 text-display-2 font-semibold leading-[1.1] tracking-[-0.025em] text-text text-balance">
+        {title}
+      </h1>
     </header>
 
-    <article class="prose prose-invert max-w-none
-      prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-text
-      prose-p:text-muted prose-p:leading-8
-      prose-li:text-muted prose-li:leading-8
-      prose-strong:text-text
-      prose-a:text-accent prose-a:no-underline hover:prose-a:underline
-      prose-code:font-mono prose-code:text-accent prose-code:text-sm prose-code:before:content-none prose-code:after:content-none
-      prose-blockquote:border-accent/50 prose-blockquote:text-text
-      prose-pre:bg-surface prose-pre:border prose-pre:border-border prose-pre:rounded-2xl">
+    <article class="prose prose-sm mt-12 max-w-none border-t border-border pt-12
+      prose-headings:font-semibold prose-headings:tracking-tight
+      prose-p:leading-8
+      prose-li:leading-8
+      prose-a:font-medium
+      prose-pre:text-sm">
       <slot />
     </article>
   </div>
