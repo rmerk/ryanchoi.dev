@@ -1,7 +1,8 @@
 ---
 // src/layouts/BaseLayout.astro
-// Design decision: keep the document shell lean and product-like, with theme colors
-// and typography loaded globally while preserving skip navigation and theme restore.
+// Design decision: keep the document shell lean and specification-like, with theme
+// colors and typography loaded globally while preserving skip navigation and theme
+// restore. Fonts load with display=optional so they cannot shift layout.
 import { ViewTransitions } from 'astro:transitions';
 import Nav from '@/components/Nav.astro';
 import Footer from '@/components/Footer.astro';
@@ -48,8 +49,8 @@ const pageTitle = title === 'Home' ? 'Ryan Choi | Senior Frontend Engineer' : `$
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl.href} />
-    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#14110f" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f5f1e8" media="(prefers-color-scheme: light)" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Ryan Choi" />
@@ -67,11 +68,14 @@ const pageTitle = title === 'Home' ? 'Ryan Choi | Senior Frontend Engineer' : `$
     <title>{pageTitle}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <!-- display=optional, not swap: the browser either has the face ready at first
+         paint or renders the fallback for that load and never swaps, so webfonts
+         cannot introduce CLS. Subsequent visits paint Archivo from cache. -->
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=optional" rel="stylesheet" />
     <ViewTransitions />
   </head>
-  <body class="min-h-screen flex flex-col selection:bg-accent/25">
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-accent focus:text-bg focus:px-4 focus:py-2 focus:rounded-full focus:text-sm focus:font-medium">
+  <body class="min-h-screen flex flex-col">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-accent focus:text-accent-ink focus:px-4 focus:py-2 focus:text-sm focus:font-medium">
       Skip to content
     </a>
     <Nav />

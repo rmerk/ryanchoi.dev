@@ -43,7 +43,8 @@ Defined in `src/content.config.ts` with Zod schemas:
 ### Styling
 
 - Tailwind CSS v4 loaded as a Vite plugin (`@tailwindcss/vite`) — no `tailwind.config` file exists
-- Design tokens in `src/styles/global.css` under `@theme {}`: `--color-bg`, `--color-surface`, `--color-border`, `--color-accent` (`#e8398d`), `--color-text`, `--color-muted`
+- Design tokens in `src/styles/global.css` under `@theme {}`: `--color-bg`, `--color-surface`, `--color-surface-raised`, `--color-border`, `--color-border-strong`, `--color-accent` (`#e8a33d` dark / `#8f5400` light), `--color-accent-ink`, `--color-text`, `--color-muted`, `--color-muted-soft`, plus `--color-code-*` for the resume editor
+- Custom utilities in `global.css`: `label` (mono/uppercase/tracked metadata) and `rule-link` (underline that draws in on hover)
 - **Dark mode is the default.** Light mode activates via `html.light` class
 - Theme toggle uses `localStorage` in an inline script in `BaseLayout`; re-applies on `astro:after-swap` for View Transitions
 - `@tailwindcss/typography` used on blog posts via `prose prose-invert prose-sm` on `<article>` in `PostLayout`
@@ -61,11 +62,13 @@ Defined in `src/content.config.ts` with Zod schemas:
 - **Path alias**: `@/*` maps to `src/*` — always use `@/` imports
 - **Component props**: declare `interface Props` in frontmatter, then destructure from `Astro.props`
 - **File comment**: `.astro` files start with `// src/path/to/file.astro` in frontmatter
-- **Page container**: `max-w-4xl mx-auto px-6`
-- **Section headings**: `font-mono text-sm text-muted uppercase tracking-widest`
-- **Focus styles**: `focus-visible:ring-2 focus-visible:ring-accent`
+- **Page container**: `max-w-5xl mx-auto px-5 sm:px-8` (prose narrows to `max-w-3xl`)
+- **Section headings**: numbered `01 / SECTION NAME` in the `label` utility, over a `border-t border-border` rule
+- **Focus styles**: `focus-visible:ring-2 focus-visible:ring-accent` (global `:focus-visible` outline is the baseline)
 - **SVG icons**: inlined directly in components (no icon library)
-- **Fonts**: Inter (sans), JetBrains Mono (mono) via Google Fonts
+- **Fonts**: Archivo (sans), IBM Plex Mono (mono) via Google Fonts, loaded `display=optional` to avoid CLS
+- **Geometry**: squared — no `rounded-*` beyond `rounded-sm`, no shadows, no `backdrop-blur`. Separation comes from hairline rules.
+- **Borders**: `border-border` is decorative hairline only; interactive controls use `border-border-strong` (clears WCAG 1.4.11's 3:1)
 
 ## Claude Code Automations
 
