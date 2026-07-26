@@ -7,7 +7,13 @@
      light text 15.7:1 · muted 7.1:1 · muted-soft 5.0:1 · accent 5.4:1 · border-strong 3.4:1
    --color-border is a decorative hairline only; anything that bounds an interactive
    control uses --color-border-strong so it clears the 3:1 floor of WCAG 1.4.11. */
-@import "tailwindcss";
+/* source(none) + an explicit @source scopes class detection to src/. Tailwind's
+   default detection walks the whole repo, so class names merely *mentioned* in
+   root-level Markdown (CLAUDE.md, REDESIGN.md) were being emitted as real CSS —
+   backdrop-blur, rounded-3xl, shadow-2xl and animate-ping all shipped in the
+   bundle despite no component using them. */
+@import "tailwindcss" source(none);
+@source "../**/*.{astro,ts,tsx,js,jsx,md,mdx,html}";
 @plugin "@tailwindcss/typography";
 
 @theme {

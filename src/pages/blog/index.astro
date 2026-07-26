@@ -20,7 +20,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     />
 
     <div class="mt-12">
-      <p class="label border-t border-border py-3 text-muted-soft">
+      <p class="label pb-3 text-muted-soft">
         {posts.length} {posts.length === 1 ? 'post' : 'posts'}
       </p>
 
