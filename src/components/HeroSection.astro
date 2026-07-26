@@ -1,123 +1,59 @@
 ---
 // src/components/HeroSection.astro
-// Design decision: lead with an editorial product-style hero, using spacious
-// typography and subtle grid light instead of heavy animated glow effects.
-const technologies = [
-  { name: 'TypeScript', color: '#38bdf8' },
-  { name: 'Vue', color: '#34d399' },
-  { name: 'React', color: '#67e8f9' },
-  { name: 'Astro', color: '#fb923c' },
-  { name: 'Tailwind CSS', color: '#22d3ee' },
-  { name: 'Node.js', color: '#86efac' },
-];
-
-const engineeringSignals = [
-  ['Design systems', 'Reusable UI primitives and polished developer APIs'],
-  ['Performance', 'Fast rendering paths, lean bundles, measurable UX'],
-  ['Accessibility', 'Semantic interfaces with keyboard and screen reader care'],
+// Design decision: open on a masthead, not a hero. A display statement over a
+// ruled specification table — the block a datasheet leads with. The previous
+// version paired this with a rotated glass panel showing invented product UI;
+// that has been dropped rather than replaced, since nothing about it was real.
+const specRows: { key: string; value: string; status?: boolean }[] = [
+  { key: 'Role', value: 'Senior Frontend Engineer' },
+  { key: 'Focus', value: 'Design systems · Frontend infrastructure · Accessibility' },
+  { key: 'Stack', value: 'TypeScript · Vue · React · Astro · Tailwind CSS · Node.js' },
+  { key: 'Domains', value: 'Fintech · SaaS' },
+  { key: 'Status', value: 'Open to senior frontend roles', status: true },
 ];
 ---
 
-<section class="relative flex min-h-[calc(100vh-4rem)] items-center overflow-hidden py-16 sm:py-28">
-  <!-- Soft editorial lighting -->
-  <div
-    class="absolute inset-x-0 top-0 h-[34rem] opacity-70"
-    aria-hidden="true"
-    style="background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--color-accent) 16%, transparent) 0, transparent 34rem);"
-  ></div>
+<section class="mx-auto max-w-5xl px-5 pt-16 pb-20 sm:px-8 sm:pt-24 sm:pb-28">
+  <h1 class="max-w-4xl text-display-1 font-semibold leading-[1.05] tracking-[-0.03em] text-text text-balance">
+    Ryan Choi builds fast, accessible interfaces for product teams.
+  </h1>
 
-  <!-- Dot grid texture -->
-  <div
-    class="absolute inset-0 opacity-[0.06]"
-    aria-hidden="true"
-    style="background-image: radial-gradient(circle, var(--color-muted) 1px, transparent 1px); background-size: 24px 24px;"
-  ></div>
+  <p class="mt-6 max-w-2xl text-base leading-8 text-muted sm:text-lg">
+    Senior Frontend Engineer specializing in Vue, React, design systems, and frontend
+    infrastructure for fintech and SaaS teams.
+  </p>
 
-  <!-- Content -->
-  <div class="relative z-10 mx-auto grid max-w-6xl items-center gap-12 px-5 sm:px-6 lg:grid-cols-[1.05fr_0.95fr]">
-    <div>
-      <!-- Status badge -->
-      <div class="mb-8 inline-flex items-center gap-2 rounded-full border border-border bg-surface/70 px-3.5 py-1.5 shadow-sm backdrop-blur">
-        <span class="relative flex h-2.5 w-2.5">
-          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60"></span>
-          <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent"></span>
-        </span>
-        <span class="text-xs font-medium text-muted">Open to senior frontend roles</span>
+  <!-- Specification table -->
+  <dl class="mt-12 border-t border-border">
+    {specRows.map(({ key, value, status }) => (
+      <div class="grid gap-x-6 border-b border-border py-3 sm:grid-cols-[8rem_1fr] sm:items-baseline">
+        <dt class="label pt-0.5 text-muted-soft">{key}</dt>
+        <dd class="mt-1 text-sm leading-6 text-text sm:mt-0">
+          {status && (
+            <span class="mr-2 inline-block h-2 w-2 translate-y-[1px] bg-accent" aria-hidden="true"></span>
+          )}
+          {value}
+        </dd>
       </div>
+    ))}
+  </dl>
 
-      <!-- Headline -->
-      <h1 class="mb-6 max-w-4xl text-4xl font-semibold leading-[1.02] tracking-[-0.045em] text-text text-balance sm:text-6xl sm:leading-[0.95] sm:tracking-[-0.055em] lg:text-7xl">
-        Ryan Choi builds fast, accessible interfaces for product teams.
-      </h1>
-
-      <!-- Subtitle -->
-      <p class="mb-8 max-w-2xl text-base leading-7 text-muted text-balance sm:text-xl sm:leading-8">
-        Senior Frontend Engineer specializing in Vue, React, design systems, and frontend infrastructure for fintech and SaaS teams.
-      </p>
-
-      <!-- CTA buttons -->
-      <div class="mb-10 flex flex-col gap-3 sm:flex-row">
-        <a
-          href="/projects"
-          class="inline-flex items-center justify-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-bg transition-[opacity,transform] hover:-translate-y-0.5 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-        >
-          View Work
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
-          </svg>
-        </a>
-        <a
-          href="/resume"
-          class="inline-flex items-center justify-center rounded-full border border-border bg-surface/70 px-5 py-3 text-sm font-semibold text-text transition-colors hover:border-accent/40 hover:bg-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-        >
-          Resume
-        </a>
-      </div>
-
-      <!-- Tech pills -->
-      <div class="flex flex-wrap gap-2" aria-label="Technologies I work with">
-        {technologies.map(({ name, color }) => (
-          <span class="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface/60 px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-accent/30">
-            <span class="h-1.5 w-1.5 shrink-0 rounded-full" style={`background-color: ${color};`} aria-hidden="true"></span>
-            {name}
-          </span>
-        ))}
-      </div>
-    </div>
-
-    <div class="hero-panel relative hidden lg:block">
-      <div class="rounded-[2rem] border border-border bg-surface/75 p-5 shadow-2xl shadow-black/20 backdrop-blur">
-        <div class="mb-5 flex items-center justify-between">
-          <div>
-            <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-soft">portfolio.signal</p>
-            <p class="mt-1 text-sm font-semibold text-text">Frontend Engineering</p>
-          </div>
-          <span class="rounded-full border border-accent/25 bg-accent/10 px-3 py-1 font-mono text-[11px] text-accent">senior</span>
-        </div>
-        <div class="space-y-3">
-          {engineeringSignals.map(([title, body]) => (
-            <div class="rounded-2xl border border-border bg-bg/50 p-4">
-              <div class="mb-2 flex items-center gap-2">
-                <span class="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true"></span>
-                <h2 class="text-sm font-semibold text-text">{title}</h2>
-              </div>
-              <p class="text-sm leading-6 text-muted">{body}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+  <!-- Actions -->
+  <div class="mt-10 flex flex-col gap-3 sm:flex-row">
+    <a
+      href="/projects"
+      class="inline-flex items-center justify-center gap-2 bg-accent px-6 py-3 text-sm font-semibold text-accent-ink transition-colors hover:bg-accent-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+    >
+      View work
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+        <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+      </svg>
+    </a>
+    <a
+      href="/resume"
+      class="inline-flex items-center justify-center border border-border-strong px-6 py-3 text-sm font-semibold text-text transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+    >
+      Read resume
+    </a>
   </div>
 </section>
-
-<style>
-  .hero-panel {
-    transform: perspective(1200px) rotateY(-6deg) rotateX(2deg);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .hero-panel {
-      transform: none;
-    }
-  }
-</style>
