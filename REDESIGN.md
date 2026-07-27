@@ -414,3 +414,66 @@ Verified after: `astro check` 0 errors / 0 warnings / 0 hints; build clean; no
 horizontal overflow at 320 or 375; both themes render the regraded grid legibly; and
 a build with no token drops the stat strip, grid and language list rather than filling
 them. `dist` fell from 6,626,010 bytes to 332 KB, the covers having been 95.4% of it.
+
+## Figures — `/resume`, the employment timeline
+
+The remediation pass removed things. This is the first pass that adds one.
+
+The diagnosis behind it: the site had taken a datasheet's *typography* and none of a
+datasheet's *graphics*. Zero rendered images, zero illustrative SVG, one accent hue,
+24 of 25 hover states a colour swap, and every animation confined to the masthead.
+Four of six routes rendered the same label/value list — `/projects` and `/blog` were
+literally the same template with one component swapped. What was missing was figures,
+and the reason none existed is that the verifiability rule left almost nothing to draw:
+a datasheet's figures are drawings of a measurable object, and this document's object
+is one person, one blog post and two projects.
+
+`resume.ts` turned out to be the exception — the one dataset on the site that spans a
+decade and is fully hermetic. **A fourth editor tab, `timeline`,** renders it. The tab
+has no file extension because it is not a source file; it is an editor showing a
+rendered view, which is a thing editors do.
+
+| | |
+|---|---|
+| Grouping | **Employer bars, subdivided by role.** Consecutive entries at one company are one tenure — Total Expert is a single 65-month bar with the promotion drawn as an internal division, not two jobs. Keyed on company there are four bars; keyed on role, five. Both are true and they are different figures; this picks one deliberately and puts the five roles in a legend beneath |
+| Gaps | **Drawn, not closed up.** Jun–Oct 2021 (4 months) and Jun–Sep 2022 (3 months) are real, and a seamless career bar would be the invention |
+| The divider | An eraser in `--color-bg` over the bar, the same technique as `rule-draw`. A gap between two bars would read as two jobs; an erased hairline reads as one tenure with a change inside it |
+| `Present` | Resolves to the build month and **says so on the figure**. The ongoing bar otherwise accrues tenure forever if `resume.ts` is never updated — the probe's exact warning. Self-dating turns silent inflation into a visible staleness signal |
+| Markup | A real `<table>`, not SVG. The rows are tabular — employer, period, duration — so the accessible reading is the useful one, text stays selectable, and both themes come free from the token variables. Only the bar geometry is drawn |
+
+**Parsing is strict.** `resume.ts` stays hand-authored prose (`'June 2024'` in
+`experience`, the abbreviated `'Nov 2015'` in `education`), and `timeline.ts` is the
+only module that interprets it. An unparseable date, an unknown month name, or an end
+before its start throws at build time. A timeline quietly missing a role is a worse
+failure than one that does not build.
+
+**Three bugs found while building it, two of them pre-existing:**
+
+- **`sr-only` on a `<th>` collapses the column model.** The class is
+  `position: absolute`, so header cells carrying it leave the flow and
+  `table-layout: fixed` has no first row to take widths from — the track rendered at
+  a third of its width. The labels are now `.sr-only` *spans inside* cells that keep
+  their layout classes.
+- **`display: block` on `tr`/`th`/`td` but not `thead`.** At mobile widths the browser
+  wrapped the still-`table-header-group` thead in an anonymous table box, collapsing
+  the axis to content width and stacking all eleven year labels on top of each other.
+  The bars looked correct because `tbody` *was* converted, which is what made it hard
+  to see.
+- **The minimap was duplicating every `id` in the document** (pre-existing). It clones
+  `#editor-content` wholesale, so the page carried two each of `#editor-content`,
+  `#experience`, `#skills` and `#education`. The clone is now stripped of ids.
+
+Also fixed, pre-existing: the status bar rendered one static line count for every tab —
+the last section's, so it was wrong on three tabs out of four. It now counts the open
+document, and the timeline, which has no lines, declares its own status instead.
+
+Gridlines are positioned spans rather than a `repeating-linear-gradient`: percentage
+`background-position` resolves against (container − image), which is zero when the
+image fills the box, so a gradient cannot be offset to a first tick that is not at 0%.
+The spans take the same percentages the bars do and cannot drift out of alignment.
+
+Verified after: `astro check` 0/0/0; every rendered offset reproduces the arithmetic
+independently (Total Expert 65 months at 51.59% of 126, the promotion dividing at
+75.4% of that bar, gaps at 3.17% and 2.38%, Equifax current at 19.84%); no duplicate
+ids in the built HTML; no overflow at 375; bar fills measure 5.32:1 and 5.77:1 against
+the editor surface in light, clear of the 3:1 floor for graphical objects.

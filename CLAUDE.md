@@ -65,6 +65,12 @@ Defined in `src/content.config.ts` with Zod schemas:
 
 `src/data/resume.ts` exports typed arrays (`experience`, `education`, `skills`) consumed by `resume.astro`. No external API or CMS.
 
+`src/data/timeline.ts` derives the employment Gantt on `/resume` from `experience`. It is the **only** place that interprets those hand-authored date strings (`'June 2024'`, `'Nov 2015'`, `'Present'`), and anything it cannot parse throws at build time rather than being skipped. Consecutive roles at the same employer are folded into one bar with an internal division, so the figure shows four employers and five roles rather than five of each.
+
+### The hardline data rule
+
+**Every number and figure on the site must be a verifiable true fact.** Where the fact is unavailable, drop the row rather than fill it — `build-info.ts` and `GitHubSection.astro` both work this way, and `GitHubSection` deliberately *fails the build* on a GraphQL `errors` array rather than degrade into something plausible but wrong. No fallback constants, no placeholder values, no illustrative mockups. A figure that cannot be self-measured and would silently rot does not ship. See `REDESIGN.md` for the audit that established this.
+
 ### View Transitions
 
 `<ViewTransitions />` from `astro:transitions` is included in `BaseLayout` for SPA-style navigation.

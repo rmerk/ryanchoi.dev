@@ -6,6 +6,14 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/PageHeader.astro';
 import { experience, education, skills } from '@/data/resume';
+import { buildTimeline } from '@/data/timeline';
+
+// The timeline tab is the one document in this workspace that is not code, which is
+// why it carries no line numbers and why its tab has no file extension — an editor
+// showing a rendered view rather than a source file. It is the only figure on the
+// site derived from a decade of hand-authored content rather than an API, and the
+// only one that is fully hermetic: no network, no token, no fallback path.
+const timeline = buildTimeline();
 
 let line = 0;
 const indents = ['', 'pl-[2ch]', 'pl-[4ch]', 'pl-[6ch]'] as const;
@@ -55,6 +63,9 @@ function ind(n: number): string {
         </button>
         <button id="tab-education" type="button" class="editor-tab label cursor-pointer whitespace-nowrap border-r border-border px-4 py-2.5" data-tab="education" role="tab" aria-selected="false" aria-controls="education" tabindex="-1">
           education.ts
+        </button>
+        <button id="tab-timeline" type="button" class="editor-tab label cursor-pointer whitespace-nowrap border-r border-border px-4 py-2.5" data-tab="timeline" role="tab" aria-selected="false" aria-controls="timeline" tabindex="-1">
+          timeline
         </button>
       </div>
 
@@ -159,6 +170,86 @@ function ind(n: number): string {
                 </>
               ))}
             </section>
+
+            <section
+              id="timeline"
+              role="tabpanel"
+              aria-labelledby="tab-timeline"
+              data-status={`${timeline.bars[0].period.split(' – ')[0]} – ${timeline.asOf}`}
+              hidden
+            >
+              <p class="text-muted italic">
+                {'// '}{timeline.totalMonths} months elapsed, {timeline.employedMonths} employed
+                {timeline.gaps.length > 0 && ` · ${timeline.gaps.length} gap${timeline.gaps.length === 1 ? '' : 's'}`}
+              </p>
+
+              <table class="gantt mt-5">
+                <caption class="sr-only">
+                  Employment timeline by employer, {timeline.bars[0].period.split(' – ')[0]} to {timeline.asOf}.
+                  Bar lengths are proportional to duration.
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col" class="gantt-company"><span class="sr-only">Employer</span></th>
+                    <th scope="col" class="gantt-axis">
+                      <span class="sr-only">Period</span>
+                      {timeline.ticks.map(({ year, offset }, i) => (
+                        <span class={`gantt-tick${i % 2 === 1 ? ' is-minor' : ''}`} style={`left:${offset}%`} aria-hidden="true">
+                          <span class="gantt-tick-year">{String(year).slice(2)}</span>
+                        </span>
+                      ))}
+                    </th>
+                    <th scope="col" class="gantt-duration"><span class="sr-only">Duration</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {timeline.bars.map((bar) => (
+                    <tr>
+                      <th scope="row" class="gantt-company">
+                        <a href={bar.url} target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">{bar.company}</a>
+                      </th>
+                      <td class="gantt-track">
+                        <span class="sr-only">{bar.period}</span>
+                        {timeline.ticks.map(({ offset }) => (
+                          <span class="gantt-grid" style={`left:${offset}%`} aria-hidden="true"></span>
+                        ))}
+                        <span
+                          class={`gantt-bar${bar.ongoing ? ' is-current' : ''}`}
+                          style={`left:${bar.offset}%;width:${bar.width}%`}
+                          aria-hidden="true"
+                        >
+                          {bar.segments.map((segment, i) => (
+                            <span
+                              class={`gantt-seg${i > 0 ? ' is-divided' : ''}`}
+                              style={`left:${segment.offset}%;width:${segment.width}%`}
+                            ><span class="sr-only">{segment.role}</span></span>
+                          ))}
+                        </span>
+                      </td>
+                      <td class="gantt-duration">{bar.label}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <dl class="gantt-legend mt-6">
+                {timeline.bars.flatMap((bar) => bar.segments.map((segment) => (
+                  <div class="gantt-legend-row">
+                    <dt class="text-code-string">{segment.role}</dt>
+                    <dd class="text-muted">{segment.period} · {segment.label}</dd>
+                  </div>
+                )))}
+              </dl>
+
+              {timeline.gaps.length > 0 && (
+                <p class="mt-5 text-muted">
+                  {'// '}Gaps between employers are drawn, not closed up:
+                  {' '}{timeline.gaps.map((gap) => `${gap.months} mo`).join(', ')}.
+                </p>
+              )}
+
+              <p class="mt-2 text-muted-soft">{'// '}Ongoing role measured to {timeline.asOf}, the month this page was built.</p>
+            </section>
           </div>
         </div>
 
@@ -183,7 +274,7 @@ function ind(n: number): string {
             <span class="text-code-type">✓</span> TypeScript
           </span>
           <span class="hidden sm:inline">UTF-8</span>
-          <span class="hidden sm:inline">Ln {line}, Col 1</span>
+          <span id="editor-status" class="hidden sm:inline">Ln {line}, Col 1</span>
         </div>
       </div>
 
@@ -191,14 +282,22 @@ function ind(n: number): string {
   </div>
 <script>
   function setupTabs() {
-    const sections = document.querySelectorAll<HTMLElement>('#experience, #skills, #education');
+    const sections = document.querySelectorAll<HTMLElement>('#experience, #skills, #education, #timeline');
     const tabs = document.querySelectorAll<HTMLButtonElement>('.editor-tab');
+    const status = document.getElementById('editor-status');
 
     if (!sections.length || !tabs.length) return;
 
     function switchTab(targetId: string, shouldFocus = false) {
       sections.forEach((section) => {
         section.hidden = section.id !== targetId;
+        // The status bar used to render one static line count for every tab — the
+        // last section's, so it was wrong on three tabs out of four. Counting the
+        // open document keeps it honest, and the timeline, which has no lines,
+        // declares its own status instead.
+        if (status && section.id === targetId) {
+          status.textContent = section.dataset.status ?? `Ln ${section.querySelectorAll('.code-line').length}, Col 1`;
+        }
       });
       tabs.forEach((tab) => {
         const isActive = tab.dataset.tab === targetId;
@@ -261,6 +360,11 @@ function ind(n: number): string {
     if (source && target) {
       const clone = source.cloneNode(true) as HTMLElement;
       clone.inert = true;
+      // Cloning #editor-content copies every id with it, so the document carried two
+      // of #editor-content, #experience, #skills and #education. Duplicate ids are
+      // invalid, and they make getElementById and every in-page anchor ambiguous.
+      clone.removeAttribute('id');
+      clone.querySelectorAll<HTMLElement>('[id]').forEach((element) => element.removeAttribute('id'));
       clone.querySelectorAll<HTMLElement>('a, button, input, select, textarea, [tabindex]').forEach((element) => {
         element.setAttribute('tabindex', '-1');
         element.setAttribute('aria-hidden', 'true');
@@ -321,4 +425,152 @@ function ind(n: number): string {
   }
   .tab-scroll::-webkit-scrollbar { display: none; }
   .tab-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Employment Gantt. A real <table> rather than SVG: the rows are tabular data with
+     a period and a duration, so the accessible reading is the useful one, the text
+     stays selectable, and both themes come for free from the token variables. Only
+     the bar geometry is drawn. */
+  .gantt {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  .gantt th,
+  .gantt td {
+    padding: 0;
+  }
+  /* The header cells carry these same classes so `table-layout: fixed` has a first
+     row to take column widths from. Their labels are wrapped in .sr-only spans rather
+     than the cells being .sr-only themselves — that class is position:absolute, which
+     takes the cell out of flow and collapses the whole column model. */
+  .gantt-company {
+    width: 12.5rem;
+    padding-right: 1rem;
+    text-align: left;
+    font-weight: 400;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+  }
+  .gantt-duration {
+    width: 5.5rem;
+    padding-left: 0.75rem;
+    text-align: right;
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+    vertical-align: middle;
+  }
+  .gantt-axis {
+    position: relative;
+    height: 1.25rem;
+    font-weight: 400;
+  }
+  .gantt-tick {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    border-left: 1px solid var(--color-border);
+  }
+  .gantt-tick-year {
+    position: absolute;
+    bottom: 0;
+    left: 2px;
+    color: var(--color-muted-soft);
+    font-size: 0.625rem;
+    line-height: 1;
+  }
+  /* Year gridlines continue behind the bars. Drawn as real positioned spans rather
+     than a repeating-linear-gradient: percentage background-position resolves against
+     (container − image), which is zero when the image fills the box, so a gradient
+     could not be offset to a first tick that is not at 0%. Spans take the same
+     percentages the bars do and cannot drift out of alignment with them. */
+  .gantt-track {
+    position: relative;
+    height: 1.75rem;
+  }
+  .gantt-grid {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    border-left: 1px solid var(--color-border);
+  }
+  .gantt-bar {
+    position: absolute;
+    top: 50%;
+    height: 0.6875rem;
+    transform: translateY(-50%);
+    background: var(--color-muted-soft);
+    /* Minimum width so a one-month role never renders as a hairline nobody can see. */
+    min-width: 3px;
+  }
+  .gantt-bar.is-current {
+    background: var(--color-accent);
+  }
+  /* A promotion divides a tenure, it does not end one. The divider is an eraser in the
+     page colour rather than a gap between two bars, so the continuity stays visible. */
+  .gantt-seg {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+  }
+  .gantt-seg.is-divided {
+    border-left: 2px solid var(--color-bg);
+  }
+  .gantt-legend-row {
+    display: grid;
+    gap: 0 1rem;
+    padding: 0.375rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+  @media (min-width: 640px) {
+    .gantt-legend-row {
+      grid-template-columns: 1fr auto;
+      align-items: baseline;
+    }
+  }
+  /* Below sm the label column would leave the track too narrow to read a decade in,
+     so the company name moves above its own bar and the duration joins the legend. */
+  @media (max-width: 639px) {
+    /* thead must be in this list. Leaving it as a table-header-group wrapping block
+       children makes the browser generate an anonymous table box around it, which
+       collapses the axis to its content width and stacks every year label on top of
+       the next. The bars looked right because tbody was converted and they were not. */
+    .gantt,
+    .gantt thead,
+    .gantt tbody,
+    .gantt tr,
+    .gantt th,
+    .gantt td {
+      display: block;
+      width: auto;
+    }
+    /* The axis stays. Eleven year labels will not fit across 280px, so every other
+       one is dropped — the gridlines behind each bar keep the full year resolution,
+       and the legend below carries exact dates for every role. */
+    .gantt thead tr {
+      margin-bottom: 0.25rem;
+    }
+    .gantt thead .gantt-company,
+    .gantt thead .gantt-duration {
+      display: none;
+    }
+    .gantt-tick.is-minor .gantt-tick-year {
+      display: none;
+    }
+    .gantt tbody tr + tr {
+      margin-top: 0.75rem;
+    }
+    .gantt-company {
+      padding: 0 0 0.25rem;
+    }
+    .gantt-duration {
+      padding: 0.25rem 0 0;
+      text-align: left;
+      font-size: 0.6875rem;
+    }
+    .gantt-track {
+      height: 1.25rem;
+    }
+  }
 </style>
