@@ -603,3 +603,47 @@ Verified after: `astro check` 0/0/0; every contrast ratio reproduces the measure
 recorded earlier in this document, and the derived floors (4.99 dark, 4.92 light) match
 an independent computation; byte parity confirmed against the files on disk after
 substitution; no horizontal overflow at 375; both themes measured.
+
+## Correction — the site had the wrong job title
+
+This document's opening scope line says "no copy rewrites". That was the right scope
+for a visual redesign and it is now deliberately broken, because the copy contained a
+factual error about its subject: the site described Ryan as a **Senior Frontend
+Engineer**. He is a **Senior Full-Stack Engineer**.
+
+Under the hardline data rule this is not a matter of emphasis, it is the same class of
+defect as the fallback constants — the site asserting something untrue. It was in
+fourteen places: the browser title on every page, three meta descriptions, the
+`og:image:alt`, the hero `Role`, `Status` and lede, the footer line shared by every
+page, and the About page's heading and bio.
+
+**The site's own figures already contradicted it.** The language composition strip
+added one commit earlier reports PHP at 21.0% of every byte written, Python at 6.8%
+and C++ at 4.5%, and `resume.ts` has carried PHP, MariaDB, PostgreSQL, MySQL and Docker
+the whole time. The `Stack` row stopped at Node.js and listed no backend language and
+no database, so it described a narrower engineer than the data directly beneath it.
+That row now matches the skills array.
+
+The h1 changed one noun — "fast, accessible **interfaces**" became "fast, accessible
+**software**". The marked-word device and its footnote legend are untouched: both
+claims are still substantiated by this site, which is what the legend measures.
+
+**A second stale number surfaced while fixing it.** The About page said "8+ years of
+experience" while the Gantt on `/resume`, built from the same `resume.ts`, computed 126
+months. The hardcoded figure had drifted two years behind the data sitting one route
+away, and would have drifted again every January. It is now derived from
+`buildTimeline().totalMonths`, rounded down so the claim stays a floor.
+
+**Historical job titles in `resume.ts` were not touched.** "Frontend Developer" at
+Agile Resources and "Software Engineer (Frontend)" at Routable are what those roles
+were actually called. Likewise the About page's line about working on frontend
+infrastructure at Equifax, which describes that role accurately.
+
+### Still outstanding: `public/social-card.png`
+
+The Open Graph image is **pre-redesign** — cyan on blue-black, `rounded-3xl`, a glow
+and a dot grid, every visual decision this branch deleted — and it has "Senior Frontend
+Engineer" baked into the pixels, so no string change reaches it. It is what renders
+whenever the site is shared. It needs regenerating against the current palette and
+title; until then the site's most-shared surface shows both the wrong design and the
+wrong job.

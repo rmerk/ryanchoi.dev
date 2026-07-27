@@ -20,7 +20,7 @@ const latestPosts = (await getCollection('blog', ({ data }) => !data.draft))
   .slice(0, 3);
 ---
 
-<BaseLayout title="Home" description="Ryan Choi is a senior frontend engineer specializing in Vue, React, design systems, and frontend infrastructure for fintech and SaaS teams.">
+<BaseLayout title="Home" description="Ryan Choi is a senior full-stack engineer specializing in Vue, React, Node.js, PHP, and design systems for fintech and SaaS teams.">
 
   <HeroSection />
 
@@ -31,7 +31,7 @@ const latestPosts = (await getCollection('blog', ({ data }) => !data.draft))
         <SectionHeader
           index="01"
           eyebrow="Selected work"
-          title="Product, tooling, and frontend infrastructure"
+          title="Product, tooling, and platform infrastructure"
           description="A focused sample. Each entry links straight to the live site or its source."
           href="/projects"
           linkLabel="All projects"
@@ -61,7 +61,7 @@ const latestPosts = (await getCollection('blog', ({ data }) => !data.draft))
           index="02"
           eyebrow="Writing"
           title="Notes on engineering craft"
-          description="Short essays on frontend systems, tooling, and building reliable user interfaces."
+          description="Short essays on software systems, tooling, and building things that stay reliable."
           href="/blog"
           linkLabel="All posts"
         />

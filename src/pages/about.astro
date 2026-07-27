@@ -5,6 +5,13 @@
 // were previously two rounded cards side by side; the rules carry that job now.
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PageHeader from '@/components/PageHeader.astro';
+import { buildTimeline } from '@/data/timeline';
+
+// Derived from resume.ts rather than typed in. This said "8+ years" while the Gantt
+// on /resume computed 126 months from the same array — a hardcoded figure that had
+// already drifted two years behind the data sitting next to it, and would drift again
+// every January. Rounded down, so the claim stays a floor.
+const yearsOfExperience = Math.floor(buildTimeline().totalMonths / 12);
 
 const contactRows: { key: string; value: string; href: string; external: boolean }[] = [
   { key: 'Email', value: 'ryan@ryanchoi.dev', href: 'mailto:ryan@ryanchoi.dev', external: false },
@@ -13,21 +20,21 @@ const contactRows: { key: string; value: string; href: string; external: boolean
 ];
 ---
 
-<BaseLayout title="About" description="Learn about Ryan Choi, a senior frontend engineer focused on durable product interfaces, design systems, and developer workflows.">
+<BaseLayout title="About" description="Learn about Ryan Choi, a senior full-stack engineer focused on durable product software, design systems, and developer workflows.">
   <div class="mx-auto max-w-5xl px-5 py-16 sm:px-8 sm:py-24">
     <PageHeader
       eyebrow="About"
-      title="Frontend engineer focused on durable product interfaces."
-      lede="I care about the details that make teams faster and interfaces easier to trust."
+      title="Full-stack engineer focused on durable product software."
+      lede="I care about the details that make teams faster and software easier to trust."
     />
 
     <div class="mt-14 grid gap-x-12 gap-y-14 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <!-- Bio -->
       <div class="max-w-2xl space-y-6 text-base leading-8 text-muted">
         <p>
-          I'm a Senior Frontend Engineer with 8+ years of experience in fintech and SaaS.
-          I specialize in Vue and React, building reusable component systems and improving
-          developer workflows.
+          I'm a Senior Full-Stack Engineer with {yearsOfExperience}+ years of experience in
+          fintech and SaaS. I work across Vue and React on the front, Node.js and PHP behind
+          them, building reusable component systems and improving developer workflows.
         </p>
         <p>
           Currently at <a href="https://www.equifax.com" target="_blank" rel="noopener noreferrer" class="rule-link text-accent">Equifax</a>,

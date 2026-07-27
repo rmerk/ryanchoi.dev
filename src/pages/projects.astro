@@ -11,12 +11,12 @@ const projects = (await getCollection('projects'))
   .sort((a, b) => a.data.order - b.data.order);
 ---
 
-<BaseLayout title="Projects" description="Selected projects from Ryan Choi, including product interfaces, frontend infrastructure, developer tools, and open-source experiments.">
+<BaseLayout title="Projects" description="Selected projects from Ryan Choi, including product software, platform infrastructure, developer tools, and open-source experiments.">
   <div class="mx-auto max-w-5xl px-5 py-16 sm:px-8 sm:py-24">
     <PageHeader
       eyebrow="Projects"
       title="Selected product, tooling, and open-source work."
-      lede="A mix of shipped interfaces, experiments, and engineering tools that show how I think about frontend systems."
+      lede="A mix of shipped products, experiments, and engineering tools that show how I think about building systems."
     />
 
     <div class="mt-12">

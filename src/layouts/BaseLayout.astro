@@ -16,14 +16,14 @@ interface Props {
 
 const {
   title,
-  description = 'Ryan Choi is a senior frontend engineer building fast, accessible interfaces for product teams.',
+  description = 'Ryan Choi is a senior full-stack engineer building fast, accessible software for product teams.',
   image = '/social-card.png',
 } = Astro.props;
 
 const site = Astro.site ?? new URL('https://ryanchoi.dev');
 const canonicalUrl = new URL(Astro.url.pathname, site);
 const imageUrl = new URL(image, site);
-const pageTitle = title === 'Home' ? 'Ryan Choi | Senior Frontend Engineer' : `${title} | Ryan Choi`;
+const pageTitle = title === 'Home' ? 'Ryan Choi | Senior Full-Stack Engineer' : `${title} | Ryan Choi`;
 ---
 
 <!doctype html>
@@ -60,7 +60,7 @@ const pageTitle = title === 'Home' ? 'Ryan Choi | Senior Frontend Engineer' : `$
     <meta property="og:image" content={imageUrl.href} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Ryan Choi - Senior Frontend Engineer" />
+    <meta property="og:image:alt" content="Ryan Choi - Senior Full-Stack Engineer" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />

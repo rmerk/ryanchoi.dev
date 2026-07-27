@@ -12,11 +12,15 @@
 import { buildInfo } from '@/data/build-info';
 
 const specRows: { key: string; value: string; status?: boolean }[] = [
-  { key: 'Role', value: 'Senior Frontend Engineer' },
-  { key: 'Focus', value: 'Design systems · Frontend infrastructure · Accessibility' },
-  { key: 'Stack', value: 'TypeScript · Vue · React · Astro · Tailwind CSS · Node.js' },
+  { key: 'Role', value: 'Senior Full-Stack Engineer' },
+  { key: 'Focus', value: 'Design systems · Full-stack product engineering · Accessibility' },
+  // Widened to match src/data/resume.ts, which already lists PHP and three databases.
+  // The old value stopped at Node.js, so the row described a narrower engineer than
+  // the skills array — and than the language figure in §03, where PHP is 21% of every
+  // byte written and the top four languages are not all frontend.
+  { key: 'Stack', value: 'TypeScript · Vue · React · Node.js · PHP · PostgreSQL · Docker' },
   { key: 'Domains', value: 'Fintech · SaaS' },
-  { key: 'Status', value: 'Open to senior frontend roles', status: true },
+  { key: 'Status', value: 'Open to senior full-stack roles', status: true },
 ];
 
 // Every clause here must stay verifiable against the repo, or the device is worse
@@ -69,7 +73,7 @@ const titleRows: { key: string; value: string }[] = [
        on substrings, both worse than this. The cost is that the two must be kept in
        step by hand: adding a third entry to `notes` gives the legend a "3" with no
        marker up here to match it. Change both or neither. -->
-  <h1 class="animate-seq-rise max-w-4xl text-display-1 font-semibold leading-[1.05] tracking-[-0.03em] text-text text-balance">Ryan Choi builds <span class="mark-word">fast</span><span class="mark-note" aria-hidden="true">1</span>, <span class="mark-word">accessible</span><span class="mark-note" aria-hidden="true">2</span> interfaces for product teams.</h1>
+  <h1 class="animate-seq-rise max-w-4xl text-display-1 font-semibold leading-[1.05] tracking-[-0.03em] text-text text-balance">Ryan Choi builds <span class="mark-word">fast</span><span class="mark-note" aria-hidden="true">1</span>, <span class="mark-word">accessible</span><span class="mark-note" aria-hidden="true">2</span> software for product teams.</h1>
 
   <!-- Legend: the h1's two marked claims, substantiated. A dl rather than an ol
        because the markers are aria-hidden, so what a screen reader announces is
@@ -92,8 +96,8 @@ const titleRows: { key: string; value: string }[] = [
   </dl>
 
   <p class="animate-seq-rise [--seq-delay:165ms] mt-6 max-w-2xl text-base leading-8 text-muted sm:text-lg">
-    Senior Frontend Engineer specializing in Vue, React, design systems, and frontend
-    infrastructure for fintech and SaaS teams.
+    Senior Full-Stack Engineer specializing in Vue, React, Node.js, PHP, and design
+    systems for fintech and SaaS teams.
   </p>
 
   <div class="mt-10 lg:grid lg:grid-cols-[1fr_16rem] lg:items-start lg:gap-x-12">

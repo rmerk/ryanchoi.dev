@@ -11,12 +11,12 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
-<BaseLayout title="Blog" description="Writing from Ryan Choi on frontend engineering, software craft, reliable interfaces, and calmer developer workflows.">
+<BaseLayout title="Blog" description="Writing from Ryan Choi on software engineering, craft, reliable systems, and calmer developer workflows.">
   <div class="mx-auto max-w-5xl px-5 py-16 sm:px-8 sm:py-24">
     <PageHeader
       eyebrow="Writing"
-      title="Notes on frontend engineering and software craft."
-      lede="Thoughts on building reliable interfaces, better tooling, and calmer developer workflows."
+      title="Notes on software engineering and craft."
+      lede="Thoughts on building reliable systems, better tooling, and calmer developer workflows."
     />
 
     <div class="mt-12">
