@@ -477,3 +477,53 @@ independently (Total Expert 65 months at 51.59% of 126, the promotion dividing a
 75.4% of that bar, gaps at 3.17% and 2.38%, Equifax current at 19.84%); no duplicate
 ids in the built HTML; no overflow at 375; bar fills measure 5.32:1 and 5.77:1 against
 the editor surface in light, clear of the 3:1 floor for graphical objects.
+
+## Figures — `/`, the GitHub panel
+
+Three figures, all built from data the single GraphQL request was already fetching or
+could fetch for the same one rate-limit point. Nothing here needed a new credential,
+a new service, or a second round trip.
+
+**Language composition.** A proportional strip over 24.9 MB across 21 languages, five
+named and the rest pooled. The byte magnitudes were always in the response; the old
+code discarded them with `.map(([name]) => name)` and then reshuffled the survivors
+frontend-first, so the rendered order contradicted the data it came from. Stated
+plainly: HTML 24.6%, **PHP 21.0%**, TypeScript 15.8%, Vue 12.5%, JavaScript 9.3%, and
+16 more at 16.8%. PHP being the second-largest thing Ryan has written, and appearing
+nowhere in the site's own stack list, is the most interesting fact the API had.
+
+**Contributions by year.** Six years, stacked public over private: 21, 86, 11, 67,
+1,478, 3,819. Drawn on a **linear** scale even though two orders of magnitude separate
+2023 from 2026 — the near-invisibility of the early bars is the finding, and a log
+scale would flatten the only thing this figure has to say. A 2px segment minimum keeps
+a real year from rendering as nothing at all, and the current year is labelled `YTD`
+because an unlabelled final bar reads as a collapse every January.
+
+Stacking by public/private solved two problems with one figure. It absorbed the
+standalone split figure, and it puts the 84%-private fact where the volume claim is
+made rather than in a footnote beside it.
+
+**Commits by repository.** game-night 277, ryanchoi.dev 132, dictate 71,
+crewai-headless-flow 70, meal-plans 57. This is the honest replacement for the removed
+"Popular repositories" panel: stars are zero across all 79 public repositories and rank
+nothing, while commit volume has real variance. Private repositories are dropped rather
+than redacted — a row reading "private repository" is a shape with no fact in it, and
+the count alone would still leak activity volume.
+
+| | |
+|---|---|
+| Markup | `FigureBars.astro` and `FigureStrip.astro`, both real tables/lists with CSS-drawn geometry. No SVG and no charting library: the rows are tabular, so the accessible reading is the useful one, and "no client-side UI framework" stays true |
+| Palette | One descending warm ramp — accent, accent-secondary, code-string, muted, muted-soft, tail in border-strong. `--color-code-type` was tried and dropped: the sage green works as syntax highlighting in the resume editor and reads as a foreign design language here |
+| Separation | A 1px hairline in `--color-bg` between adjacent segments, so each fill only has to clear 3:1 against the background rather than against its neighbour. Measured: dark 8.72 / 10.95 / 8.39 / 8.53 / 5.27 / 3.07, light 5.42 / 8.13 / 6.04 / 7.14 / 5.00 / 3.38 |
+| Attribution | Repository rows strip the owner prefix only when it is Ryan's own, so another person's repository can never render as his. Same rule the activity feed enforces |
+
+**The `sr-only`-on-`<th>` trap, again.** `FigureBars` hit the identical bug the Gantt
+did — header cells carrying `sr-only` are `position: absolute`, leave the flow, and
+leave `table-layout: fixed` with no first row to size columns from. Both components now
+put the label in a span *inside* a cell that keeps its layout class. Worth stating as a
+rule: **never put `sr-only` on a `<th>` or `<td>`; put it on a span inside.**
+
+Verified after: `astro check` 0/0/0; every rendered percentage reproduces from the raw
+byte and contribution counts; a build with no `GITHUB_TOKEN` drops all three figures
+along with the stat strip and grid, and the section description recomposes to name only
+what is left; no horizontal overflow at 375; both themes measured above.

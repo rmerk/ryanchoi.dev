@@ -1,0 +1,191 @@
+---
+// src/components/FigureBars.astro
+// A horizontal bar figure: one row per item, an optional stack of segments per bar.
+// Shared so the two homepage figures built on it — annual contributions and commits
+// by repository — read as one grammar rather than two hand-rolled charts.
+//
+// A real <table>, matching the Gantt on /resume and for the same reason: the rows are
+// tabular data with a label and a value, so the accessible reading is the useful one,
+// the text stays selectable, and both themes come from the token variables. Only the
+// bar geometry is drawn.
+//
+// Segment `fill` values must be literal Tailwind class names at the call site.
+// Tailwind scans source text, so a class assembled by interpolation is never generated.
+interface Segment {
+  /** Share of the widest row in the set, 0–100. Segments stack left to right. */
+  pct: number;
+  fill: string;
+  label: string;
+}
+
+interface Row {
+  label: string;
+  href?: string;
+  value: string;
+  note?: string;
+  segments: Segment[];
+}
+
+interface Props {
+  caption: string;
+  rows: Row[];
+  labelHeader?: string;
+  valueHeader?: string;
+  class?: string;
+}
+
+const { caption, rows, labelHeader = 'Item', valueHeader = 'Value', class: className = '' } = Astro.props;
+
+// Cumulative offsets are resolved here rather than at the call sites, so a caller
+// supplies plain shares and cannot get the running total wrong.
+const laidOut = rows.map((row) => {
+  let cursor = 0;
+  return {
+    ...row,
+    segments: row.segments
+      .filter((segment) => segment.pct > 0)
+      .map((segment) => {
+        const offset = cursor;
+        cursor += segment.pct;
+        return { ...segment, offset };
+      }),
+  };
+});
+---
+
+<table class={`figure-bars ${className}`.trim()}>
+  <caption class="sr-only">{caption}</caption>
+  <thead>
+    <tr>
+      <th scope="col" class="figure-bars-label"><span class="sr-only">{labelHeader}</span></th>
+      <th scope="col" class="figure-bars-track"><span class="sr-only">Relative size</span></th>
+      <th scope="col" class="figure-bars-value"><span class="sr-only">{valueHeader}</span></th>
+    </tr>
+  </thead>
+  <tbody>
+    {laidOut.map((row) => (
+      <tr>
+        <th scope="row" class="figure-bars-label">
+          {row.href
+            ? <a href={row.href} target="_blank" rel="noopener noreferrer" class="rule-link transition-colors hover:text-accent">{row.label}</a>
+            : row.label}
+          {row.note && <span class="figure-bars-note">{row.note}</span>}
+        </th>
+        <td class="figure-bars-track">
+          <span class="sr-only">{row.segments.map((segment) => segment.label).join(', ')}</span>
+          {row.segments.map((segment) => (
+            <span
+              class={`figure-bars-seg ${segment.fill}`}
+              style={`left:${segment.offset}%;width:${segment.pct}%`}
+              aria-hidden="true"
+            ></span>
+          ))}
+        </td>
+        <td class="figure-bars-value">{row.value}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+<style>
+  .figure-bars {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  .figure-bars th,
+  .figure-bars td {
+    padding: 0;
+  }
+  /* The header row carries the same classes as the body so `table-layout: fixed` has
+     a first row to take column widths from. Labels are .sr-only spans inside the
+     cells, never on the cells — that class is position:absolute, which drops the cell
+     out of flow and collapses the column model entirely. */
+  .figure-bars-label {
+    width: 10.5rem;
+    padding: 0.5rem 1rem 0.5rem 0;
+    text-align: left;
+    font-weight: 400;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+  }
+  .figure-bars-note {
+    margin-left: 0.5rem;
+    color: var(--color-muted-soft);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+  .figure-bars-value {
+    width: 5.5rem;
+    padding: 0.5rem 0 0.5rem 0.75rem;
+    text-align: right;
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    vertical-align: middle;
+  }
+  .figure-bars-track {
+    position: relative;
+    height: 2.25rem;
+  }
+  .figure-bars-seg {
+    position: absolute;
+    top: 50%;
+    height: 0.6875rem;
+    transform: translateY(-50%);
+    /* Minimum width so a real but tiny value is still visible. Two orders of
+       magnitude separate the smallest bar from the largest in the annual figure, and
+       a proportional 0.3% would round to nothing — an absent bar reads as no activity
+       rather than a little. */
+    min-width: 2px;
+  }
+  /* Hairline separation between adjacent segments, drawn in the page colour rather
+     than by shrinking them, so the stack stays proportionally exact. */
+  .figure-bars-seg + .figure-bars-seg {
+    border-left: 1px solid var(--color-bg);
+  }
+  .figure-bars tbody tr + tr .figure-bars-label,
+  .figure-bars tbody tr + tr .figure-bars-track,
+  .figure-bars tbody tr + tr .figure-bars-value {
+    border-top: 1px solid var(--color-border);
+  }
+  /* Below sm the label column would leave the track too narrow to compare bars in, so
+     the label moves above its own bar and the value sits under it. */
+  @media (max-width: 639px) {
+    .figure-bars,
+    .figure-bars thead,
+    .figure-bars tbody,
+    .figure-bars tr,
+    .figure-bars th,
+    .figure-bars td {
+      display: block;
+      width: auto;
+    }
+    .figure-bars thead {
+      display: none;
+    }
+    .figure-bars tbody tr {
+      padding: 0.625rem 0;
+    }
+    .figure-bars tbody tr + tr {
+      border-top: 1px solid var(--color-border);
+    }
+    .figure-bars tbody tr + tr .figure-bars-label,
+    .figure-bars tbody tr + tr .figure-bars-track,
+    .figure-bars tbody tr + tr .figure-bars-value {
+      border-top: 0;
+    }
+    .figure-bars-label {
+      padding: 0 0 0.375rem;
+    }
+    .figure-bars-track {
+      height: 0.6875rem;
+    }
+    .figure-bars-value {
+      padding: 0.375rem 0 0;
+      text-align: left;
+      font-size: 0.75rem;
+    }
+  }
+</style>

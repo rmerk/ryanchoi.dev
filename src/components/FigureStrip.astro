@@ -1,0 +1,123 @@
+---
+// src/components/FigureStrip.astro
+// A single proportional composition bar with a keyed legend beneath it.
+//
+// The strip itself is aria-hidden: it carries no information the legend does not
+// state in words, and a screen reader walking a row of unlabelled spans learns
+// nothing. The legend is the accessible figure; the strip is how it looks.
+//
+// Segment `fill` values must be literal Tailwind class names at the call site —
+// Tailwind scans source text, so an interpolated class is never generated.
+interface Segment {
+  label: string;
+  /** Share of the whole, 0–100. Callers are expected to sum to 100. */
+  pct: number;
+  fill: string;
+  value: string;
+}
+
+interface Props {
+  caption: string;
+  segments: Segment[];
+  class?: string;
+}
+
+const { caption, segments, class: className = '' } = Astro.props;
+
+let cursor = 0;
+const laidOut = segments
+  .filter((segment) => segment.pct > 0)
+  .map((segment) => {
+    const offset = cursor;
+    cursor += segment.pct;
+    return { ...segment, offset };
+  });
+---
+
+<figure class={className}>
+  <div class="figure-strip" aria-hidden="true">
+    {laidOut.map((segment) => (
+      <span
+        class={`figure-strip-seg ${segment.fill}`}
+        style={`left:${segment.offset}%;width:${segment.pct}%`}
+      ></span>
+    ))}
+  </div>
+
+  <figcaption class="sr-only">{caption}</figcaption>
+
+  <dl class="figure-strip-key">
+    {laidOut.map((segment) => (
+      <div class="figure-strip-key-row">
+        <dt>
+          <span class={`figure-strip-swatch ${segment.fill}`} aria-hidden="true"></span>
+          <span>{segment.label}</span>
+        </dt>
+        <dd>{segment.value}</dd>
+      </div>
+    ))}
+  </dl>
+</figure>
+
+<style>
+  .figure-strip {
+    position: relative;
+    height: 1.25rem;
+    /* A track behind the segments, so rounding that leaves a sub-pixel sliver at the
+       end reads as part of the figure rather than as a hole in it. */
+    background: var(--color-surface-raised);
+  }
+  .figure-strip-seg {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    min-width: 2px;
+  }
+  /* Hairline separation in the page colour rather than by shrinking the segments, so
+     the proportions stay exact. */
+  .figure-strip-seg + .figure-strip-seg {
+    border-left: 1px solid var(--color-bg);
+  }
+  .figure-strip-key {
+    margin-top: 1rem;
+    display: grid;
+    gap: 0 2rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 640px) {
+    .figure-strip-key {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .figure-strip-key-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.4375rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .figure-strip-key-row dt {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    min-width: 0;
+    color: var(--color-text);
+    font-size: 0.875rem;
+  }
+  .figure-strip-swatch {
+    flex: none;
+    width: 0.5rem;
+    height: 0.5rem;
+    /* Nudged off the baseline so the square optically centres on the label's x-height
+       instead of sitting on the baseline like a full stop. */
+    transform: translateY(-1px);
+  }
+  .figure-strip-key-row dd {
+    flex: none;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    font-variant-numeric: tabular-nums;
+  }
+</style>
