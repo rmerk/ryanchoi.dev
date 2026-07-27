@@ -4,12 +4,25 @@
 // strip, one inset surface for the contribution grid, and everything else as
 // aligned data rows. Build-time fetched, with fallbacks so the build never fails.
 import SectionHeader from '@/components/SectionHeader.astro';
+import MetaList from '@/components/MetaList.astro';
 
+interface Props {
+  /**
+   * This section's number in the homepage's running sequence. Passed in rather than
+   * hardcoded so the whole sequence is declared in one place — index.astro owns 01
+   * and 02, and owning 03 here split the numbering across two files.
+   */
+  index: string;
+}
+
+const { index } = Astro.props;
+
+// Only what the section actually renders. An earlier revision also carried
+// avatar_url and bio; the avatar is a deliberate removal (see REDESIGN.md) and the
+// bio was never rendered, so both were declared, defaulted, and resolved for nothing.
 interface GitHubProfile {
-  avatar_url: string;
   public_repos: number;
   followers: number;
-  bio: string | null;
   html_url: string;
 }
 
@@ -58,10 +71,8 @@ interface GitHubGraphQLResponse {
 }
 
 const fallbackProfile: GitHubProfile = {
-  avatar_url: 'https://github.com/rmerk.png',
   public_repos: 30,
   followers: 15,
-  bio: 'Senior Frontend Engineer',
   html_url: 'https://github.com/rmerk',
 };
 
@@ -195,10 +206,8 @@ function resolveProfile(data: Partial<GitHubProfile> | null): GitHubProfile {
   if (!data) return { ...fallbackProfile };
 
   return {
-    avatar_url: data.avatar_url || fallbackProfile.avatar_url,
     public_repos: typeof data.public_repos === 'number' ? data.public_repos : fallbackProfile.public_repos,
     followers: typeof data.followers === 'number' ? data.followers : fallbackProfile.followers,
-    bio: data.bio ?? fallbackProfile.bio,
     html_url: data.html_url || fallbackProfile.html_url,
   };
 }
@@ -325,6 +334,17 @@ function sortByCategory(langs: string[]): string[] {
   return [...frontend, ...backend, ...other];
 }
 
+// The repo meta line as data. The markup form interleaved three optional values with
+// two separators, each separator guarded by whether both of its neighbours happened to
+// be present — which is the logic MetaList now owns. Filtering first deletes the guards.
+function describeRepo(repo: GitHubRepo): string[] {
+  return [
+    repo.language,
+    repo.stargazers_count > 0 ? `${repo.stargazers_count} stars` : null,
+    repo.forks_count > 0 ? `${repo.forks_count} forks` : null,
+  ].filter((part): part is string => part !== null);
+}
+
 function getRestLanguages(sourceRepos: GitHubRepo[]): string[] {
   const languageCounts = new Map<string, number>();
   for (const repo of sourceRepos) {
@@ -355,11 +375,36 @@ const stats: { key: string; value: string }[] = [
     ? [{ key: 'Contributions', value: totalContributions.toLocaleString('en-US') }]
     : []),
 ];
+
+// The column count follows the stat count so the closing hairline always spans the
+// full row. A hardcoded sm:grid-cols-3 was wrong in both states: without
+// GITHUB_TOKEN there are two stats in three columns and the rule stops at 2/3,
+// and with it the mobile grid-cols-2 orphaned the third and stopped at 1/2.
+// Base is an implicit grid-cols-1, so on mobile each stat is a full-width row.
+//
+// Keyed by stat count rather than interpolated into `sm:grid-cols-${n}`: Tailwind
+// scans source text for class names, so an interpolated one is never generated. The
+// realistic range is 2 (no GITHUB_TOKEN) or 3, but a fourth stat now picks up a
+// fourth column instead of silently falling back to two.
+const statColumnClass: Record<number, string> = {
+  1: 'sm:grid-cols-1',
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-3',
+  4: 'sm:grid-cols-4',
+};
+
+// Fallback is one column, not three: with one column the closing hairline spans the
+// full row at any stat count, so an unmapped count degrades to plain-but-correct
+// rather than reinstating the short-rule defect this replaced.
+const statGridClass = `mt-8 grid border-t border-border ${statColumnClass[stats.length] ?? 'sm:grid-cols-1'}`;
 ---
 
-<section class="py-16 sm:py-20">
+<!-- Asymmetric bottom padding is deliberate, not an oversight: Footer.astro's mt-24
+     is shared by every page and is left alone, so this section's pb compensates to
+     keep the final gap in rhythm with the 96/128 spacing between the others. -->
+<section class="pt-12 pb-0 sm:pt-16 sm:pb-8">
   <SectionHeader
-    index="03"
+    index={index}
     eyebrow="Open source"
     title="Recent engineering signal"
     description="A build-time snapshot of public repositories, language mix, and contribution activity."
@@ -367,19 +412,21 @@ const stats: { key: string; value: string }[] = [
     linkLabel="View profile"
   />
 
-  <!-- Stat strip -->
-  <dl class="mt-10 grid grid-cols-2 border-t border-border sm:grid-cols-3">
+  <!-- Stat strip. The page's second typographic event: display-scale mono numerals,
+       the move a datasheet actually makes. Far enough from the hero that the h1
+       stays dominant, and the two are never co-visible. -->
+  <dl class={statGridClass}>
     {stats.map(({ key, value }) => (
-      <div class="border-b border-border py-5 pr-6">
+      <div class="flex items-baseline justify-between gap-4 border-b border-border py-4 sm:block sm:py-5 sm:pr-6">
         <dt class="label text-muted-soft">{key}</dt>
-        <dd class="mt-2 font-mono text-2xl font-medium tabular-nums text-text">{value}</dd>
+        <dd class="font-mono text-display-2 font-medium tabular-nums text-text sm:mt-2">{value}</dd>
       </div>
     ))}
   </dl>
 
   <!-- Contribution grid -->
   {contributionWeeks.length > 0 && (
-    <div class="mt-12">
+    <div class="mt-10">
       <div class="flex items-baseline justify-between gap-4 border-t border-border pt-4">
         <h3 class="label text-muted-soft">Contributions</h3>
         <span class="label text-muted">{totalContributions.toLocaleString('en-US')} in the last year</span>
@@ -413,7 +460,7 @@ const stats: { key: string; value: string }[] = [
   )}
 
   <!-- Popular repositories -->
-  <div class="mt-12">
+  <div class="mt-10">
     <h3 class="label border-t border-border pt-4 text-muted-soft">Popular repositories</h3>
     <div class="mt-2 grid sm:grid-cols-2 sm:gap-x-10">
       {repos.slice(0, 6).map((repo) => (
@@ -431,35 +478,18 @@ const stats: { key: string; value: string }[] = [
           {repo.description && (
             <p class="mt-2 line-clamp-2 text-sm leading-6 text-muted">{repo.description}</p>
           )}
-          <p class="label mt-3 text-muted-soft">
-            {repo.language && <span>{repo.language}</span>}
-            {repo.language && (repo.stargazers_count > 0 || repo.forks_count > 0) && (
-              <span class="mx-2 text-border-strong" aria-hidden="true">/</span>
-            )}
-            {repo.stargazers_count > 0 && <span>{repo.stargazers_count} stars</span>}
-            {repo.stargazers_count > 0 && repo.forks_count > 0 && (
-              <span class="mx-2 text-border-strong" aria-hidden="true">/</span>
-            )}
-            {repo.forks_count > 0 && <span>{repo.forks_count} forks</span>}
-          </p>
+          <MetaList items={describeRepo(repo)} class="mt-3" />
         </div>
       ))}
     </div>
   </div>
 
   <!-- Languages + activity -->
-  <div class="mt-12 grid gap-10 sm:grid-cols-2 sm:gap-x-10">
+  <div class="mt-10 grid gap-10 sm:grid-cols-2 sm:gap-x-10">
     {languages.length > 0 && (
       <div>
         <h3 class="label border-t border-border pt-4 text-muted-soft">Languages</h3>
-        <ul class="mt-4 flex flex-wrap gap-x-2 gap-y-1.5">
-          {languages.map((lang, i) => (
-            <li class="label text-text">
-              {lang}
-              {i < languages.length - 1 && <span class="ml-2 text-border-strong" aria-hidden="true">/</span>}
-            </li>
-          ))}
-        </ul>
+        <MetaList items={languages} itemClass="text-text" class="mt-4" />
       </div>
     )}
 

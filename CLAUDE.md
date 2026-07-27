@@ -43,11 +43,23 @@ Defined in `src/content.config.ts` with Zod schemas:
 ### Styling
 
 - Tailwind CSS v4 loaded as a Vite plugin (`@tailwindcss/vite`) — no `tailwind.config` file exists
-- Design tokens in `src/styles/global.css` under `@theme {}`: `--color-bg`, `--color-surface`, `--color-surface-raised`, `--color-border`, `--color-border-strong`, `--color-accent` (`#e8a33d` dark / `#8f5400` light), `--color-accent-ink`, `--color-text`, `--color-muted`, `--color-muted-soft`, plus `--color-code-*` for the resume editor
-- Custom utilities in `global.css`: `label` (mono/uppercase/tracked metadata) and `rule-link` (underline that draws in on hover)
+- `global.css` opens with `@import "tailwindcss" source(none)` and one explicit glob: `@source "../**/*.{astro,ts,tsx,js,jsx,md,mdx,html}"`. It is relative to `src/styles/`, so it covers all of `src/` recursively — a new directory *inside* `src/` needs nothing. What does need adding: **a new file extension**, or **any path outside `src/`**. Otherwise those files' utilities are never generated
+- Design tokens in `src/styles/global.css` under `@theme {}`:
+  - **Colour**: `--color-bg`, `--color-surface`, `--color-surface-raised`, `--color-border`, `--color-border-strong`, `--color-accent` (`#e8a33d` dark / `#8f5400` light), `--color-accent-secondary`, `--color-accent-ink`, `--color-text`, `--color-muted`, `--color-muted-soft`, plus `--color-code-*` for the resume editor
+  - **Type**: `--text-label` and the fluid `--text-display-1` / `-2` / `-3` (`clamp()`, no breakpoint variants needed), `--tracking-label`
+  - **Layout**: `--spacing-datum` — the label/value tab stop shared by the hero legend, hero spec table, section headers, and homepage index rows. Change the rail here, not at the call sites
+  - **Motion**: `--animate-seq-rise` (the `seq-rise` keyframes, used by the h1, legend, lede, CTAs, title block and `seq-rows`). A second keyframes, `seq-wipe`, is declared outside `@theme` and drives `rule-draw` only. Both declare a `from` and no `to`, so the finished state is the element's own computed style — never declare the hidden state in a rule
+- Custom utilities in `global.css`, all seven:
+  - `label` — mono/uppercase/tracked metadata
+  - `rule-link` — underline that draws in on hover
+  - `datum-row` — puts a grid row on the `--spacing-datum` rail; variant-capable (`sm:datum-row`, `lg:datum-row`)
+  - `rule-draw` — draws a `border-t` in left-to-right by retracting a background-coloured eraser off it
+  - `seq-rows` — staggers direct children into place; the stagger lives here, not in markup
+  - `mark-word` — the underlined claim word in the h1
+  - `mark-note` — its raised accent footnote numeral
 - **Dark mode is the default.** Light mode activates via `html.light` class
 - Theme toggle uses `localStorage` in an inline script in `BaseLayout`; re-applies on `astro:after-swap` for View Transitions
-- `@tailwindcss/typography` used on blog posts via `prose prose-invert prose-sm` on `<article>` in `PostLayout`
+- `@tailwindcss/typography` used on blog posts via `prose prose-sm` on `<article>` in `PostLayout`. **Not `prose-invert`** — the `.prose` block in `global.css` colours typography from tokens, so both themes render first-class instead of light being an inversion of dark
 
 ### Static Data
 
@@ -64,7 +76,8 @@ Defined in `src/content.config.ts` with Zod schemas:
 - **File comment**: `.astro` files start with `// src/path/to/file.astro` in frontmatter
 - **Page container**: `max-w-5xl mx-auto px-5 sm:px-8` (prose narrows to `max-w-3xl`)
 - **Section headings**: numbered `01 / SECTION NAME` in the `label` utility, over a `border-t border-border` rule
-- **Focus styles**: handled globally by the unlayered `:focus-visible` rule in `global.css`. Do not add `focus-visible:outline-none`/`ring-*` utilities — the global rule outranks them, so they are dead code.
+- **Focus styles**: handled globally by the unlayered `:focus-visible` rule in `global.css`. Do not add `focus-visible:outline-none`/`ring-*` utilities — the global rule outranks them, so they are dead code. The one exception also lives in `global.css`: `.editor-tab` draws its outline inset, because the resume tab bar's `overflow-x-auto` inside an `overflow-hidden` window clips an offset one. Style focus there, never per-component.
+- **Metadata lines**: the slash-separated `label` list (project tech, post tags, GitHub languages and repo stats) is `MetaList.astro`. Pass `items` and let it own the separators. `PostLayout`'s masthead line is deliberately not built on it — its separator leads each item rather than sitting between them.
 - **SVG icons**: inlined directly in components (no icon library)
 - **Fonts**: Archivo (sans), IBM Plex Mono (mono) via Google Fonts, loaded `display=optional` to avoid CLS
 - **Geometry**: squared — no `rounded-*` beyond `rounded-sm`, no shadows, no `backdrop-blur`. Separation comes from hairline rules.

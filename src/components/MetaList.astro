@@ -1,0 +1,40 @@
+---
+// src/components/MetaList.astro
+// Design decision: the slash-separated metadata line, extracted. Four call sites
+// carried this shape — project tech, post tags, GitHub languages, and a repo's
+// language/stars/forks — differing only in item colour and their own outer spacing.
+//
+// The separator is a child of the item it follows rather than a sibling between
+// items, so wrapping never leaves a slash orphaned at the start of a line.
+//
+// PostLayout's masthead line deliberately does NOT use this. Its separator leads
+// each item instead of sitting between them (a <time> comes first), and its items
+// are accent-coloured. Covering that would take a leading-separator flag plus a
+// per-item colour — more configuration than the duplication costs.
+interface Props {
+  items: string[];
+  /** Item colour. Three of the four call sites want the default metadata grey. */
+  itemClass?: string;
+  /**
+   * The call site's own outer spacing only — margins, not gaps. Both gaps are fixed
+   * below. An earlier revision left `gap-y-*` to the call site, which made an
+   * optional prop effectively required: forget it and wrapped rows collapse together.
+   * It cannot be defaulted here and overridden there either, because two Tailwind gap
+   * utilities on one element resolve by CSS source order, not attribute order.
+   */
+  class?: string;
+}
+
+const { items, itemClass = 'text-muted-soft', class: className } = Astro.props;
+---
+
+{items.length > 0 && (
+  <ul class:list={['flex flex-wrap gap-x-2 gap-y-1.5', className]}>
+    {items.map((item, i) => (
+      <li class:list={['label', itemClass]}>
+        {item}
+        {i < items.length - 1 && <span class="ml-2 text-border-strong" aria-hidden="true">/</span>}
+      </li>
+    ))}
+  </ul>
+)}

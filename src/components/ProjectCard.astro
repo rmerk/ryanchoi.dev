@@ -4,6 +4,8 @@
 // left gutter, the title is the primary affordance, and metadata reads as columns.
 // Cover art is optional and renders as a bordered strip; no project sets it today,
 // so nothing is fetched, but the content-collection field stays supported.
+import MetaList from '@/components/MetaList.astro';
+
 interface Props {
   title: string;
   description: string;
@@ -14,20 +16,42 @@ interface Props {
   index?: number;
   /** 2 on pages where projects are the top-level content, 3 under a section h2. */
   headingLevel?: 2 | 3;
+  /** Homepage only: widen the numeral gutter at lg onto the page's datum margin. */
+  datum?: boolean;
+  /**
+   * Homepage only: the section these rows sit under, e.g. "01". On the homepage the
+   * rows nest inside section 01 and their numerals share the datum margin with the
+   * section's own index, so a bare "01" row directly under the "01" section reads
+   * as a duplicate. Compound numbering states the real nesting instead. On
+   * /projects the rows are top-level and stay 01, 02, 03.
+   */
+  indexPrefix?: string;
 }
 
-const { title, description, tech, url, github, cover, index, headingLevel = 3 } = Astro.props;
+const { title, description, tech, url, github, cover, index, headingLevel = 3, datum = false, indexPrefix } = Astro.props;
 
 const Heading = `h${headingLevel}` as const;
 const primaryHref = url ?? github;
-const indexLabel = typeof index === 'number' ? String(index + 1).padStart(2, '0') : undefined;
+const indexLabel =
+  typeof index === 'number'
+    ? indexPrefix
+      ? `${indexPrefix}.${index + 1}`
+      : String(index + 1).padStart(2, '0')
+    : undefined;
+
+// Both branches are literal strings so Tailwind's @source scan sees them. The false
+// branch is character-for-character the attribute it replaces, which is what keeps
+// /projects unchanged.
+const rowClass = datum
+  ? 'grid gap-x-8 py-8 sm:grid-cols-[3.5rem_1fr] sm:py-10 lg:datum-row lg:gap-x-6'
+  : 'grid gap-x-8 py-8 sm:grid-cols-[3.5rem_1fr] sm:py-10';
 
 const metaLink =
   'rule-link label text-muted transition-colors hover:text-accent';
 ---
 
 <article class="group border-b border-border">
-  <div class="grid gap-x-8 py-8 sm:grid-cols-[3.5rem_1fr] sm:py-10">
+  <div class={rowClass}>
     {indexLabel && (
       <p class="label mb-3 text-muted-soft transition-colors group-hover:text-accent sm:mb-0 sm:pt-1.5">
         {indexLabel}
@@ -64,14 +88,7 @@ const metaLink =
         />
       )}
 
-      <ul class="mt-5 flex flex-wrap gap-x-2 gap-y-1.5">
-        {tech.map((item, i) => (
-          <li class="label text-muted-soft">
-            {item}
-            {i < tech.length - 1 && <span class="ml-2 text-border-strong" aria-hidden="true">/</span>}
-          </li>
-        ))}
-      </ul>
+      <MetaList items={tech} class="mt-5" />
 
       {(url || github) && (
         <div class="mt-5 flex flex-wrap gap-x-6 gap-y-2">

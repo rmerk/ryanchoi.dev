@@ -47,6 +47,35 @@
   --text-display-3: clamp(1.375rem, 1.15rem + 0.9vw, 1.875rem);
 
   --tracking-label: 0.16em;
+
+  /* The datum rail: the label/value tab stop shared by the hero legend, the hero
+     spec table, every section header, and the homepage project and post rows. It was
+     the literal `8rem` in five separate grid templates, so moving the rail meant five
+     coordinated edits with nothing tying them together. Named in the `--spacing-*`
+     namespace so the call sites can read it as `var(--spacing-datum)`. */
+  --spacing-datum: 8rem;
+
+  /* One orchestrated masthead sequence, run once on load. Nothing else on the site
+     animates.
+
+     Every @keyframes below carries only a `from`; the implicit `to` is the
+     element's own computed style. That is the invariant that makes this safe —
+     no rule in this stylesheet ever declares the hidden state, so a client that
+     never runs the animation (no support, partial stylesheet, reduced motion)
+     renders the finished page. There is no configuration in which content is
+     stuck invisible.
+
+     The delay is a custom property inside the shorthand rather than a separate
+     animation-delay declaration: the shorthand resets animation-delay to 0s, and
+     var() substitution resolves after the cascade, so ordering cannot bite. */
+  --animate-seq-rise: seq-rise 480ms cubic-bezier(0.16, 1, 0.3, 1) var(--seq-delay, 0ms) backwards;
+
+  @keyframes seq-rise {
+    from {
+      opacity: 0;
+      transform: translateY(var(--seq-rise, 0.75rem));
+    }
+  }
 }
 
 /* Light mode overrides. Amber drops to a deep ochre so links clear AA on bone. */
@@ -99,8 +128,37 @@ body {
   outline-offset: 2px;
 }
 
+/* The one exception, and it lives here rather than in resume.astro so the rule
+   above stays the only place focus is styled. The resume editor's tab bar is an
+   `overflow-x-auto` strip inside an `overflow-hidden` window, and the tabs fill its
+   content box exactly — so a +2px offset outline is painted into two ancestors that
+   both clip it and the indicator disappears. Drawn inset it lands inside the tab,
+   which is why this is an offset override and not a second indicator. */
+.editor-tab:focus-visible {
+  outline-offset: -2px;
+}
+
 a {
   text-underline-offset: 0.2em;
+}
+
+/* Puts a row on the datum rail. The measure itself is --spacing-datum; this is what
+   spends it, so the five grids sharing the rail no longer each spell out an arbitrary
+   `grid-cols-[8rem_1fr]` that has to be kept in sync by hand. A utility rather than
+   `grid-cols-[var(--spacing-datum)_1fr]` at five call sites because it names the
+   concept once instead of repeating an opaque value, and it is variant-capable, which
+   is what the call sites need: the hero rows join the rail at `sm:`, the section
+   headers and homepage index rows at `lg:`.
+
+   Note for anyone reading the built CSS: Lightning CSS serialises this as
+   `grid-template-columns:var(--spacing-datum)1fr`, with no space before `1fr`, and it
+   does that whether the source is this declaration or an arbitrary Tailwind value.
+   That is safe rather than a bug — `)` and a dimension token cannot merge into one
+   token, so no separator is required — and it computes to two tracks. Verified in
+   Chromium; don't "fix" it by hand-editing the output. */
+@utility datum-row {
+  display: grid;
+  grid-template-columns: var(--spacing-datum) 1fr;
 }
 
 /* Label: the mono, uppercase, tracked-out marker used for every section header,
@@ -126,6 +184,80 @@ a {
   &:focus-visible {
     background-size: 100% 1px;
   }
+}
+
+@keyframes seq-wipe {
+  from { transform: scaleX(1); }
+}
+
+/* Drawing a hairline in, left to right. A border-top cannot be scaled and swapping
+   it for a pseudo-element would change what border-border means, so the border is
+   present at full width from the first frame and an eraser the colour of the page
+   is retracted off it to the right. Absolutely positioned and transform-only, so
+   no layout is touched. 3px tall at -1px so sub-pixel rounding on fractional-DPR
+   displays cannot leave a sliver of rule showing through; the 2px of over-cover
+   lands on transparent padding. */
+@utility rule-draw {
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--color-bg);
+    transform: scaleX(0);
+    transform-origin: right;
+    animation: seq-wipe 640ms cubic-bezier(0.4, 0, 0.2, 1) var(--rule-delay, 0ms) backwards;
+  }
+}
+
+/* Rows of a ruled table lifting into place under their own top rule. The stagger
+   lives here rather than on each row in the markup, so it cannot drift out of sync
+   with the DOM when a row is added or removed. */
+@utility seq-rows {
+  & > * {
+    --seq-rise: 0.375rem;
+    animation: seq-rise 480ms cubic-bezier(0.16, 1, 0.3, 1) var(--seq-delay, 0ms) backwards;
+  }
+  & > *:nth-child(1) { --seq-delay: 275ms; }
+  & > *:nth-child(2) { --seq-delay: 310ms; }
+  & > *:nth-child(3) { --seq-delay: 345ms; }
+  & > *:nth-child(4) { --seq-delay: 380ms; }
+  & > *:nth-child(5) { --seq-delay: 415ms; }
+  & > *:nth-child(n + 6) { --seq-delay: 450ms; }
+}
+
+/* Marking a claim in the masthead so a footnote can substantiate it. border-strong
+   rather than accent, and solid rather than dotted: an amber underline under a word
+   inside a heading reads as a hyperlink, and at 68px a dotted rule either vanishes
+   (1px) or renders as a row of dashes (0.04em). skip-ink: none keeps the rule
+   unbroken under descenders, which is what makes it read as annotation over a word
+   rather than decoration of it. */
+@utility mark-word {
+  text-decoration-line: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-decoration-thickness: 0.035em;
+  text-underline-offset: 0.16em;
+  text-decoration-skip-ink: none;
+}
+
+/* The footnote marker itself. Sized in em so it tracks the fluid display scale
+   without a breakpoint variant. line-height: 0 keeps it out of the line box — set
+   any other value and a raised child grows the h1's 1.05 leading, which pushes the
+   marker into the line above. */
+@utility mark-note {
+  font-family: var(--font-mono);
+  font-size: 0.28em;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 0;
+  position: relative;
+  top: -1.55em;
+  left: 0.1em;
+  color: var(--color-accent);
 }
 
 /* Blog prose is driven entirely from tokens so both themes work without
@@ -187,13 +319,21 @@ html.light .icon-sun-m { display: none; }
   }
 
   /* The design carries no essential motion, so everything can be reduced to a
-     single frame — including anything added later that forgets to opt in. */
+     single frame — including anything added later that forgets to opt in.
+
+     animation-delay MUST be zeroed alongside the duration. The masthead sequence
+     staggers with `animation-fill-mode: backwards`, so an element holds its `from`
+     frame — the hidden one — until its delay elapses. Zeroing only the duration
+     would leave the last beat invisible for 440ms and then snap it in, which is
+     precisely the experience prefers-reduced-motion exists to prevent. */
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
 

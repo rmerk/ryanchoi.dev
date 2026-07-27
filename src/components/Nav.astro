@@ -127,7 +127,7 @@ const iconButton =
 
   <!-- Mobile menu panel -->
   <div id="mobile-menu" class="hidden border-t border-border bg-bg md:hidden">
-    <div class="mx-auto max-w-5xl px-5">
+    <div class="mx-auto max-w-5xl px-5 sm:px-8">
       {navLinks.map(({ href, label }) => (
         <a
           href={href}
@@ -136,7 +136,7 @@ const iconButton =
             isActive(href) ? 'text-accent' : 'text-muted hover:text-text'
           }`}
         >
-          <span class="mr-3 inline-block h-1.5 w-1.5 shrink-0" style={isActive(href) ? 'background-color: var(--color-accent);' : ''} aria-hidden="true"></span>
+          <span class:list={['mr-3 inline-block h-1.5 w-1.5 shrink-0', isActive(href) && 'bg-accent']} aria-hidden="true"></span>
           {label}
         </a>
       ))}

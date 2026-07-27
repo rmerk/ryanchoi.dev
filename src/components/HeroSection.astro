@@ -4,6 +4,13 @@
 // ruled specification table — the block a datasheet leads with. The previous
 // version paired this with a rotated glass panel showing invented product UI;
 // that has been dropped rather than replaced, since nothing about it was real.
+//
+// The h1 makes two claims, so the two claim words are marked and a legend directly
+// beneath substantiates them. That is the page's signature: it proves its own
+// headline instead of asserting it. At lg the sheet's right margin carries a
+// drafting title block describing the document rather than the person.
+import { buildInfo } from '@/data/build-info';
+
 const specRows: { key: string; value: string; status?: boolean }[] = [
   { key: 'Role', value: 'Senior Frontend Engineer' },
   { key: 'Focus', value: 'Design systems · Frontend infrastructure · Accessibility' },
@@ -11,49 +18,133 @@ const specRows: { key: string; value: string; status?: boolean }[] = [
   { key: 'Domains', value: 'Fintech · SaaS' },
   { key: 'Status', value: 'Open to senior frontend roles', status: true },
 ];
+
+// Every clause here must stay verifiable against the repo, or the device is worse
+// than no device at all. Currently: output: 'static' with no prerender override;
+// zero framework integrations in package.json; display=optional in BaseLayout;
+// the measured contrast table in REDESIGN.md; the single unlayered :focus-visible
+// rule in global.css.
+//
+// The contrast figure is a floor, and it has been wrong twice — both times by
+// measuring a narrower set of pairs than the sentence claims. It said 15:1, which is
+// only --color-text on --color-bg; the muted tiers carrying most of the page are far
+// lower. Then it said 5:1, computed over --color-bg alone — but text also sits on
+// --color-surface and --color-surface-raised, and light --color-accent on
+// surface-raised measures 4.92:1.
+//
+// A floor means the weakest *rendered* pair on any page in either theme. Measured
+// that way, excluding aria-hidden decoration (the `/` dividers are border-strong at
+// 3.4:1 and are exempt under 1.4.3), it is 4.92:1 light and 5.27:1 dark. Stated as
+// 4.5:1 — a true lower bound with margin, and the AA threshold, so the number means
+// something. To re-measure: walk every text node, resolve its effective background
+// through ancestors, skip aria-hidden, and take the minimum across both themes and
+// all six routes. Do not recompute it from the token table alone.
+const notes: { term: string; body: string }[] = [
+  { term: 'Fast', body: 'Prerendered static HTML · no client-side UI framework · no webfont layout shift' },
+  { term: 'Accessible', body: 'WCAG AA contrast (4.5:1 floor) in both themes · visible focus on every control' },
+];
+
+// Provenance for the title block. Rows with nothing real behind them are dropped
+// rather than filled with a placeholder — see src/data/build-info.ts.
+const titleRows: { key: string; value: string }[] = [
+  ...(buildInfo.commit ? [{ key: 'Rev', value: buildInfo.commit }] : []),
+  ...(buildInfo.date ? [{ key: 'Date', value: buildInfo.date }] : []),
+  { key: 'Source', value: 'rmerk/ryanchoi-dev' },
+];
 ---
 
-<section class="mx-auto max-w-5xl px-5 pt-16 pb-20 sm:px-8 sm:pt-24 sm:pb-28">
-  <h1 class="max-w-4xl text-display-1 font-semibold leading-[1.05] tracking-[-0.03em] text-text text-balance">
-    Ryan Choi builds fast, accessible interfaces for product teams.
-  </h1>
+<section class="mx-auto max-w-5xl px-5 pt-12 pb-16 sm:px-8 sm:pt-16 sm:pb-20">
+  <!-- One physical line: Astro preserves template whitespace, so a newline between
+       a marked word and its marker would collapse to a space and render "fast 1,".
 
-  <p class="mt-6 max-w-2xl text-base leading-8 text-muted sm:text-lg">
-    Senior Frontend Engineer specializing in Vue, React, design systems, and frontend
-    infrastructure for fintech and SaaS teams.
-  </p>
+       The markers here are literals, while the legend below numbers itself from its
+       array index. That is deliberate — the h1 is prose, and deriving marked words
+       from data would mean either splitting the sentence into fragments or matching
+       on substrings, both worse than this. The cost is that the two must be kept in
+       step by hand: adding a third entry to `notes` gives the legend a "3" with no
+       marker up here to match it. Change both or neither. -->
+  <h1 class="animate-seq-rise max-w-4xl text-display-1 font-semibold leading-[1.05] tracking-[-0.03em] text-text text-balance">Ryan Choi builds <span class="mark-word">fast</span><span class="mark-note" aria-hidden="true">1</span>, <span class="mark-word">accessible</span><span class="mark-note" aria-hidden="true">2</span> interfaces for product teams.</h1>
 
-  <!-- Specification table -->
-  <dl class="mt-12 border-t border-border">
-    {specRows.map(({ key, value, status }) => (
-      <div class="grid gap-x-6 border-b border-border py-3 sm:grid-cols-[8rem_1fr] sm:items-baseline">
-        <dt class="label pt-0.5 text-muted-soft">{key}</dt>
-        <dd class="mt-1 text-sm leading-6 text-text sm:mt-0">
-          {status && (
-            <span class="mr-2 inline-block h-2 w-2 translate-y-[1px] bg-accent" aria-hidden="true"></span>
-          )}
-          {value}
-        </dd>
+  <!-- Legend: the h1's two marked claims, substantiated. A dl rather than an ol
+       because the markers are aria-hidden, so what a screen reader announces is
+       term then definition — "Fast: prerendered static HTML…" — which is exactly
+       what this is. No border-t: the hero would otherwise carry three ruled
+       label/value blocks and the legend would read as a peer of the spec table
+       instead of as a caption to the heading. -->
+  <dl
+    class="animate-seq-rise [--seq-delay:110ms] [--seq-rise:0.375rem] mt-5 max-w-3xl"
+    aria-label="Notes on the claims above"
+  >
+    {/* py-2 below sm: the term and body stack there, so consecutive notes need more
+        separation than they do once they sit on one row at sm. */}
+    {notes.map(({ term, body }, i) => (
+      <div class="grid gap-x-6 py-2 sm:datum-row sm:items-baseline sm:py-1">
+        <dt class="label text-muted-soft"><span aria-hidden="true">{i + 1}</span> {term}</dt>
+        <dd class="mt-1 text-sm leading-6 text-muted sm:mt-0">{body}</dd>
       </div>
     ))}
   </dl>
 
-  <!-- Actions -->
-  <div class="mt-10 flex flex-col gap-3 sm:flex-row">
-    <a
-      href="/projects"
-      class="inline-flex items-center justify-center gap-2 bg-accent px-6 py-3 text-sm font-semibold text-accent-ink transition-colors hover:bg-accent-secondary"
-    >
-      View work
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-        <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
-      </svg>
-    </a>
-    <a
-      href="/resume"
-      class="inline-flex items-center justify-center border border-border-strong px-6 py-3 text-sm font-semibold text-text transition-colors hover:border-accent hover:text-accent"
-    >
-      Read resume
-    </a>
+  <p class="animate-seq-rise [--seq-delay:165ms] mt-6 max-w-2xl text-base leading-8 text-muted sm:text-lg">
+    Senior Frontend Engineer specializing in Vue, React, design systems, and frontend
+    infrastructure for fintech and SaaS teams.
+  </p>
+
+  <div class="mt-10 lg:grid lg:grid-cols-[1fr_16rem] lg:items-start lg:gap-x-12">
+    <div>
+      <!-- Specification table. rule-draw sits here rather than on the wrapper: the
+           aside animates from opacity 0, which creates a stacking context that
+           paints above a wrapper's ::before, so a wrapper-level eraser could never
+           reach the aside's border anyway. -->
+      <dl class="rule-draw seq-rows [--rule-delay:220ms] border-t border-border">
+        {specRows.map(({ key, value, status }) => (
+          <div class="grid gap-x-6 border-b border-border py-3 sm:datum-row sm:items-baseline">
+            <dt class="label pt-0.5 text-muted-soft">{key}</dt>
+            <dd class="mt-1 text-sm leading-6 text-text sm:mt-0">
+              {status && (
+                <span class="mr-2 inline-block h-2 w-2 translate-y-[1px] bg-accent" aria-hidden="true"></span>
+              )}
+              {value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      <!-- Actions -->
+      <div class="animate-seq-rise [--seq-delay:440ms] mt-8 flex flex-col gap-3 sm:flex-row">
+        <a
+          href="/projects"
+          class="inline-flex items-center justify-center gap-2 bg-accent px-6 py-3 text-sm font-semibold text-accent-ink transition-colors hover:bg-accent-secondary"
+        >
+          View work
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+          </svg>
+        </a>
+        <a
+          href="/resume"
+          class="inline-flex items-center justify-center border border-border-strong px-6 py-3 text-sm font-semibold text-text transition-colors hover:border-accent hover:text-accent"
+        >
+          Read resume
+        </a>
+      </div>
+    </div>
+
+    <!-- Title block: provenance for the sheet, not for the person. Hidden below lg
+         because a title block is an artifact of a sheet having a margin and a
+         corner — below lg there is neither, and it would become three more label
+         rows in an already long hero. It carries no unique information; the repo is
+         reachable from the nav and footer at every width. Source is plain text
+         rather than a link, which keeps the hero's focusable set at the two CTAs. -->
+    <aside class="animate-seq-rise [--seq-delay:330ms] [--seq-rise:0.375rem] hidden lg:block lg:border-l lg:border-border lg:pl-8">
+      <dl class="border-t border-border">
+        {titleRows.map(({ key, value }) => (
+          <div class="flex items-baseline justify-between gap-4 border-b border-border py-2">
+            <dt class="label text-muted-soft">{key}</dt>
+            <dd class="font-mono text-label leading-none text-muted">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </aside>
   </div>
 </section>

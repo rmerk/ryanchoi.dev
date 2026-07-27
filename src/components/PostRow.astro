@@ -4,6 +4,8 @@
 // align down the page as a column. Only the title is a link — the row used to wrap
 // date, title, and chevron in one anchor, which made the accessible name verbose.
 // Tags were accepted but never rendered; they now carry real metadata.
+import MetaList from '@/components/MetaList.astro';
+
 interface Props {
   title: string;
   date: Date;
@@ -11,11 +13,20 @@ interface Props {
   tags: string[];
   /** 2 on the blog index where posts are the top-level content, 3 under a section h2. */
   headingLevel?: 2 | 3;
+  /** Homepage only: pull the date gutter onto the page's datum margin at lg. */
+  datum?: boolean;
 }
 
-const { title, date, slug, tags, headingLevel = 3 } = Astro.props;
+const { title, date, slug, tags, headingLevel = 3, datum = false } = Astro.props;
 
 const Heading = `h${headingLevel}` as const;
+
+// Both branches are literal strings so Tailwind's @source scan sees them. The false
+// branch is character-for-character the attribute it replaces, which is what keeps
+// /blog unchanged.
+const rowClass = datum
+  ? 'grid gap-x-8 gap-y-2 py-6 sm:grid-cols-[9rem_1fr] sm:items-baseline lg:datum-row lg:gap-x-6'
+  : 'grid gap-x-8 gap-y-2 py-6 sm:grid-cols-[9rem_1fr] sm:items-baseline';
 
 const formattedDate = date.toLocaleDateString('en-US', {
   year: 'numeric',
@@ -25,7 +36,7 @@ const formattedDate = date.toLocaleDateString('en-US', {
 ---
 
 <article class="group border-b border-border">
-  <div class="grid gap-x-8 gap-y-2 py-6 sm:grid-cols-[9rem_1fr] sm:items-baseline">
+  <div class={rowClass}>
     <time
       class="label text-muted-soft transition-colors group-hover:text-accent"
       datetime={date.toISOString()}
@@ -43,16 +54,7 @@ const formattedDate = date.toLocaleDateString('en-US', {
         </a>
       </Heading>
 
-      {tags.length > 0 && (
-        <ul class="mt-2.5 flex flex-wrap gap-x-2 gap-y-1">
-          {tags.map((tag, i) => (
-            <li class="label text-muted-soft">
-              {tag}
-              {i < tags.length - 1 && <span class="ml-2 text-border-strong" aria-hidden="true">/</span>}
-            </li>
-          ))}
-        </ul>
-      )}
+      <MetaList items={tags} class="mt-2.5" />
     </div>
   </div>
 </article>

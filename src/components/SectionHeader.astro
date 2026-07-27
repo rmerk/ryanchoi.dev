@@ -3,6 +3,15 @@
 // Design decision: every section opens the same way — a hairline rule, a numbered
 // mono index on the left, an optional jump link on the right, then the heading.
 // The numbering is what gives the page its specification-document read.
+//
+// At lg the index, eyebrow and jump link move into the datum margin and the heading
+// starts at the top of the header rather than a row below it. The measure is not
+// this component's to choose: `datum-row` is the shared rail the hero spec table
+// also sits on (--spacing-datum in global.css), so the reader meets it in the
+// masthead before meeting it here — which is what makes the section indent read as
+// deliberate. Rules stay full-width; only the apparatus hangs in the margin. This
+// component is homepage-only (index.astro and GitHubSection, which is itself only
+// imported by index.astro), so the change needs no prop gate.
 interface Props {
   index: string;
   eyebrow: string;
@@ -15,28 +24,34 @@ interface Props {
 const { index, eyebrow, title, description, href, linkLabel } = Astro.props;
 ---
 
-<header class="border-t border-border pt-4">
-  <div class="flex items-baseline justify-between gap-4">
-    <p class="label text-muted-soft">
+<header class="border-t border-border pt-4 lg:datum-row lg:gap-x-6">
+  <div class="flex items-baseline justify-between gap-4 lg:block">
+    {/* pt-0.5 not items-baseline: baseline-aligning an 11px label to a 30px
+        heading would drop the index ~24px below the rule. */}
+    <p class="label text-muted-soft lg:pt-0.5">
       <span class="text-accent">{index}</span>
-      <span class="mx-1.5" aria-hidden="true">/</span>
-      {eyebrow}
+      <span class="mx-1.5 lg:hidden" aria-hidden="true">/</span>
+      <span class="lg:mt-2 lg:block">{eyebrow}</span>
     </p>
     {href && linkLabel && (
+      /* w-fit: rule-link draws across the full element box, so a block link
+         filling the datum column would underline 128px of empty space. */
       <a
         href={href}
-        class="rule-link label shrink-0 text-muted transition-colors hover:text-accent"
+        class="rule-link label shrink-0 text-muted transition-colors hover:text-accent lg:mt-4 lg:block lg:w-fit"
       >
         {linkLabel} &rarr;
       </a>
     )}
   </div>
 
-  <h2 class="mt-6 max-w-3xl text-display-3 font-semibold leading-tight tracking-tight text-text text-balance">
-    {title}
-  </h2>
+  <div>
+    <h2 class="mt-6 max-w-3xl text-display-3 font-semibold leading-tight tracking-tight text-text text-balance lg:mt-0">
+      {title}
+    </h2>
 
-  {description && (
-    <p class="mt-3 max-w-2xl text-sm leading-7 text-muted">{description}</p>
-  )}
+    {description && (
+      <p class="mt-3 max-w-2xl text-sm leading-7 text-muted">{description}</p>
+    )}
+  </div>
 </header>
