@@ -32,8 +32,8 @@ import FigureStrip from '@/components/FigureStrip.astro';
 interface Props {
   /**
    * This section's number in the homepage's running sequence. Passed in rather than
-   * hardcoded so the whole sequence is declared in one place — index.astro owns 01
-   * and 02, and owning 03 here split the numbering across two files.
+   * hardcoded so the numbering stays declared in index.astro, which owns the order
+   * of the page's sections; hardcoding it here would split that across two files.
    */
   index: string;
 }

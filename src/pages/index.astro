@@ -1,23 +1,12 @@
 ---
 // src/pages/index.astro
 // Design decision: the homepage reads as a numbered specification — masthead, then
-// 01 work / 02 writing / 03 signal. Work leads; the GitHub panel used to sit first,
-// which put third-party metrics above Ryan's own projects.
-import { getCollection } from 'astro:content';
+// 01 signal. It previously carried 01 work / 02 writing ahead of the GitHub panel;
+// those are now reached from the nav and the hero's CTAs rather than duplicated here,
+// which leaves the front page as the masthead plus one measured figure block.
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import HeroSection from '@/components/HeroSection.astro';
-import SectionHeader from '@/components/SectionHeader.astro';
-import ProjectCard from '@/components/ProjectCard.astro';
 import GitHubSection from '@/components/GitHubSection.astro';
-import PostRow from '@/components/PostRow.astro';
-
-const featuredProjects = (await getCollection('projects', ({ data }) => data.featured))
-  .sort((a, b) => a.data.order - b.data.order)
-  .slice(0, 3);
-
-const latestPosts = (await getCollection('blog', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 3);
 ---
 
 <BaseLayout title="Home" description="Ryan Choi is a senior full-stack engineer specializing in Vue, React, Node.js, PHP, and design systems for fintech and SaaS teams.">
@@ -26,61 +15,7 @@ const latestPosts = (await getCollection('blog', ({ data }) => !data.draft))
 
   <div class="mx-auto max-w-5xl px-5 sm:px-8">
 
-    {featuredProjects.length > 0 && (
-      <section class="py-12 sm:py-16">
-        <SectionHeader
-          index="01"
-          eyebrow="Selected work"
-          title="Product, tooling, and platform infrastructure"
-          description="A focused sample. Each entry links straight to the live site or its source."
-          href="/projects"
-          linkLabel="All projects"
-        />
-
-        <div class="mt-8 border-t border-border">
-          {featuredProjects.map((project, i) => (
-            <ProjectCard
-              index={i}
-              datum
-              indexPrefix="01"
-              title={project.data.title}
-              description={project.data.description}
-              tech={project.data.tech}
-              url={project.data.url}
-              github={project.data.github}
-              cover={project.data.cover}
-            />
-          ))}
-        </div>
-      </section>
-    )}
-
-    {latestPosts.length > 0 && (
-      <section class="py-12 sm:py-16">
-        <SectionHeader
-          index="02"
-          eyebrow="Writing"
-          title="Notes on engineering craft"
-          description="Short essays on software systems, tooling, and building things that stay reliable."
-          href="/blog"
-          linkLabel="All posts"
-        />
-
-        <div class="mt-8 border-t border-border">
-          {latestPosts.map((post) => (
-            <PostRow
-              datum
-              title={post.data.title}
-              date={post.data.date}
-              slug={post.id.replace(/\.md$/, '')}
-              tags={post.data.tags}
-            />
-          ))}
-        </div>
-      </section>
-    )}
-
-    <GitHubSection index="03" />
+    <GitHubSection index="01" />
 
   </div>
 </BaseLayout>
