@@ -1,0 +1,258 @@
+---
+// src/pages/colophon.astro
+// Design decision: the page where the site measures itself. Every other route makes
+// claims about the work; this one substantiates the claims the site makes about its
+// own construction — the two footnoted assertions in the homepage masthead point here.
+//
+// Not in the nav. A colophon is an end-matter page, and a fifth top-level tab for it
+// would give it the same weight as the work. It is reachable from the footer and from
+// the hero legend, which is exactly the traffic it deserves.
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/PageHeader.astro';
+import FigureBars from '@/components/FigureBars.astro';
+import { buildContrastMatrix } from '@/data/contrast';
+import { buildCommitBreakdown } from '@/data/commits';
+import { buildInfo } from '@/data/build-info';
+
+const contrast = buildContrastMatrix();
+const commits = buildCommitBreakdown();
+
+// Fixed-width tokens replaced with real measurements by integrations/measure-assets.mjs
+// after the build. They must stay 14 characters wide and their keys must match the
+// integration's — a token the integration does not know about survives into the page
+// as literal '@@' text, and a key the integration knows and cannot find fails the build.
+//
+// The dev server never runs astro:build:done, so there is nothing to measure and
+// nothing to substitute; an em dash is shown instead of leaking the raw token. Use
+// `pnpm preview` to see the real figures. This is the one place on the site where dev
+// and production differ, and it differs in the honest direction: dev shows no number
+// rather than a wrong one.
+const TOKEN_WIDTH = 14;
+const metric = (key: string) =>
+  import.meta.env.DEV ? '—' : `@@${key.padEnd(TOKEN_WIDTH - 4, '_')}@@`;
+
+const shipped: { key: string; label: string; note: string }[] = [
+  { key: 'CSSBYTES', label: 'CSS', note: `${metric('CSSFILES')}, the whole design system` },
+  { key: 'JSBYTES', label: 'JavaScript', note: `${metric('JSFILES')}: the view-transition router` },
+  { key: 'HTMLBYTES', label: 'HTML', note: `${metric('ROUTECOUNT')} prerendered routes` },
+];
+
+const commitRows = commits
+  ? commits.types.map((entry) => ({
+      label: entry.type,
+      value: String(entry.count),
+      segments: [{
+        pct: (entry.count / Math.max(...commits.types.map((t) => t.count))) * 100,
+        fill: 'bg-accent',
+        label: `${entry.count} commits`,
+      }],
+    }))
+  : [];
+---
+
+<BaseLayout
+  title="Colophon"
+  description="How ryanchoi.dev is built and what it ships: measured contrast ratios, commit discipline, and the real byte weight of the site, all read from the build."
+>
+  <div class="mx-auto max-w-5xl px-5 py-16 sm:px-8 sm:py-24">
+    <PageHeader
+      eyebrow="Colophon"
+      title="What this site actually ships."
+      lede="Every number on this page is measured from the build that produced it. Nothing here is typed in by hand, and anything that cannot be measured is absent rather than estimated."
+    />
+
+    <section class="py-12 sm:py-16" aria-labelledby="payload">
+      <div class="flex items-baseline justify-between gap-4 border-t border-border pt-4">
+        <h2 id="payload" class="label text-muted-soft">01 / Payload</h2>
+        <span class="label text-muted">Measured at build</span>
+      </div>
+
+      <dl class="mt-8 grid border-t border-border sm:grid-cols-3">
+        {shipped.map(({ key, label, note }) => (
+          <div class="border-b border-border py-4 sm:py-5 sm:pr-6">
+            <dt class="label text-muted-soft">{label}</dt>
+            <dd class="mt-2 font-mono text-display-3 font-medium tabular-nums text-text">{metric(key)}</dd>
+            <dd class="mt-2 text-sm leading-6 text-muted">{note}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <p class="mt-6 max-w-2xl text-sm leading-7 text-muted">
+        The whole site — every route, the complete design system, and all client-side
+        JavaScript — is <span class="font-mono tabular-nums text-text">{metric('CODEBYTES')}</span>.
+        That substantiates the homepage's first claim: there is no client-side UI
+        framework here, and the only script that ships is Astro's view-transition router.
+      </p>
+
+      <p class="mt-4 max-w-2xl text-sm leading-7 text-muted-soft">
+        Writing a byte count into a page changes that page's byte count. These are
+        substituted after the build as fixed-width tokens padded to equal length, so the
+        files are the same size before and after and the totals stay true. Figures are
+        raw bytes, not compressed: whether the server negotiates gzip or brotli is a
+        property of the host, which this repository cannot verify.
+      </p>
+    </section>
+
+    <section class="py-12 sm:py-16" aria-labelledby="contrast">
+      <div class="flex items-baseline justify-between gap-4 border-t border-border pt-4">
+        <h2 id="contrast" class="label text-muted-soft">02 / Contrast</h2>
+        <span class="label text-muted">{contrast.rows.length} pairs · both themes</span>
+      </div>
+
+      <table class="matrix mt-8">
+        <caption class="sr-only">
+          Contrast ratios for every token pair the design relies on, in both themes,
+          against the WCAG floor that applies to each.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col" class="matrix-pair">Pair</th>
+            <th scope="col" class="matrix-ratio">Dark</th>
+            <th scope="col" class="matrix-ratio">Light</th>
+            <th scope="col" class="matrix-ratio">Floor</th>
+          </tr>
+        </thead>
+        <tbody>
+          {contrast.rows.map((row) => (
+            <tr>
+              <th scope="row" class="matrix-pair">
+                {row.label}
+                {row.note && <span class="matrix-note">{row.note}</span>}
+              </th>
+              <td class="matrix-ratio">{row.dark.toFixed(2)}</td>
+              <td class="matrix-ratio">{row.light.toFixed(2)}</td>
+              <td class="matrix-ratio matrix-floor">{row.floor.toFixed(1)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <p class="mt-6 max-w-2xl text-sm leading-7 text-muted">
+        Computed from the hex values in <span class="font-mono text-text">global.css</span>
+        at build time, not copied into a table — change a token and this figure changes
+        with it. Weakest text pair: <span class="font-mono tabular-nums text-text">{contrast.darkFloor.toFixed(2)}</span>
+        dark, <span class="font-mono tabular-nums text-text">{contrast.lightFloor.toFixed(2)}</span> light.
+      </p>
+
+      <p class="mt-4 max-w-2xl text-sm leading-7 text-muted-soft">
+        This is the palette's capability, not a measured floor for the rendered site —
+        a token table cannot tell you which pairs actually occur in the DOM. The
+        homepage publishes {contrast.publishedFloor.toFixed(1)}:1, which is AA's own
+        threshold and a true lower bound with margin under either reading.
+      </p>
+    </section>
+
+    {commits && (
+      <section class="py-12 sm:py-16" aria-labelledby="commits">
+        <div class="flex items-baseline justify-between gap-4 border-t border-border pt-4">
+          <h2 id="commits" class="label text-muted-soft">03 / Commit discipline</h2>
+          <span class="label text-muted">{commits.ref}</span>
+        </div>
+
+        <FigureBars
+          class="mt-8"
+          caption={`Commits on ${commits.ref} by conventional-commit type.`}
+          labelHeader="Type"
+          valueHeader="Commits"
+          rows={commitRows}
+        />
+
+        <p class="mt-6 max-w-2xl text-sm leading-7 text-muted">
+          <span class="font-mono tabular-nums text-text">{commits.parsed}</span> of
+          <span class="font-mono tabular-nums text-text"> {commits.total}</span> commit
+          messages parse as conventional commits
+          {commits.parsed === commits.total
+            ? ' — every one of them. The claim here is about discipline, not volume.'
+            : `. ${commits.total - commits.parsed} do not, and are counted in the total but not in the bars above.`}
+        </p>
+
+        <p class="mt-4 max-w-2xl text-sm leading-7 text-muted-soft">
+          Counted on <span class="font-mono text-text">{commits.ref}</span>, so the
+          number moves with the checked-out branch. The figure is dropped entirely on a
+          shallow clone, where <span class="font-mono text-text">git log</span> succeeds
+          and returns a truthful-looking fragment rather than failing.
+        </p>
+      </section>
+    )}
+
+    <section class="py-12 sm:py-16" aria-labelledby="build">
+      <h2 id="build" class="label border-t border-border pt-4 text-muted-soft">04 / This build</h2>
+
+      <dl class="mt-8 border-t border-border">
+        {[
+          ...(buildInfo.commit ? [{ key: 'Revision', value: buildInfo.commit }] : []),
+          ...(buildInfo.date ? [{ key: 'Built', value: buildInfo.date }] : []),
+          { key: 'Generator', value: 'Astro 5, static output' },
+          { key: 'Styles', value: 'Tailwind CSS v4, no config file' },
+          { key: 'Source', value: 'rmerk/ryanchoi.dev' },
+        ].map(({ key, value }) => (
+          <div class="grid gap-x-6 border-b border-border py-3 sm:datum-row sm:items-baseline">
+            <dt class="label pt-0.5 text-muted-soft">{key}</dt>
+            <dd class="mt-1 font-mono text-sm leading-6 text-text sm:mt-0">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  .matrix th,
+  .matrix td {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .matrix thead th {
+    border-top: 1px solid var(--color-border);
+    color: var(--color-muted-soft);
+    font-size: var(--text-label);
+    font-weight: 400;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+  .matrix-pair {
+    text-align: left;
+    font-weight: 400;
+    color: var(--color-text);
+  }
+  .matrix-ratio {
+    width: 5rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-muted);
+  }
+  .matrix tbody .matrix-ratio {
+    color: var(--color-text);
+  }
+  .matrix-floor {
+    color: var(--color-muted-soft);
+  }
+  .matrix tbody .matrix-floor {
+    color: var(--color-muted-soft);
+  }
+  .matrix-note {
+    margin-left: 0.625rem;
+    color: var(--color-accent);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+  @media (max-width: 639px) {
+    .matrix {
+      font-size: 0.75rem;
+    }
+    .matrix-ratio {
+      width: 3.75rem;
+    }
+    .matrix-note {
+      display: block;
+      margin-left: 0;
+    }
+  }
+</style>

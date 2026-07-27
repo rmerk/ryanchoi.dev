@@ -65,11 +65,23 @@ Defined in `src/content.config.ts` with Zod schemas:
 
 `src/data/resume.ts` exports typed arrays (`experience`, `education`, `skills`) consumed by `resume.astro`. No external API or CMS.
 
+`src/data/contrast.ts` computes the contrast matrix on `/colophon` from `global.css`, imported with Vite's `?raw` so the stylesheet text is inlined at build time. **Do not read it from disk** — this module is bundled into `dist/pages/` for the static build, so an `import.meta.url`-relative path resolves against the output tree, not `src/`.
+
+`src/data/commits.ts` reads the conventional-commit breakdown via `execFileSync`, and returns `null` on a shallow clone: `git log` there succeeds and returns a truthful-looking fragment, so the `try/catch` in `build-info.ts` would not catch it and the figure would publish "1 commit".
+
 `src/data/timeline.ts` derives the employment Gantt on `/resume` from `experience`. It is the **only** place that interprets those hand-authored date strings (`'June 2024'`, `'Nov 2015'`, `'Present'`), and anything it cannot parse throws at build time rather than being skipped. Consecutive roles at the same employer are folded into one bar with an internal division, so the figure shows four employers and five roles rather than five of each.
 
 ### The hardline data rule
 
 **Every number and figure on the site must be a verifiable true fact.** Where the fact is unavailable, drop the row rather than fill it — `build-info.ts` and `GitHubSection.astro` both work this way, and `GitHubSection` deliberately *fails the build* on a GraphQL `errors` array rather than degrade into something plausible but wrong. No fallback constants, no placeholder values, no illustrative mockups. A figure that cannot be self-measured and would silently rot does not ship. See `REDESIGN.md` for the audit that established this.
+
+### Build integration
+
+`integrations/measure-assets.mjs` runs on `astro:build:done`, measures the emitted CSS/JS/HTML, and substitutes the real byte counts into `/colophon`.
+
+**It only ever replaces fixed-width tokens with equal-length values.** Writing a byte count into a page changes that page's byte count, so every replacement is padded with leading spaces to exactly the token's width — HTML collapses leading whitespace, and the totals measured before substitution stay true after it. The integration throws if any value would overflow its token or if a file's size changes.
+
+Tokens are declared in **two places** — `TOKEN_WIDTH`/`metric()` in both `colophon.astro` and the integration. Drift is not silent: a key the integration knows but cannot find in the output fails the build. The dev server never runs `astro:build:done`, so `colophon.astro` renders an em dash under `import.meta.env.DEV` rather than leaking a raw `@@TOKEN@@`. Use `pnpm preview` to see real figures.
 
 ### View Transitions
 

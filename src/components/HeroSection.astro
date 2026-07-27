@@ -39,9 +39,15 @@ const specRows: { key: string; value: string; status?: boolean }[] = [
 // something. To re-measure: walk every text node, resolve its effective background
 // through ancestors, skip aria-hidden, and take the minimum across both themes and
 // all six routes. Do not recompute it from the token table alone.
-const notes: { term: string; body: string }[] = [
-  { term: 'Fast', body: 'Prerendered static HTML · no client-side UI framework · no webfont layout shift' },
-  { term: 'Accessible', body: 'WCAG AA contrast (4.5:1 floor) in both themes · visible focus on every control' },
+// Each claim now links to where it is measured. The legend substantiated the headline
+// in prose; the colophon substantiates the legend with numbers read from the build,
+// so the marked words in the h1 lead to evidence rather than to an assertion about
+// evidence. This takes the hero's focusable set from two to four — an earlier note
+// argued for keeping it at exactly the two CTAs, which was right while there was
+// nothing worth linking to and is not right now that there is.
+const notes: { term: string; body: string; href: string }[] = [
+  { term: 'Fast', body: 'Prerendered static HTML · no client-side UI framework · no webfont layout shift', href: '/colophon#payload' },
+  { term: 'Accessible', body: 'WCAG AA contrast (4.5:1 floor) in both themes · visible focus on every control', href: '/colophon#contrast' },
 ];
 
 // Provenance for the title block. Rows with nothing real behind them are dropped
@@ -77,9 +83,9 @@ const titleRows: { key: string; value: string }[] = [
   >
     {/* py-2 below sm: the term and body stack there, so consecutive notes need more
         separation than they do once they sit on one row at sm. */}
-    {notes.map(({ term, body }, i) => (
+    {notes.map(({ term, body, href }, i) => (
       <div class="grid gap-x-6 py-2 sm:datum-row sm:items-baseline sm:py-1">
-        <dt class="label text-muted-soft"><span aria-hidden="true">{i + 1}</span> {term}</dt>
+        <dt class="label text-muted-soft"><span aria-hidden="true">{i + 1}</span> <a href={href} class="rule-link transition-colors hover:text-accent">{term}</a></dt>
         <dd class="mt-1 text-sm leading-6 text-muted sm:mt-0">{body}</dd>
       </div>
     ))}

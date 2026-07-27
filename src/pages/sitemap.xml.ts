@@ -1,7 +1,9 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 
-const staticRoutes = ['/', '/projects', '/resume', '/about', '/blog'];
+// Hand-maintained: adding a page under src/pages/ does not add it here. Blog posts
+// come from the collection below, so only top-level routes need listing.
+const staticRoutes = ['/', '/projects', '/resume', '/about', '/blog', '/colophon'];
 
 interface SitemapUrl {
   loc: string;

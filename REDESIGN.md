@@ -527,3 +527,79 @@ Verified after: `astro check` 0/0/0; every rendered percentage reproduces from t
 byte and contribution counts; a build with no `GITHUB_TOKEN` drops all three figures
 along with the stat strip and grid, and the section description recomposes to name only
 what is left; no horizontal overflow at 375; both themes measured above.
+
+## Figures — `/colophon`, the page that measures itself
+
+A new route, and the only one whose subject is the site rather than the work. The two
+footnoted claims in the homepage masthead now link here: the legend substantiated the
+headline in prose, and this substantiates the legend with numbers read from the build.
+That closes the loop the marked words in the h1 opened.
+
+Not in the nav. A colophon is end matter, and a fifth top-level tab would give it the
+same weight as the work; it is reachable from the footer and from the hero legend.
+Adding those two legend links takes the hero's focusable set from two to four — an
+earlier note argued for keeping it at exactly the two CTAs, which was right while there
+was nothing worth linking to and is not right now that there is.
+
+**01 / Payload — the site measures itself.** `integrations/measure-assets.mjs` runs on
+`astro:build:done`, measures the emitted output, and substitutes real counts into the
+page: 46,902 B CSS, 15,362 B JavaScript, 266,618 B HTML across 7 routes, 328,882 B in
+total. This converts the hero's "no client-side UI framework" from an assertion into a
+number — the only script that ships is Astro's view-transition router.
+
+REDESIGN.md previously recorded this figure as impossible, on the grounds that "Astro
+renders HTML before the asset is finalised". **That was wrong.** Astro's static build
+sequences the SSR build, then the client build, then page generation, and the CSS
+plugin registers for both targets, so stylesheets are on disk two phases before any
+HTML is written — the HTML even embeds the CSS content hash, which could not be true if
+the content were still in flux.
+
+The genuine hazard is self-reference: writing a byte count into a page changes that
+page's byte count. Every substitution is a **fixed-width token padded with leading
+spaces to exactly its own length**, so files are byte-identical in size before and
+after and a total measured pre-substitution is still true post-substitution. HTML
+collapses leading whitespace, so nothing shows. The integration throws if a value
+overflows its token or if any file's size changes. Verified independently after every
+build: the page claims 266,618 B of HTML and the files total exactly 266,618 B.
+
+The two-pass alternative — commit a measurements JSON, read it next build — was
+rejected. Pass N would describe pass N-1's assets, so every design change would ship
+one stale deploy: precisely the silent rot the data rule exists to prevent.
+
+**02 / Contrast — 10 pairs, both themes.** Computed from the hex values in
+`global.css` with Vite's `?raw`, so the figure cannot drift from the tokens it
+describes; change a token and the number changes on the next build, and a token that
+disappears fails the build rather than publishing a stale ratio. Reading the file from
+disk does **not** work — the module is bundled into `dist/pages/`, so an
+`import.meta.url`-relative path resolves against the output tree.
+
+The figure states its own limitation, which is the point of putting it here: a token
+table cannot tell you which pairs actually *occur* in the rendered DOM. Proof that this
+is not pedantry — the real light floor, 4.92, comes from accent on surface-raised, a
+pair absent from the hand-written table in this document for exactly that reason. Both
+floor-setting pairs are now marked in the figure. The homepage keeps publishing 4.5:1,
+which is AA's own threshold and a true lower bound under either reading.
+
+**03 / Commit discipline.** feat 57, fix 28, chore 11, docs 5, polish 1, content 1 —
+and 103 of 103 messages parse. The claim is about discipline, not volume, and it is the
+one git-derived figure that does not collapse on this repository's bursty history. The
+branch is published alongside the counts because they move with it, and the figure is
+**dropped entirely on a shallow clone**, where `git log` succeeds and returns a
+truthful-looking fragment that `build-info.ts`'s try/catch would not catch. A CI runner
+on `actions/checkout` at its default `fetch-depth: 1` would otherwise publish "1 commit"
+with nothing failing.
+
+**Disqualified while building this.** The hour-of-day commit histogram (a real 05:00
+peak, but 100 commits on one branch is a fact about a repository, not about a decade of
+work) and the repo-creation timeline (three empty columns, and a 19-repo 2015 bootcamp
+spike that overstates substance against the 8 repos of 2026).
+
+The dev server never runs `astro:build:done`, so `/colophon` shows an em dash under
+`import.meta.env.DEV` rather than leaking a raw token. It is the one place dev and
+production differ, and it differs in the honest direction: no number rather than a
+wrong one. `pnpm preview` shows the real figures.
+
+Verified after: `astro check` 0/0/0; every contrast ratio reproduces the measured table
+recorded earlier in this document, and the derived floors (4.99 dark, 4.92 light) match
+an independent computation; byte parity confirmed against the files on disk after
+substitution; no horizontal overflow at 375; both themes measured.
