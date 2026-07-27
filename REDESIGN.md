@@ -3,6 +3,10 @@
 Branch cut from `portfolio-visual-redesign` at `b07b34e`. Visual redesign only: no
 URL changes, no content-collection schema changes, no copy rewrites, no deploy.
 
+**Two of those constraints were deliberately broken later**, and both are documented
+at the end of this file: a `/colophon` route was added, and the copy was rewritten
+because it stated the wrong job title. The no-deploy constraint still holds.
+
 ## Chosen direction: Technical Specification, warm palette
 
 > A portfolio that reads like a well-typeset engineering spec sheet, not a landing
@@ -639,11 +643,28 @@ Agile Resources and "Software Engineer (Frontend)" at Routable are what those ro
 were actually called. Likewise the About page's line about working on frontend
 infrastructure at Equifax, which describes that role accurately.
 
-### Still outstanding: `public/social-card.png`
+### `public/social-card.png` — regenerated
 
-The Open Graph image is **pre-redesign** — cyan on blue-black, `rounded-3xl`, a glow
-and a dot grid, every visual decision this branch deleted — and it has "Senior Frontend
-Engineer" baked into the pixels, so no string change reaches it. It is what renders
-whenever the site is shared. It needs regenerating against the current palette and
-title; until then the site's most-shared surface shows both the wrong design and the
-wrong job.
+The Open Graph image was **pre-redesign**: cyan on blue-black, `rounded-3xl`, a glow
+and a dot grid — every visual decision this branch deleted — with "Senior Frontend
+Engineer" baked into the pixels, so no string change could reach it. It is what renders
+whenever the site is shared, which made it simultaneously the most-seen and least-
+maintained surface on the site.
+
+It is now generated from `assets/social-card.html` and captured with headless Chrome at
+1200×630. The card mirrors the homepage masthead: hairline bars top and bottom, the
+statement left, a ruled spec block hanging in the right margin, the two claim words
+underlined the way the h1 underlines them, and the amber status marker. A single-column
+first attempt left the right third of the frame empty, which read as an accident rather
+than as restraint.
+
+Deliberately **not** an Astro route. A page that exists only to be screenshotted would
+ship, and would inflate the route count `/colophon` publishes. `assets/` sits outside
+`src/`, so Tailwind's `@source` does not scan it and nothing is copied into `dist/`.
+
+The honest caveat, recorded because it will bite again: **nothing connects the card to
+the site.** Its token values are inlined because it renders outside Vite, and its copy
+is hand-kept in step with `HeroSection.astro`. A palette or title change will ship a
+stale card without anything failing — which is exactly how it came to carry the wrong
+job title for months. The regeneration command is in `CLAUDE.md` and in a comment at
+the top of the file.

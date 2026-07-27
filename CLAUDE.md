@@ -75,6 +75,18 @@ Defined in `src/content.config.ts` with Zod schemas:
 
 **Every number and figure on the site must be a verifiable true fact.** Where the fact is unavailable, drop the row rather than fill it — `build-info.ts` and `GitHubSection.astro` both work this way, and `GitHubSection` deliberately *fails the build* on a GraphQL `errors` array rather than degrade into something plausible but wrong. No fallback constants, no placeholder values, no illustrative mockups. A figure that cannot be self-measured and would silently rot does not ship. See `REDESIGN.md` for the audit that established this.
 
+### Social card
+
+`public/social-card.png` (1200×630) is generated from `assets/social-card.html`, which is versioned but **not a route** — a page existing only to be screenshotted would ship, and would inflate the route count `/colophon` publishes. `assets/` is outside `src/`, so Tailwind's `@source` does not scan it and it is not copied into `dist/`.
+
+Regenerate after any change to the title, tagline, or palette:
+
+```bash
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --disable-gpu --hide-scrollbars --screenshot=public/social-card.png --window-size=1200,630 --virtual-time-budget=10000 assets/social-card.html
+```
+
+Token values are inlined in that file because it renders outside Vite and cannot import `global.css`. **Nothing connects the card to the site**, so a stale palette or title ships without anything failing — it carried "Senior Frontend Engineer" and the entire pre-redesign look long after the site had moved on. Treat it as a manual step in any copy or palette change.
+
 ### Build integration
 
 `integrations/measure-assets.mjs` runs on `astro:build:done`, measures the emitted CSS/JS/HTML, and substitutes the real byte counts into `/colophon`.
