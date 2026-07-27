@@ -21,15 +21,17 @@ Environment variables are optional for local development. Keep local secrets in 
 
 | Variable | Required | Purpose |
 | :-- | :-- | :-- |
-| `GITHUB_TOKEN` | No | Enables GraphQL-backed GitHub contribution and language details on the home page. Without it, the site still uses public REST API data and built-in fallbacks. |
+| `GITHUB_TOKEN` | No | Enables the GraphQL request behind the stat strip, contribution grid, and language list on the home page. Without it, those elements are omitted. |
 
 ### GitHub Data
 
-`src/components/GitHubSection.astro` fetches GitHub data during the Astro build. By default, it uses unauthenticated REST API requests for the profile summary, recent activity, and popular repository cards.
+`src/components/GitHubSection.astro` fetches GitHub data during the Astro build. One authenticated GraphQL request — costing a single rate-limit point — supplies the repository count, follower count, contribution calendar, and language byte totals. One unauthenticated REST request supplies the recent-activity feed.
 
-`GITHUB_TOKEN` is optional. When present, it enables a build-time GraphQL request for the contribution calendar and richer language aggregation by bytes across owner repositories. The token only needs access to public GitHub data for this site.
+**There are no content fallbacks.** Every number in this section is either read from the API on that build or omitted along with the row that would have carried it, matching how `src/data/build-info.ts` drops unsubstantiated title-block rows. An earlier revision had five fallback constants that rendered as fact whenever the anonymous REST limit (60/hr per IP) was hit; they are gone.
 
-Without `GITHUB_TOKEN`, builds still complete. The profile card has hardcoded defaults if REST profile data is unavailable. Recent activity, repository cards, and REST-derived languages do not have hardcoded content fallbacks, so those cards can be absent when REST responses are rate-limited, non-OK, empty, or unavailable. The contribution calendar is also absent without successful GraphQL data.
+`GITHUB_TOKEN` only needs access to public GitHub data. Without it the GraphQL request is skipped and the stat strip, contribution grid, and language list are all absent; the activity feed still renders if REST succeeds. If every element is absent the whole section does not render. Builds complete either way.
+
+One exception to graceful degradation is deliberate: if GraphQL answers with an `errors` array, the build **fails**. GraphQL returns HTTP 200 on permission and schema failures, so a scope-limited token nulls the response and would otherwise silently blank the section with nothing in the build log.
 
 For local builds, put `GITHUB_TOKEN=...` in an untracked `.env` file. Deployment environments should configure `GITHUB_TOKEN` as a private build-time environment variable. Do not use `PUBLIC_GITHUB_TOKEN` or another client-exposed variable name, and never commit tokens or private environment files.
 
@@ -40,7 +42,7 @@ Production build validation should pass without `GITHUB_TOKEN`; running it with 
 Use these checks before merging or deploying content and UI changes:
 
 1. Run `pnpm check`.
-2. Run `pnpm validate:build` to exercise production rendering and build-time GitHub data fallbacks.
+2. Run `pnpm validate:build` to exercise production rendering and the no-token path, where GitHub-derived rows are omitted rather than filled.
 3. Preview production output with `pnpm preview` when visual behavior needs a local production check.
 
 ## Deployment

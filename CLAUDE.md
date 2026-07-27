@@ -77,7 +77,7 @@ Defined in `src/content.config.ts` with Zod schemas:
 - **Page container**: `max-w-5xl mx-auto px-5 sm:px-8` (prose narrows to `max-w-3xl`)
 - **Section headings**: numbered `01 / SECTION NAME` in the `label` utility, over a `border-t border-border` rule
 - **Focus styles**: handled globally by the unlayered `:focus-visible` rule in `global.css`. Do not add `focus-visible:outline-none`/`ring-*` utilities — the global rule outranks them, so they are dead code. The one exception also lives in `global.css`: `.editor-tab` draws its outline inset, because the resume tab bar's `overflow-x-auto` inside an `overflow-hidden` window clips an offset one. Style focus there, never per-component.
-- **Metadata lines**: the slash-separated `label` list (project tech, post tags, GitHub languages and repo stats) is `MetaList.astro`. Pass `items` and let it own the separators. `PostLayout`'s masthead line is deliberately not built on it — its separator leads each item rather than sitting between them.
+- **Metadata lines**: the slash-separated `label` list (project tech, post tags, GitHub languages) is `MetaList.astro`. Pass `items` and let it own the separators. `PostLayout`'s masthead line is deliberately not built on it — its separator leads each item rather than sitting between them.
 - **SVG icons**: inlined directly in components (no icon library)
 - **Fonts**: Archivo (sans), IBM Plex Mono (mono) via Google Fonts, loaded `display=optional` to avoid CLS
 - **Geometry**: squared — no `rounded-*` beyond `rounded-sm`, no shadows, no `backdrop-blur`. Separation comes from hairline rules.

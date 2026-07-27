@@ -2,7 +2,29 @@
 // src/components/GitHubSection.astro
 // Design decision: present GitHub activity as an instrument panel — a ruled stat
 // strip, one inset surface for the contribution grid, and everything else as
-// aligned data rows. Build-time fetched, with fallbacks so the build never fails.
+// aligned data rows.
+//
+// Hardline data rule: every number rendered here must be true, or the row that
+// would carry it is dropped. There are no fallback constants. An earlier revision
+// had five of them and they shipped as fact whenever the unauthenticated REST calls
+// were rate-limited (60/hr per IP) — `30 repositories / 15 followers` against a
+// truth of 46 / 11, two repo cards whose URLs 404, and the strings 'portfolio' and
+// 'client work' sitting in a timestamp column. Dropping a row is honest; inventing
+// one is not. This mirrors what src/data/build-info.ts already does with the title
+// block: no value, no row.
+//
+// Everything except the activity feed now comes from one authenticated GraphQL
+// request costing a single rate-limit point. That is both cheaper than the three
+// unauthenticated REST calls it replaces and immune to the anonymous rate limit
+// that was triggering the fallbacks in the first place.
+//
+// The 'Popular repositories' panel that used to sit between the contribution grid and
+// the language list was removed rather than repaired. It sorted by `sort=stars`, which
+// is not a valid sort for /users/{user}/repos, so GitHub silently ignored it and
+// returned creation order — and there was nothing to rank in any case, since every one
+// of the public repositories has zero stars. Four of the six cards it rendered were
+// forks of other people's projects, presented as Ryan's own work. The honest
+// replacement is a commit-volume ranking, which is a figure, not a fix.
 import SectionHeader from '@/components/SectionHeader.astro';
 import MetaList from '@/components/MetaList.astro';
 
@@ -17,14 +39,8 @@ interface Props {
 
 const { index } = Astro.props;
 
-// Only what the section actually renders. An earlier revision also carried
-// avatar_url and bio; the avatar is a deliberate removal (see REDESIGN.md) and the
-// bio was never rendered, so both were declared, defaulted, and resolved for nothing.
-interface GitHubProfile {
-  public_repos: number;
-  followers: number;
-  html_url: string;
-}
+const GITHUB_LOGIN = 'rmerk';
+const GITHUB_PROFILE_URL = `https://github.com/${GITHUB_LOGIN}`;
 
 interface GitHubEvent {
   type: string;
@@ -38,70 +54,6 @@ interface GitHubActivityItem {
   timeAgo: string;
 }
 
-interface GitHubRepo {
-  name: string;
-  description: string | null;
-  html_url: string;
-  stargazers_count: number;
-  forks_count: number;
-  language: string | null;
-}
-
-interface GitHubGraphQLResponse {
-  data?: {
-    user?: {
-      contributionsCollection?: {
-        contributionCalendar?: {
-          totalContributions?: number;
-          weeks?: ContributionWeek[];
-        };
-      };
-      repositories?: {
-        nodes?: {
-          languages?: {
-            edges?: {
-              size?: number;
-              node?: { name?: string };
-            }[];
-          };
-        }[];
-      };
-    };
-  };
-}
-
-const fallbackProfile: GitHubProfile = {
-  public_repos: 30,
-  followers: 15,
-  html_url: 'https://github.com/rmerk',
-};
-
-const fallbackRecentActivity: GitHubActivityItem[] = [
-  { repo: 'ryanchoi-dev', type: 'Maintains', timeAgo: 'portfolio' },
-  { repo: 'clearstack-dev', type: 'Maintains', timeAgo: 'client work' },
-];
-
-const fallbackRepos: GitHubRepo[] = [
-  {
-    name: 'ryanchoi-dev',
-    description: 'Personal portfolio and blog built with Astro, TypeScript, and Tailwind CSS.',
-    html_url: 'https://github.com/rmerk/ryanchoi-dev',
-    stargazers_count: 0,
-    forks_count: 0,
-    language: 'TypeScript',
-  },
-  {
-    name: 'clearstack-dev',
-    description: 'Marketing site for a software agency serving small businesses in Minnesota.',
-    html_url: 'https://github.com/rmerk/clearstack-dev',
-    stargazers_count: 0,
-    forks_count: 0,
-    language: 'Astro',
-  },
-];
-
-const fallbackLanguages = ['TypeScript', 'Astro', 'CSS'];
-
 interface ContributionDay {
   contributionCount: number;
   date: string;
@@ -111,47 +63,36 @@ interface ContributionWeek {
   contributionDays: ContributionDay[];
 }
 
-let contributionWeeks: ContributionWeek[] = [];
-let totalContributions = 0;
-let graphqlLanguages: string[] = [];
+interface LanguageTotal {
+  name: string;
+  bytes: number;
+}
 
-const GITHUB_TOKEN = import.meta.env.GITHUB_TOKEN;
 const restHeaders = { 'User-Agent': 'ryanchoi-dev' };
+
+// DeleteEvent was missing, so a deleted branch rendered through the `.replace` path
+// as the bare verb 'Delete' — 'Delete ryanchoi.dev' was present in the built HTML.
 const eventTypeLabels: Record<string, string> = {
   PushEvent: 'Pushed to',
   CreateEvent: 'Created',
+  DeleteEvent: 'Deleted in',
   PullRequestEvent: 'PR on',
+  PullRequestReviewEvent: 'Reviewed on',
   IssuesEvent: 'Issue on',
+  IssueCommentEvent: 'Commented on',
   WatchEvent: 'Starred',
   ForkEvent: 'Forked',
+  ReleaseEvent: 'Released in',
 };
 
-async function readJsonResponse<T>(response: Response): Promise<T | null> {
-  if (!response.ok) return null;
-
+async function fetchJson<T>(url: string, init?: RequestInit): Promise<T | null> {
   try {
+    const response = await fetch(url, init);
+    if (!response.ok) return null;
     return (await response.json()) as T;
   } catch {
     return null;
   }
-}
-
-async function fetchJson<T>(url: string, init?: RequestInit): Promise<T | null> {
-  try {
-    return await readJsonResponse<T>(await fetch(url, init));
-  } catch {
-    return null;
-  }
-}
-
-function getTimeAgo(createdAt: string, now: number): string {
-  const diff = now - new Date(createdAt).getTime();
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const days = Math.floor(hours / 24);
-
-  if (days > 0) return `${days}d ago`;
-  if (hours > 0) return `${hours}h ago`;
-  return 'just now';
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -165,19 +106,6 @@ function isGitHubEvent(value: unknown): value is GitHubEvent {
     typeof value.type === 'string' &&
     typeof value.repo.name === 'string' &&
     typeof value.created_at === 'string'
-  );
-}
-
-function isGitHubRepo(value: unknown): value is GitHubRepo {
-  if (!isRecord(value)) return false;
-
-  return (
-    typeof value.name === 'string' &&
-    (typeof value.description === 'string' || value.description === null) &&
-    typeof value.html_url === 'string' &&
-    typeof value.stargazers_count === 'number' &&
-    typeof value.forks_count === 'number' &&
-    (typeof value.language === 'string' || value.language === null)
   );
 }
 
@@ -202,113 +130,214 @@ function isLanguageEdge(value: unknown): value is { size: number; node: { name: 
   );
 }
 
-function resolveProfile(data: Partial<GitHubProfile> | null): GitHubProfile {
-  if (!data) return { ...fallbackProfile };
+function getTimeAgo(createdAt: string, now: number): string {
+  const diff = now - new Date(createdAt).getTime();
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(hours / 24);
 
-  return {
-    public_repos: typeof data.public_repos === 'number' ? data.public_repos : fallbackProfile.public_repos,
-    followers: typeof data.followers === 'number' ? data.followers : fallbackProfile.followers,
-    html_url: data.html_url || fallbackProfile.html_url,
-  };
+  if (days > 0) return `${days}d ago`;
+  if (hours > 0) return `${hours}h ago`;
+  return 'just now';
 }
 
+// The activity feed keeps the full owner/repo name. Stripping the owner with
+// `.split('/').pop()` made a pull request on someone else's repository render
+// identically to work on Ryan's own — a real case, since four of the six repos this
+// section used to display were forks of other people's projects.
 function resolveRecentActivity(events: unknown): GitHubActivityItem[] {
   const validEvents = Array.isArray(events) ? events.filter(isGitHubEvent) : [];
-  if (validEvents.length === 0) return [...fallbackRecentActivity];
-
   const now = Date.now();
 
-  return validEvents.slice(0, 5).map((event) => {
-    return {
-      repo: event.repo.name.split('/').pop() || event.repo.name,
-      type: eventTypeLabels[event.type] || event.type.replace('Event', ''),
-      timeAgo: getTimeAgo(event.created_at, now),
-    };
-  });
+  return validEvents.slice(0, 5).map((event) => ({
+    repo: event.repo.name,
+    type: eventTypeLabels[event.type] || event.type.replace(/Event$/, ''),
+    timeAgo: getTimeAgo(event.created_at, now),
+  }));
 }
 
-function resolveRepos(data: unknown): GitHubRepo[] {
-  const validRepos = Array.isArray(data) ? data.filter(isGitHubRepo) : [];
-  return validRepos.length > 0 ? validRepos : [...fallbackRepos];
-}
+const GITHUB_TOKEN = import.meta.env.GITHUB_TOKEN;
 
-const [profileData, eventsData, reposData] = await Promise.all([
-  fetchJson<Partial<GitHubProfile>>('https://api.github.com/users/rmerk', { headers: restHeaders }),
-  fetchJson<unknown[]>('https://api.github.com/users/rmerk/events?per_page=5', { headers: restHeaders }),
-  fetchJson<unknown[]>('https://api.github.com/users/rmerk/repos?sort=stars&per_page=6&direction=desc', { headers: restHeaders }),
-]);
+const GRAPHQL_QUERY = `{
+  user(login: "${GITHUB_LOGIN}") {
+    url
+    followers { totalCount }
+    contributionsCollection {
+      restrictedContributionsCount
+      contributionCalendar {
+        totalContributions
+        weeks {
+          contributionDays {
+            contributionCount
+            date
+          }
+        }
+      }
+    }
+    repositories(first: 100, ownerAffiliations: OWNER, isFork: false) {
+      totalCount
+      nodes {
+        languages(first: 10, orderBy: { field: SIZE, direction: DESC }) {
+          edges {
+            size
+            node { name }
+          }
+        }
+      }
+    }
+  }
+}`;
 
-const profile = resolveProfile(profileData);
-const recentActivity = resolveRecentActivity(eventsData);
-const repos = resolveRepos(reposData);
+let contributionWeeks: ContributionWeek[] = [];
+let totalContributions = 0;
+let privateContributions = 0;
+let ownRepoCount = 0;
+let followerCount = 0;
+let profileUrl = GITHUB_PROFILE_URL;
+let languageTotals: LanguageTotal[] = [];
 
 if (GITHUB_TOKEN) {
-  const gql = await fetchJson<GitHubGraphQLResponse>('https://api.github.com/graphql', {
+  const response = await fetch('https://api.github.com/graphql', {
     method: 'POST',
     headers: {
       'Authorization': `bearer ${GITHUB_TOKEN}`,
       'Content-Type': 'application/json',
       'User-Agent': 'ryanchoi-dev',
     },
-    body: JSON.stringify({
-      query: `{
-        user(login: "rmerk") {
-          contributionsCollection {
-            contributionCalendar {
-              totalContributions
-              weeks {
-                contributionDays {
-                  contributionCount
-                  date
-                }
-              }
-            }
-          }
-          repositories(first: 100, ownerAffiliations: OWNER, isFork: false) {
-            nodes {
-              languages(first: 5, orderBy: { field: SIZE, direction: DESC }) {
-                edges {
-                  size
-                  node { name }
-                }
-              }
-            }
-          }
-        }
-      }`,
-    }),
-  });
+    body: JSON.stringify({ query: GRAPHQL_QUERY }),
+  }).catch(() => null);
 
-  const user = gql?.data?.user;
-  const calendar = user?.contributionsCollection?.contributionCalendar;
-  const validWeeks = Array.isArray(calendar?.weeks) ? calendar.weeks.filter(isContributionWeek) : [];
-  if (typeof calendar?.totalContributions === 'number' && validWeeks.length > 0) {
-    totalContributions = calendar.totalContributions;
-    contributionWeeks = validWeeks;
+  const payload = response?.ok ? await response.json().catch(() => null) : null;
+
+  // GraphQL answers 200 with an `errors` array and nulled data on permission and
+  // schema failures, so checking `response.ok` alone is structurally blind to them:
+  // a scope-limited token nulls the entire `user` object and every figure below
+  // silently disappears with nothing in the build log. Under the hardline rule a
+  // wrong-but-plausible page is worse than no page, so this fails the build loudly
+  // rather than degrading. A network failure still yields null and simply drops the
+  // rows — absence is honest, invention is not.
+  if (isRecord(payload) && Array.isArray(payload.errors) && payload.errors.length > 0) {
+    const messages = payload.errors
+      .map((error: unknown) => (isRecord(error) && typeof error.message === 'string' ? error.message : 'unknown error'))
+      .join('; ');
+    throw new Error(`GitHub GraphQL returned errors: ${messages}`);
   }
 
-  // Aggregate language bytes across all repos when GraphQL data is available.
-  const langBytes = new Map<string, number>();
-  const repoNodes = Array.isArray(user?.repositories?.nodes) ? user.repositories.nodes : [];
-  for (const repo of repoNodes) {
-    const languageEdges = Array.isArray(repo?.languages?.edges) ? repo.languages.edges : [];
-    for (const edge of languageEdges.filter(isLanguageEdge)) {
-      langBytes.set(edge.node.name, (langBytes.get(edge.node.name) || 0) + edge.size);
+  const user = isRecord(payload) && isRecord(payload.data) ? payload.data.user : null;
+
+  if (isRecord(user)) {
+    if (typeof user.url === 'string') profileUrl = user.url;
+
+    if (isRecord(user.followers) && typeof user.followers.totalCount === 'number') {
+      followerCount = user.followers.totalCount;
     }
-  }
-  if (langBytes.size > 0) {
-    graphqlLanguages = [...langBytes.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .map(([name]) => name);
+
+    const collection = isRecord(user.contributionsCollection) ? user.contributionsCollection : null;
+
+    if (collection && typeof collection.restrictedContributionsCount === 'number') {
+      privateContributions = collection.restrictedContributionsCount;
+    }
+
+    const calendar = collection && isRecord(collection.contributionCalendar) ? collection.contributionCalendar : null;
+    const validWeeks = calendar && Array.isArray(calendar.weeks) ? calendar.weeks.filter(isContributionWeek) : [];
+
+    if (calendar && typeof calendar.totalContributions === 'number' && validWeeks.length > 0) {
+      totalContributions = calendar.totalContributions;
+      contributionWeeks = validWeeks;
+    }
+
+    const repositories = isRecord(user.repositories) ? user.repositories : null;
+
+    if (repositories && typeof repositories.totalCount === 'number') {
+      ownRepoCount = repositories.totalCount;
+    }
+
+    // Language bytes, aggregated across owned non-fork repositories. The byte
+    // magnitudes were already being fetched here and then discarded by a
+    // `.map(([name]) => name)` that kept only the order of the names — and the order
+    // was then reshuffled frontend-first by a `sortByCategory` helper, so the
+    // rendered list contradicted the very magnitudes it was derived from. PHP is
+    // the second-largest language by bytes and was displaying seventh. The sort is
+    // now the true one and the sizes are kept.
+    const langBytes = new Map<string, number>();
+    const repoNodes = repositories && Array.isArray(repositories.nodes) ? repositories.nodes : [];
+
+    for (const repo of repoNodes) {
+      const languages = isRecord(repo) && isRecord(repo.languages) ? repo.languages : null;
+      const edges = languages && Array.isArray(languages.edges) ? languages.edges : [];
+
+      for (const edge of edges.filter(isLanguageEdge)) {
+        langBytes.set(edge.node.name, (langBytes.get(edge.node.name) || 0) + edge.size);
+      }
+    }
+
+    languageTotals = [...langBytes.entries()]
+      .map(([name, bytes]) => ({ name, bytes }))
+      .sort((a, b) => b.bytes - a.bytes);
   }
 }
 
-// Map contribution count to intensity level (0-4)
+const eventsData = await fetchJson<unknown[]>(
+  `https://api.github.com/users/${GITHUB_LOGIN}/events?per_page=5`,
+  { headers: restHeaders }
+);
+const recentActivity = resolveRecentActivity(eventsData);
+
+// Capped: the aggregate tails off into languages committed once years ago and buries
+// the signal in a flat mono list.
+const LANGUAGE_LIMIT = 10;
+const languages = languageTotals.slice(0, LANGUAGE_LIMIT).map(({ name }) => name);
+
+// Repositories is the count of repositories Ryan actually created. The REST
+// `public_repos` field this replaces was 79, of which 33 are forks of other
+// people's projects — publishing it overstated the body of work by 72%.
+const stats: { key: string; value: string }[] = [
+  ...(ownRepoCount > 0 ? [{ key: 'Repositories', value: String(ownRepoCount) }] : []),
+  ...(followerCount > 0 ? [{ key: 'Followers', value: String(followerCount) }] : []),
+  ...(totalContributions > 0
+    ? [{ key: 'Contributions', value: totalContributions.toLocaleString('en-US') }]
+    : []),
+];
+
+// Contribution intensity, bucketed by this account's own quantiles rather than
+// GitHub's classic 0 / 1-3 / 4-6 / 7-9 / 10+ thresholds. Against a real distribution
+// with a median of 6 and a maximum of 98, those fixed cutoffs put 144 of 262 active
+// days — 55% of every coloured square — into the darkest bucket, so more than half
+// the grid was one flat colour and the figure failed to represent its own data.
+// Quantiles are computed from the response, so they cannot drift out of step with it.
+function getQuantileThresholds(weeks: ContributionWeek[]): number[] {
+  const active = weeks
+    .flatMap((week) => week.contributionDays)
+    .map((day) => day.contributionCount)
+    .filter((count) => count > 0)
+    .sort((a, b) => a - b);
+
+  if (active.length === 0) return [1, 2, 3];
+
+  // Three cut points split the non-zero days into four bands; level 0 stays reserved
+  // for days with no activity at all.
+  return [0.25, 0.5, 0.75].map((q) => active[Math.min(active.length - 1, Math.floor(active.length * q))]);
+}
+
+const contributionThresholds = getQuantileThresholds(contributionWeeks);
+
+// The contribution total is dominated by work that is not public: of the last year's
+// contributions, `restrictedContributionsCount` are commits to private repositories.
+// Rendered bare under a heading about engineering activity, the total reads as
+// open-source volume, which it is not — so the split is stated wherever the total is.
+// The section eyebrow was 'Open source' for the same reason and is now 'GitHub'.
+//
+// Only non-zero when the token belongs to the profile being read. If it is ever
+// rotated to another account the count collapses to zero and the clause drops rather
+// than silently reframing 4,122 private contributions as public.
+const contributionSummary = privateContributions > 0
+  ? `${totalContributions.toLocaleString('en-US')} in the last year · ${privateContributions.toLocaleString('en-US')} private`
+  : `${totalContributions.toLocaleString('en-US')} in the last year`;
+
 function getContributionLevel(count: number): number {
   if (count === 0) return 0;
-  if (count <= 3) return 1;
-  if (count <= 6) return 2;
-  if (count <= 9) return 3;
+  if (count <= contributionThresholds[0]) return 1;
+  if (count <= contributionThresholds[1]) return 2;
+  if (count <= contributionThresholds[2]) return 3;
   return 4;
 }
 
@@ -323,59 +352,6 @@ const contributionColors = [
   'bg-accent',
 ];
 
-// Frontend languages first, then backend, then everything else
-const frontendLangs = new Set(['TypeScript', 'JavaScript', 'Vue', 'CSS', 'HTML', 'Astro', 'Svelte', 'SCSS', 'Sass', 'Less']);
-const backendLangs = new Set(['Python', 'Ruby', 'PHP', 'Go', 'Rust', 'Java', 'Kotlin', 'Swift', 'C#', 'C++', 'C']);
-
-function sortByCategory(langs: string[]): string[] {
-  const frontend = langs.filter((l) => frontendLangs.has(l));
-  const backend = langs.filter((l) => backendLangs.has(l));
-  const other = langs.filter((l) => !frontendLangs.has(l) && !backendLangs.has(l));
-  return [...frontend, ...backend, ...other];
-}
-
-// The repo meta line as data. The markup form interleaved three optional values with
-// two separators, each separator guarded by whether both of its neighbours happened to
-// be present — which is the logic MetaList now owns. Filtering first deletes the guards.
-function describeRepo(repo: GitHubRepo): string[] {
-  return [
-    repo.language,
-    repo.stargazers_count > 0 ? `${repo.stargazers_count} stars` : null,
-    repo.forks_count > 0 ? `${repo.forks_count} forks` : null,
-  ].filter((part): part is string => part !== null);
-}
-
-function getRestLanguages(sourceRepos: GitHubRepo[]): string[] {
-  const languageCounts = new Map<string, number>();
-  for (const repo of sourceRepos) {
-    if (repo.language) {
-      languageCounts.set(repo.language, (languageCounts.get(repo.language) || 0) + 1);
-    }
-  }
-
-  const languages = sortByCategory(
-    [...languageCounts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .map(([name]) => name)
-  );
-
-  return languages.length > 0 ? languages : fallbackLanguages;
-}
-
-// Capped: the GraphQL aggregate returns every language ever committed, which tails
-// off into noise (PureBasic, G-code) and buries the signal in a flat mono list.
-const LANGUAGE_LIMIT = 10;
-const languages = (graphqlLanguages.length > 0 ? sortByCategory(graphqlLanguages) : getRestLanguages(repos))
-  .slice(0, LANGUAGE_LIMIT);
-
-const stats: { key: string; value: string }[] = [
-  { key: 'Repositories', value: String(profile.public_repos) },
-  { key: 'Followers', value: String(profile.followers) },
-  ...(totalContributions > 0
-    ? [{ key: 'Contributions', value: totalContributions.toLocaleString('en-US') }]
-    : []),
-];
-
 // The column count follows the stat count so the closing hairline always spans the
 // full row. A hardcoded sm:grid-cols-3 was wrong in both states: without
 // GITHUB_TOKEN there are two stats in three columns and the rule stops at 2/3,
@@ -383,9 +359,7 @@ const stats: { key: string; value: string }[] = [
 // Base is an implicit grid-cols-1, so on mobile each stat is a full-width row.
 //
 // Keyed by stat count rather than interpolated into `sm:grid-cols-${n}`: Tailwind
-// scans source text for class names, so an interpolated one is never generated. The
-// realistic range is 2 (no GITHUB_TOKEN) or 3, but a fourth stat now picks up a
-// fourth column instead of silently falling back to two.
+// scans source text for class names, so an interpolated one is never generated.
 const statColumnClass: Record<number, string> = {
   1: 'sm:grid-cols-1',
   2: 'sm:grid-cols-2',
@@ -397,116 +371,108 @@ const statColumnClass: Record<number, string> = {
 // full row at any stat count, so an unmapped count degrades to plain-but-correct
 // rather than reinstating the short-rule defect this replaced.
 const statGridClass = `mt-8 grid border-t border-border ${statColumnClass[stats.length] ?? 'sm:grid-cols-1'}`;
+
+const hasContent = stats.length > 0 || contributionWeeks.length > 0 || languages.length > 0 || recentActivity.length > 0;
+
+// The description names what is on the page, not what the component is capable of
+// rendering. Without GITHUB_TOKEN the language list and contribution grid are both
+// dropped and a fixed string promising them describes an empty section — the same
+// class of error as the fallback constants, just one level up.
+const described = [
+  ...(languages.length > 0 ? ['language mix'] : []),
+  ...(contributionWeeks.length > 0 ? ['contribution activity'] : []),
+  ...(recentActivity.length > 0 ? ['recent events'] : []),
+];
+const description = described.length > 0
+  ? `A build-time snapshot of ${new Intl.ListFormat('en-US').format(described)}, read from the GitHub API.`
+  : 'A build-time snapshot read from the GitHub API.';
 ---
 
 <!-- Asymmetric bottom padding is deliberate, not an oversight: Footer.astro's mt-24
      is shared by every page and is left alone, so this section's pb compensates to
      keep the final gap in rhythm with the 96/128 spacing between the others. -->
-<section class="pt-12 pb-0 sm:pt-16 sm:pb-8">
-  <SectionHeader
-    index={index}
-    eyebrow="Open source"
-    title="Recent engineering signal"
-    description="A build-time snapshot of public repositories, language mix, and contribution activity."
-    href={profile.html_url}
-    linkLabel="View profile"
-  />
+{hasContent && (
+  <section class="pt-12 pb-0 sm:pt-16 sm:pb-8">
+    <SectionHeader
+      index={index}
+      eyebrow="GitHub"
+      title="Recent engineering signal"
+      description={description}
+      href={profileUrl}
+      linkLabel="View profile"
+    />
 
-  <!-- Stat strip. The page's second typographic event: display-scale mono numerals,
-       the move a datasheet actually makes. Far enough from the hero that the h1
-       stays dominant, and the two are never co-visible. -->
-  <dl class={statGridClass}>
-    {stats.map(({ key, value }) => (
-      <div class="flex items-baseline justify-between gap-4 border-b border-border py-4 sm:block sm:py-5 sm:pr-6">
-        <dt class="label text-muted-soft">{key}</dt>
-        <dd class="font-mono text-display-2 font-medium tabular-nums text-text sm:mt-2">{value}</dd>
-      </div>
-    ))}
-  </dl>
+    <!-- Stat strip. The page's second typographic event: display-scale mono numerals,
+         the move a datasheet actually makes. Far enough from the hero that the h1
+         stays dominant, and the two are never co-visible. -->
+    {stats.length > 0 && (
+      <dl class={statGridClass}>
+        {stats.map(({ key, value }) => (
+          <div class="flex items-baseline justify-between gap-4 border-b border-border py-4 sm:block sm:py-5 sm:pr-6">
+            <dt class="label text-muted-soft">{key}</dt>
+            <dd class="font-mono text-display-2 font-medium tabular-nums text-text sm:mt-2">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    )}
 
-  <!-- Contribution grid -->
-  {contributionWeeks.length > 0 && (
-    <div class="mt-10">
-      <div class="flex items-baseline justify-between gap-4 border-t border-border pt-4">
-        <h3 class="label text-muted-soft">Contributions</h3>
-        <span class="label text-muted">{totalContributions.toLocaleString('en-US')} in the last year</span>
-      </div>
-      <div class="mt-4 overflow-x-auto border border-border bg-surface p-4">
-        <div
-          class="flex gap-[3px]"
-          role="img"
-          aria-label={`Contribution activity: ${totalContributions} contributions in the last year`}
-        >
-          {contributionWeeks.map((week) => (
-            <div class="flex flex-col gap-[3px]">
-              {week.contributionDays.map((day) => (
-                <div
-                  class={`h-[10px] w-[10px] rounded-sm ${contributionColors[getContributionLevel(day.contributionCount)]}`}
-                  title={`${day.contributionCount} contributions on ${day.date}`}
-                />
-              ))}
-            </div>
-          ))}
+    {contributionWeeks.length > 0 && (
+      <div class="mt-10">
+        <div class="flex items-baseline justify-between gap-4 border-t border-border pt-4">
+          <h3 class="label text-muted-soft">Contributions</h3>
+          <span class="label text-muted">{contributionSummary}</span>
         </div>
-        <div class="mt-3 flex items-center justify-end gap-1.5" aria-hidden="true">
-          <span class="label text-muted-soft">Less</span>
-          {contributionColors.map((color) => (
-            <div class={`h-[10px] w-[10px] rounded-sm ${color}`} />
-          ))}
-          <span class="label text-muted-soft">More</span>
+        <div class="mt-4 overflow-x-auto border border-border bg-surface p-4">
+          <div
+            class="flex gap-[3px]"
+            role="img"
+            aria-label={`Contribution activity: ${totalContributions} contributions in the last year`}
+          >
+            {contributionWeeks.map((week) => (
+              <div class="flex flex-col gap-[3px]">
+                {week.contributionDays.map((day) => (
+                  <div
+                    class={`h-[10px] w-[10px] rounded-sm ${contributionColors[getContributionLevel(day.contributionCount)]}`}
+                    title={`${day.contributionCount} contributions on ${day.date}`}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+          <div class="mt-3 flex items-center justify-end gap-1.5" aria-hidden="true">
+            <span class="label text-muted-soft">Less</span>
+            {contributionColors.map((color) => (
+              <div class={`h-[10px] w-[10px] rounded-sm ${color}`} />
+            ))}
+            <span class="label text-muted-soft">More</span>
+          </div>
         </div>
-      </div>
-    </div>
-  )}
-
-  <!-- Popular repositories -->
-  <div class="mt-10">
-    <h3 class="label border-t border-border pt-4 text-muted-soft">Popular repositories</h3>
-    <div class="mt-2 grid sm:grid-cols-2 sm:gap-x-10">
-      {repos.slice(0, 6).map((repo) => (
-        <div class="group border-b border-border py-5">
-          <p class="text-sm font-semibold text-text">
-            <a
-              href={repo.html_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="rule-link transition-colors hover:text-accent"
-            >
-              {repo.name}
-            </a>
-          </p>
-          {repo.description && (
-            <p class="mt-2 line-clamp-2 text-sm leading-6 text-muted">{repo.description}</p>
-          )}
-          <MetaList items={describeRepo(repo)} class="mt-3" />
-        </div>
-      ))}
-    </div>
-  </div>
-
-  <!-- Languages + activity -->
-  <div class="mt-10 grid gap-10 sm:grid-cols-2 sm:gap-x-10">
-    {languages.length > 0 && (
-      <div>
-        <h3 class="label border-t border-border pt-4 text-muted-soft">Languages</h3>
-        <MetaList items={languages} itemClass="text-text" class="mt-4" />
       </div>
     )}
 
-    {recentActivity.length > 0 && (
-      <div>
-        <h3 class="label border-t border-border pt-4 text-muted-soft">Recent activity</h3>
-        <ul class="mt-2">
-          {recentActivity.map(({ repo, type, timeAgo }) => (
-            <li class="flex items-baseline justify-between gap-4 border-b border-border py-2.5">
-              <span class="min-w-0 text-sm text-muted">
-                {type} <span class="font-medium text-text">{repo}</span>
-              </span>
-              <span class="label shrink-0 text-muted-soft">{timeAgo}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
-  </div>
-</section>
+    <div class="mt-10 grid gap-10 sm:grid-cols-2 sm:gap-x-10">
+      {languages.length > 0 && (
+        <div>
+          <h3 class="label border-t border-border pt-4 text-muted-soft">Languages by volume</h3>
+          <MetaList items={languages} itemClass="text-text" class="mt-4" />
+        </div>
+      )}
+
+      {recentActivity.length > 0 && (
+        <div>
+          <h3 class="label border-t border-border pt-4 text-muted-soft">Recent activity</h3>
+          <ul class="mt-2">
+            {recentActivity.map(({ repo, type, timeAgo }) => (
+              <li class="flex items-baseline justify-between gap-4 border-b border-border py-2.5">
+                <span class="min-w-0 text-sm text-muted">
+                  {type} <span class="font-medium text-text">{repo}</span>
+                </span>
+                <span class="label shrink-0 text-muted-soft">{timeAgo}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  </section>
+)}

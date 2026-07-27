@@ -311,23 +311,106 @@ from 320px up.
    decision, not a page-styling one, so revert by swapping `<Logo />` back for the
    `<img src="/logo.svg">` in `Nav.astro` and `Footer.astro`. A proper fix is a
    two-tone mark designed against this palette.
-2. **The GitHub REST calls are unauthenticated.** `GITHUB_TOKEN` is sent on the
-   GraphQL request but not on the three REST requests, which are rate-limited and
-   currently falling back to hardcoded values — the "30 repositories / 15 followers"
-   and the two-repo list on the live page are `fallbackProfile` and `fallbackRepos`,
-   not real data. Pre-existing; not touched because it is data, not design.
-3. **`public/covers/*.png` are ~3 MB each and unreferenced.** No project sets
-   `cover:`. `ProjectCard` still supports the field (lazy, `decoding="async"`,
-   explicit dimensions), but the images need compressing before anything uses them.
-4. **Copy is stale in places.** `src/content/blog/hello-world.md` still describes the
-   site as "dark background, accent pink"; `src/content/projects/ryanchoi-dev.md`
-   says "dark-themed". Copy rewrites were explicitly out of scope.
-5. **`ViewTransitions` is deprecated** in Astro 5 (`astro check` reports it as a
-   hint). It should become `ClientRouter`. Pre-existing; unrelated to the redesign.
-   Note the masthead sequence re-runs on every client-side navigation back to `/`,
-   because the router swaps in freshly-parsed nodes — that is intended.
+2. ~~**The GitHub REST calls are unauthenticated.**~~ Addressed in the remediation
+   pass below — the REST profile and repository calls are gone entirely.
+3. ~~**`public/covers/*.png` are ~3 MB each and unreferenced.**~~ Deleted. They were
+   95.4% of the deploy payload. `ProjectCard` still supports the `cover:` field, so
+   adding one is a matter of dropping in a compressed image.
+4. **Copy is stale in one place.** `src/content/projects/ryanchoi-dev.md` says
+   "dark-themed", which understates a site that ships two first-class themes.
+   `hello-world.md`'s "accent pink" was corrected in the remediation pass, since
+   under the hardline rule it was the site asserting something false about itself.
+5. ~~**`ViewTransitions` is deprecated**~~ Now `ClientRouter`; `astro check` is at
+   0/0/0. Note the masthead sequence re-runs on every client-side navigation back to
+   `/`, because the router swaps in freshly-parsed nodes — that is intended.
 6. ~~**Section rhythm at low content volume.**~~ Addressed in the homepage flare
    pass above.
 7. **`astro check` does not catch `.astro` template syntax errors.** A JSX comment
    placed inside a `.map()` return passed `astro check` cleanly and only failed at
    build. Run `pnpm build`, not just the check hook, before trusting a template edit.
+
+## Remediation pass — the hardline data rule
+
+A design rule was adopted after the flare pass: **every figure and every number on
+the site must represent a verifiable true fact.** No invented data, no placeholders,
+no illustrative mockups. Where a fact is unavailable, the row carrying it is dropped —
+the rule `src/data/build-info.ts` already followed for the title block.
+
+Auditing the site against that rule found the site was failing it in several places,
+all of them in `GitHubSection.astro` and all of them shipping.
+
+**Five fallback constants rendered as fact.** `fallbackProfile` claimed 30
+repositories and 15 followers against a truth of 46 and 11. `fallbackRepos` shipped
+two cards whose URLs both 404. `fallbackRecentActivity` put the strings `portfolio`
+and `client work` in a column of timestamps. These were reached whenever the three
+unauthenticated REST calls hit the anonymous limit of 60/hr per IP — not an edge case,
+since a build spends three of those 60 every time. All five are deleted.
+
+**"Popular repositories" was false twice over, and removed rather than repaired.**
+It queried `sort=stars`, which is not a valid sort for `/users/{user}/repos`; GitHub
+silently ignores an unrecognised sort and returns creation order, so the panel headed
+"Popular" was in fact "six most recently created". And there was nothing to rank:
+every one of the 79 public repositories has zero stars. Worse, four of the six cards
+it rendered — `claude-remember`, `openwiki`, `pxpipe`, `Mailspring` — are forks of
+other people's projects, presented without attribution as Ryan's own work. The honest
+replacement is a commit-volume ranking, which is a figure, not a fix.
+
+**Repositories is now 46, not 79.** The REST `public_repos` field counts forks;
+33 of the 79 are other people's projects, so publishing 79 overstated the body of
+work by 72%. The GraphQL `repositories(ownerAffiliations: OWNER, isFork: false)`
+count is the honest number.
+
+**The contribution total now states its split.** 4,122 of 4,907 contributions —
+84% — are `restrictedContributionsCount`, private-repo work. Rendered bare under an
+eyebrow reading "Open source", a true number asserted something false. The eyebrow is
+now "GitHub" and the split is stated wherever the total appears. The clause drops
+itself if the count is zero, which is what a rotated token would produce.
+
+**Language order contradicted the data it came from.** The byte magnitudes were
+fetched and then discarded by a `.map(([name]) => name)`, and the surviving order was
+reshuffled frontend-first by a `sortByCategory` helper. PHP is the second-largest
+language by volume at 21.0% and was displaying seventh. The helper is deleted and the
+sort is the true one.
+
+**The contribution grid was 55% saturated.** `getContributionLevel` used GitHub's
+classic 0 / 1–3 / 4–6 / 7–9 / 10+ thresholds against a distribution with a median of 6
+and a maximum of 98, so 144 of 262 active days pinned at the darkest level and over
+half the coloured squares were indistinguishable. Buckets are now quantiles computed
+from the response itself, so they cannot drift out of step with it. Measured after:
+the four active bands hold 69 / 71 / 58 / 64 days.
+
+**GraphQL failures were structurally invisible.** Only `response.ok` was checked, but
+GraphQL answers HTTP 200 with an `errors` array and nulled data on permission and
+schema failures — a scope-limited token nulls the entire `user` object and every
+element silently vanishes with nothing in the build log. That is exactly the silent
+rot the hardline rule exists to prevent, so it now **fails the build**. A network
+failure still yields null and drops the rows; absence is honest, invention is not.
+
+**Two attribution bugs.** `event.repo.name.split('/').pop()` stripped the owner, so a
+pull request on `Digital-Process-Tools/claude-remember` rendered identically to work
+on Ryan's own repo. And `DeleteEvent` was missing from `eventTypeLabels`, so a deleted
+branch rendered through the `.replace` path as `Delete ryanchoi.dev`.
+
+**The provenance row named a repository that does not exist.** `HeroSection`
+hardcoded `rmerk/ryanchoi-dev`; the remote is `rmerk/ryanchoi.dev`, with a dot. A
+false row sat between the two honest git-derived ones.
+
+**The section description described what the component can render, not what it did.**
+Without `GITHUB_TOKEN` the language list and contribution grid both drop, and a fixed
+string promising them described an empty section. It is now composed from what is
+actually present.
+
+**Three REST calls became one GraphQL call.** Repository count, follower count,
+contribution calendar, private split and language bytes all come from a single
+authenticated request costing one rate-limit point — cheaper than what it replaces
+and immune to the anonymous limit that was triggering the fallbacks. REST is now used
+only for the activity feed.
+
+`README.md` documented the opposite of the code's behaviour, stating that the
+repository cards and REST-derived languages had no hardcoded fallbacks. All three did.
+Corrected.
+
+Verified after: `astro check` 0 errors / 0 warnings / 0 hints; build clean; no
+horizontal overflow at 320 or 375; both themes render the regraded grid legibly; and
+a build with no token drops the stat strip, grid and language list rather than filling
+them. `dist` fell from 6,626,010 bytes to 332 KB, the covers having been 95.4% of it.
