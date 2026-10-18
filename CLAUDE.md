@@ -4,16 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Personal portfolio and blog for Ryan Choi (`ryanchoi.dev`). A static site built with Astro 5, Tailwind CSS v4, and TypeScript. Deployed to a Vultr VPS via rsync.
+Personal portfolio and blog for Ryan Choi (`ryanchoi.dev`). A static site built with Astro 5, Tailwind CSS v4, and TypeScript. Deployed to an OVHcloud VPS via rsync.
 
 ## Deployment
 
 - **Deploy script**: `deploy.sh` loads `.env.deploy`, runs `pnpm build`, then `rsync -avz --delete dist/` to the configured VPS destination.
-- **Current target**: `.env.deploy` must define `REMOTE_USER`, `REMOTE_HOST`, and `REMOTE_PATH`.
+- **Current target**: `.env.deploy` must define `REMOTE_USER`, `REMOTE_HOST`, and `REMOTE_PATH`. Optional `RSYNC_PATH` is passed as rsync's `--rsync-path`.
 - **Private config**: `.env.deploy` is gitignored and holds private deployment target details. Keep it out of git.
-- **SSH key**: `~/.ssh/ryanchoi_deploy` (ed25519, must be loaded via `ssh-add` before deploy)
-- **Nginx config**: `/etc/nginx/conf.d/http.conf` on the VPS (static site, SSL via Certbot)
-- **Shared VPS**: Also hosts clearstack (Node+PM2, config in `/etc/nginx/conf.d/clearstackdev.com.conf`)
+- **SSH**: `REMOTE_HOST` is an alias in `~/.ssh/config`, which supplies the address and the `~/.ssh/ryanchoi_deploy` key (ed25519)
+- **File ownership**: the web root is owned by `staticweb`, a no-login user. Deploy logs in as `ubuntu` and sets `RSYNC_PATH="sudo -u staticweb rsync"` so files keep that owner
+- **Nginx config**: `/etc/nginx/sites-available/ryanchoi.dev` on the VPS (static site, root `/var/www/ryanchoi.dev`, SSL via Certbot)
+- **Shared VPS**: Also hosts clearstack and other `*.ryanchoi.dev` services; each has its own file in `/etc/nginx/sites-available/`
+- **Old Vultr server**: retired; DNS points at OVH. Do not deploy to the old IP or accept a changed host key for it
 - **Sensitive values**: Keep real host/IP values, SSH key material, and production secrets out of checked-in docs and config.
 
 ## Commands

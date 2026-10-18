@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Deploy to Production
 
-Build the site and deploy to the Vultr VPS.
+Build the site and deploy to the OVHcloud VPS.
 
 ## Steps
 

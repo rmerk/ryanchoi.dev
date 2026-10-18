@@ -18,6 +18,6 @@ echo "Building..."
 pnpm build
 
 echo "Deploying to ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}..."
-rsync -avz --delete dist/ "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}"
+rsync -avz --delete ${RSYNC_PATH:+--rsync-path="$RSYNC_PATH"} dist/ "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}"
 
 echo "Done."
