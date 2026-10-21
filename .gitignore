@@ -9,3 +9,6 @@ dist
 
 # Large video asset — served from public/ and deployed via rsync, but kept out of git
 public/ryan-choi-senior-frontend-eng-intro.mp4
+
+# Files shared by short URL (ryanchoi.dev/s/...) — served from public/ and deployed via rsync, but kept out of git
+public/s/*
